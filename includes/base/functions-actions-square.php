@@ -142,7 +142,6 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
     function wpbs_init_square(){
 
         const idempotency_key = uuidv4();
-        console.log("' . $api['location_id'] . '")
         const paymentForm = new SqPaymentForm({
             applicationId: "' . $api['application_id'] . '",
             inputClass: "sq-input",
@@ -183,10 +182,11 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
                     errors.forEach(function (error) {
                         console.error("  " + error.message);
                     });
-                    alert("Encountered errors, check browser developer console for more details");
                     return;
                 }
-                jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").append("<h4>' . wpbs_get_payment_default_string('processing_payment', $form_outputter->get_language()) . '</h4>");
+                jQuery(".square-error").remove();
+                jQuery(".wpbs-square-payment-confirmation-inner-' . $form_outputter->get_unique() . '").hide();
+                jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").append("<h4 id=\"wpbs-processing\">' . wpbs_get_payment_default_string('processing_payment', $form_outputter->get_language()) . '</h4>");
 
                 fetch(wpbs_ajaxurl, {
                     method: "POST",
@@ -202,12 +202,13 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
                         total: ' .  $total . ',
                         currency: "' . $payment->get_currency() . '",
                         description: "' . $invoice_item_description . '",
+                        
+                        
 
 
                     })   
                   })
                   .catch(err => {
-                    alert("Network error: " + err);
                   })
                   .then(response => {
                     if (!response.ok) {
@@ -218,9 +219,9 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
                   })
                   .then(data => {
                     if(!data.success){
-                        console.log(data.errors)
                         jQuery(".wpbs-square-payment-confirmation-inner-' . $form_outputter->get_unique() . '").show();
-                        jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").remove();
+                        jQuery("#wpbs-processing").remove();
+                        jQuery(".wpbs-payment-confirmation-square-form").prepend("<p class=\"square-error\">"+data.error+"</p>");
                         return;
                     }
                  
@@ -399,7 +400,7 @@ function wpbs_square_save_booking_data_accept_booking($booking)
 		return false;
 	}
 
-    // Exit if status is not "authorized"
+    // Exit if status is not  "authorized"
     if ($payment->get('order_status') != 'authorized') {
         return false;
     }
@@ -495,7 +496,8 @@ add_action('wpbs_permanently_delete_booking', 'wpbs_square_permanently_delete_bo
 
 
 function process_payment_request() {
-    if(!isset($_POST['total'])|| !isset($_POST['currency']) || !isset($_POST['description']) || !isset($_POST['nonce'])) {
+
+    if( !wp_verify_nonce($_POST['wp_nonce'], 'payment_request_nonce') || !isset($_POST['total'])|| !isset($_POST['currency']) || !isset($_POST['description']) || !isset($_POST['nonce'])) {
         return false;
     }
 
@@ -507,7 +509,9 @@ function process_payment_request() {
         
     // Get Order
     // $order = WPBS_Square_PaymentIntent::getPaymentIntent($form_data['wpbs-square-payment-intent-id']);
-
+    $errors = [
+        "GENERIC_DECLINE" => "Your card was declined. Please try a different payment method."
+    ];
     if ($order->isSuccess()) {
         $details['raw'] = $order->getResult();
 
@@ -522,11 +526,10 @@ function process_payment_request() {
             )
         );
     } else {
-
         echo json_encode(
             array(
                 'success' => false,
-                'errors' => $order->getErrors(),
+                'error' => get_clean_error($order->getErrors()[0]->getCode()),
             )
         );
 
@@ -537,3 +540,45 @@ function process_payment_request() {
 }
 add_action('wp_ajax_payment_request', 'process_payment_request');
 add_action('wp_ajax_nopriv_payment_request', 'process_payment_request');
+
+function get_clean_error($err){
+    switch($err) {
+        case "GENERIC_DECLINE":
+            return "Your card was declined. Please try a different payment method.";
+        case "CVV_FAILURE":
+        case "ADDRESS_VERIFICATION_FAILURE":
+        case "INVALID_EXPIRATION":
+            return "Incorrect card details provided. Please double check the provided card number, CVV, date, and zip code.";
+        default:
+            return "This payment could not be processed. Please try again later.";
+            
+    }
+}
+
+function wpbs_booking_modal_tab_content_square($booking)
+{
+    $payment = wpbs_get_payment_by_booking_id($booking->get('id'));
+
+    // Check if there is an order for this booking
+    if (empty($payment)) {
+        return false;
+    }
+
+
+    $payment_information = array(
+        array('label' => __('Payment Gateway', 'wp-booking-system'), 'value' => wpbs_form_outputter_payment_method_name_payment_on_arrival(false, wpbs_get_locale())),
+        array('label' => __('Date', 'wp-booking-system'), 'value' => date('j F Y, H:i:s', strtotime($payment->get('date_created')))),
+        array('label' => __('ID test', 'wp-booking-system'), 'value' => '#' . $payment->get('id')),
+        array('label' => 'Square receipt', 'value' => '<a href="#">test link</a>')
+    );
+
+    $order_information = $payment->get_line_items();
+
+    $order_information = apply_filters('wpbs_booking_details_order_information', $order_information, $payment);
+    $square_id = $payment->get('details')['raw']['payment']['id'];
+    $receipt_url = $payment->get('details')['raw']['payment']['receipt_url'];
+
+    include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/base/admin/settings/views/view-payment-details.php';
+
+}
+add_action('wpbs_booking_modal_tab_content_payment', 'wpbs_booking_modal_tab_content_square', 1, 10);

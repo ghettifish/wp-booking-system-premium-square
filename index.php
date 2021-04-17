@@ -9,9 +9,6 @@
  * Text Domain: wp-booking-system-square
  * License: GPL2
  *
- * == Copyright ==
- * Copyright 2019 WP Booking System (www.wpbookingsystem.com)
- *
  */
 
 // Exit if accessed directly

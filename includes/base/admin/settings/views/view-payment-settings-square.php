@@ -106,7 +106,7 @@ $languages = wpbs_get_languages();
     </div>
 
     <!-- Authorize now, capture later -->
-        <div class="wpbs-settings-field-wrapper wpbs-settings-field-inline wpbs-settings-field-large">
+        <!-- <div class="wpbs-settings-field-wrapper wpbs-settings-field-inline wpbs-settings-field-large">
             <label class="wpbs-settings-field-label" for="payment_square_delayed_capture">
                 <?php echo __( 'Capture payment when accepting booking', 'wp-booking-system-square'); ?>
                 <?php echo wpbs_get_output_tooltip(__('If enabled, when the client makes a payment, his credit card will only be Authorized (the money will be put on hold for 7 days) and the payment will be Captured (money transfered in your account) only when you Accept the booking. Accepting the booking after 7 days will result in a failed payment.', 'wp-booking-system-square'));?>
@@ -120,7 +120,7 @@ $languages = wpbs_get_languages();
             </div>
 
             
-        </div>
+        </div> -->
 
 
     <!-- API Settings -->

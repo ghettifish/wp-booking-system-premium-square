@@ -40,8 +40,6 @@ fieldset {
   position: relative;
   width: 380px;
   margin: 0 auto;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .third {
@@ -106,4 +104,9 @@ fieldset {
 
 .button-credit-card:hover {
   background-color: #4281cb;
+}
+
+.square-error {
+  color: #e02f2f;
+  font-weight: bold;
 }
