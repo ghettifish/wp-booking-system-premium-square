@@ -1,7 +1,9 @@
 <?php
 
+use Composer\Installers\MoodleInstaller;
 use Square\Environment;
 use Square\Models\CreatePaymentRequest;
+use Square\Models\UpdatePaymentRequest;
 use Square\Models\Money;
 
 include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/vendor/autoload.php';
@@ -17,14 +19,14 @@ class WPBS_Square_API
         if ((isset($settings['payment_square_test']) && $settings['payment_square_test'] == 'on')) {
             return array(
                 'environment' => Environment::SANDBOX,
-                'location_id' => isset($square_api['payment_square_location_id']) ? $square_api['payment_square_location_id'] : '',
+                'location_id' => isset($square_api['payment_square_test_location_id']) ? $square_api['payment_square_test_location_id'] : '',
                 'application_id' => isset($square_api['payment_square_test_api_application_id']) ? $square_api['payment_square_test_api_application_id'] : '',
                 'access_token' => isset($square_api['payment_square_test_api_access_token']) ? $square_api['payment_square_test_api_access_token'] : '',
             );
         } else {
             return array(
                 'environment' => Environment::PRODUCTION,
-                'location_id' => isset($square_api['payment_square_location_id']) ? $square_api['payment_square_location_id'] : '',
+                'location_id' => isset($square_api['payment_square_live_location_id']) ? $square_api['payment_square_live_location_id'] : '',
                 'application_id' => isset($square_api['payment_square_live_api_application_id']) ? $square_api['payment_square_live_api_application_id'] : '',
                 'access_token' => isset($square_api['payment_square_live_api_access_token']) ? $square_api['payment_square_live_api_access_token'] : '',
             );
@@ -47,7 +49,7 @@ class WPBS_Square_Client
 
 class WPBS_Square_PaymentIntent
 {
-    public static function createPaymentIntent($amount, $currency, $description, $nonce)
+    public static function createPaymentIntent($amount, $currency, $description, $nonce, $reference_id = "")
     {
 
         $client = WPBS_Square_Client::client();
@@ -58,6 +60,7 @@ class WPBS_Square_PaymentIntent
         $money->setCurrency($currency);
         $create_payment_request = new CreatePaymentRequest($nonce, uniqid(), $money);
         $create_payment_request->setNote($description);
+        $create_payment_request->setReferenceId($reference_id);
 
         return $payments_api->createPayment($create_payment_request);
     }
@@ -74,8 +77,11 @@ class WPBS_Square_PaymentIntent
         return $apiResponse;
     }
 
+    
+  
+
     public static function cancelPayment($id)
-    {
+     {
 
         $client = WPBS_Square_Client::client();
         $payments_api = $client->getPaymentsApi();

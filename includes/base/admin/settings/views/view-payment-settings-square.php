@@ -148,14 +148,14 @@ $languages = wpbs_get_languages();
         </div>
     </div>
 
-    <!-- Location ID -->
+    <!-- Test Location ID -->
     <div class="wpbs-settings-field-wrapper wpbs-settings-field-inline wpbs-settings-field-large">
-        <label class="wpbs-settings-field-label" for="location_id">
-            <?php echo __( 'Location ID', 'wp-booking-system-square'); ?>
+        <label class="wpbs-settings-field-label" for="wpbs_square_api[payment_square_test_location_id]">
+            <?php echo __( 'Test Location ID', 'wp-booking-system-square'); ?>
         </label>
 
         <div class="wpbs-settings-field-inner">
-            <input name="wpbs_square_api[location_id]" type="text" id="location_id"  class="regular-text " value="<?php echo ( !empty( $square_api['location_id'] ) ) ? $square_api['location_id'] : '';?>" >
+            <input name="wpbs_square_api[payment_square_test_location_id]" type="text" id="payment_square_test_location_id"  class="regular-text " value="<?php echo ( !empty( $square_api['payment_square_test_location_id'] ) ) ? $square_api['payment_square_test_location_id'] : '';?>" >
         </div>
     </div>
 
@@ -178,6 +178,17 @@ $languages = wpbs_get_languages();
 
         <div class="wpbs-settings-field-inner">
             <input name="wpbs_square_api[payment_square_test_api_access_token]" type="text" id="payment_square_test_api_access_token"  class="regular-text " value="<?php echo ( !empty( $square_api['payment_square_test_api_access_token'] ) ) ? $square_api['payment_square_test_api_access_token'] : '';?>" >
+        </div>
+    </div>
+
+      <!-- Live Location ID -->
+      <div class="wpbs-settings-field-wrapper wpbs-settings-field-inline wpbs-settings-field-large">
+        <label class="wpbs-settings-field-label" for="wpbs_square_api[payment_square_live_location_id]">
+            <?php echo __( 'Live Location ID', 'wp-booking-system-square'); ?>
+        </label>
+
+        <div class="wpbs-settings-field-inner">
+            <input name="wpbs_square_api[payment_square_live_location_id]" type="text" id="payment_square_live_location_id"  class="regular-text " value="<?php echo ( !empty( $square_api['payment_square_live_location_id'] ) ) ? $square_api['payment_square_live_location_id'] : '';?>" >
         </div>
     </div>
 

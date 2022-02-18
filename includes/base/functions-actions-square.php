@@ -108,11 +108,18 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
     // Get plugin settings
     $settings = get_option('wpbs_settings', array());
 
+    // See if an email address is included in the form
+    function  checkEmail($email)
+    {
+        return preg_match("/^([a-zA-Z0-9\._-])+([a-zA-Z0-9\._-] )*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $email);
+    }
+    $emails = array_values(array_filter($form_data, "checkEmail"));
+    $customer_email = $emails[0];
+    $customer_email_text = $customer_email  ? (" Customer " . $customer_email) : "";
 
-    $invoice_item_description = (!empty($settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()])) ? $settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()] : (!empty($settings['payment_square_invoice_name']) ? $settings['payment_square_invoice_name'] : get_bloginfo('name') . ' Booking');
+    $invoice_item_description = (!empty($settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()])) ? $settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()] : (!empty($settings['payment_square_invoice_name']) ? $settings['payment_square_invoice_name'] : get_bloginfo('name') . ' Booking') . $customer_email_text;
 
 
-    //TODO: Change the squareupsandbox to just squareup
     /**
      * Prepare Response
      *
@@ -129,6 +136,7 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
     }
 
     $square_output .= '
+
         <div id="sq-card-number"></div>
         <div class="third" id="sq-expiration-date"></div>
         <div class="third" id="sq-cvv"></div>
@@ -137,7 +145,7 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
     </div>
     <script>
 
-    wpbs_lazy_load_script("https://js.squareupsandbox.com/v2/paymentform",wpbs_init_square);
+    wpbs_lazy_load_script("https://js.' . ($api['environment'] === 'sandbox' ? 'squareupsandbox' : 'squareup') . '.com/v2/paymentform",wpbs_init_square);
 
     function wpbs_init_square(){
 
@@ -188,7 +196,7 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
                 jQuery(".wpbs-square-payment-confirmation-inner-' . $form_outputter->get_unique() . '").hide();
                 jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").append("<h4 id=\"wpbs-processing\">' . wpbs_get_payment_default_string('processing_payment', $form_outputter->get_language()) . '</h4>");
 
-                fetch(wpbs_ajaxurl, {
+                fetch(wpbs_ajax.ajax_url, {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/x-www-form-urlencoded",
@@ -197,7 +205,7 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
                     body: new URLSearchParams({
                         action: "payment_request",
                         nonce: nonce,
-                        wp_nonce: "'. wp_create_nonce('payment_request_nonce') . '",
+                        wp_nonce: "' . wp_create_nonce('payment_request_nonce') . '",
                         idempotency_key: idempotency_key,
                         total: ' .  $total . ',
                         currency: "' . $payment->get_currency() . '",
@@ -271,7 +279,6 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
             'html' => $output,
         )
     );
-
 }
 add_filter('wpbs_submit_form_before', 'wpbs_square_submit_form_payment_confirmation', 10, 6);
 
@@ -301,7 +308,7 @@ function wpbs_square_action_save_payment_details($booking_id, $post_data, $form,
     $settings = get_option('wpbs_settings', array());
 
     // Include Square SDK
-    include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/square-api/square-api.php';
+    include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/vendor/square-api.php';
 
     // Get price
     $payment = new WPBS_Payment;
@@ -310,7 +317,7 @@ function wpbs_square_action_save_payment_details($booking_id, $post_data, $form,
     if (wpbs_part_payments_enabled() == true && $payment->is_part_payment()) {
         $details['part_payments'] = array('deposit' => false, 'final_payment' => false);
     }
-    
+
     // Generate form
     $form_outputter = new WPBS_Form_Outputter($form, $form_args, $form_fields, $calendar_id);
 
@@ -367,7 +374,6 @@ function wpbs_square_action_save_payment_details($booking_id, $post_data, $form,
         'details' => $details,
         'date_created' => current_time('Y-m-d H:i:s'),
     ));
-
 }
 add_action('wpbs_submit_form_after', 'wpbs_square_action_save_payment_details', 10, 5);
 
@@ -396,9 +402,9 @@ function wpbs_square_save_booking_data_accept_booking($booking)
 
     $payment = array_shift($payments);
 
-    if(is_null($payment)){
-		return false;
-	}
+    if (is_null($payment)) {
+        return false;
+    }
 
     // Exit if status is not  "authorized"
     if ($payment->get('order_status') != 'authorized') {
@@ -440,7 +446,6 @@ function wpbs_square_save_booking_data_accept_booking($booking)
         'order_status' => $status,
         'details' => $details,
     ));
-
 }
 add_action('wpbs_save_booking_data_accept_booking', 'wpbs_square_save_booking_data_accept_booking', 1, 10);
 
@@ -490,14 +495,14 @@ function wpbs_square_permanently_delete_booking($booking_id)
 
     // Cancel the order
     $order = WPBS_Square_PaymentIntent::cancelPayment($details['payment_intent_id']);
-
 }
 add_action('wpbs_permanently_delete_booking', 'wpbs_square_permanently_delete_booking', 1, 10);
 
 
-function process_payment_request() {
+function process_payment_request()
+{
 
-    if( !wp_verify_nonce($_POST['wp_nonce'], 'payment_request_nonce') || !isset($_POST['total'])|| !isset($_POST['currency']) || !isset($_POST['description']) || !isset($_POST['nonce'])) {
+    if (!wp_verify_nonce($_POST['wp_nonce'], 'payment_request_nonce') || !isset($_POST['total']) || !isset($_POST['currency']) || !isset($_POST['description']) || !isset($_POST['nonce'])) {
         return false;
     }
 
@@ -505,8 +510,8 @@ function process_payment_request() {
     include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/vendor/square-api.php';
 
     $order = WPBS_Square_PaymentIntent::createPaymentIntent($_POST['total'] * 100, $_POST['currency'], $_POST['description'], $_POST['nonce']);
-   
-        
+
+
     // Get Order
     // $order = WPBS_Square_PaymentIntent::getPaymentIntent($form_data['wpbs-square-payment-intent-id']);
     $errors = [
@@ -532,17 +537,15 @@ function process_payment_request() {
                 'error' => get_clean_error($order->getErrors()[0]->getCode()),
             )
         );
-
     }
     die();
-
- 
 }
 add_action('wp_ajax_payment_request', 'process_payment_request');
 add_action('wp_ajax_nopriv_payment_request', 'process_payment_request');
 
-function get_clean_error($err){
-    switch($err) {
+function get_clean_error($err)
+{
+    switch ($err) {
         case "GENERIC_DECLINE":
             return "Your card was declined. Please try a different payment method.";
         case "CVV_FAILURE":
@@ -551,7 +554,6 @@ function get_clean_error($err){
             return "Incorrect card details provided. Please double check the provided card number, CVV, date, and zip code.";
         default:
             return "This payment could not be processed. Please try again later.";
-            
     }
 }
 
@@ -579,6 +581,5 @@ function wpbs_booking_modal_tab_content_square($booking)
     $receipt_url = $payment->get('details')['raw']['payment']['receipt_url'];
 
     include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/base/admin/settings/views/view-payment-details.php';
-
 }
 add_action('wpbs_booking_modal_tab_content_payment', 'wpbs_booking_modal_tab_content_square', 1, 10);

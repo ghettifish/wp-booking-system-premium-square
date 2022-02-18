@@ -97,3 +97,37 @@ function wpbs_square_save_api_keys($option_name, $old_value, $value)
 
 };
 add_action('updated_option', 'wpbs_square_save_api_keys', 10, 3);
+
+
+function wpbs_square_email_tags_final_payment_link($tags)
+{
+    
+    if (!wpbs_is_pricing_enabled()) {
+        return $tags;
+    }
+
+
+    $tags['payment']['square_receipt_link'] = 'Square – Receipt Link';
+
+
+    return $tags;
+
+}
+add_filter('wpbs_email_tags', 'wpbs_square_email_tags_final_payment_link', 40, 1);
+
+
+function wpbs_form_mailer_custom_tag_square_link($text, $tag, $payment, $language)
+{
+
+    if ($tag != '{Square – Receipt Link}') {
+        return $text;
+    }
+
+    $reciept_url = $payment->get('details')['raw']['payment']['receipt_url']; 
+    
+    $text = str_replace($tag,  $reciept_url, $text);
+
+    return $text;
+
+}
+add_filter('wpbs_form_mailer_custom_tag', 'wpbs_form_mailer_custom_tag_square_link', 10, 4);
