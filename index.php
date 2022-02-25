@@ -4,7 +4,7 @@
  * Plugin Name: WP Booking System - Square Add-on
  * Plugin URI: https://www.wpbookingsystem.com/
  * Description: Allow customers to pay with their credit cards through Square.
- * Version: 1.0.9
+ * Version: 1.1.0
  * Author: Ghettifish, Nic Bovee
  * Author URI: https://www.wpbookingsystem.com/
  * Text Domain: wp-booking-system-square
@@ -60,8 +60,8 @@ class WP_Booking_System_Square
         }
 
         // Defining constants
-        define('WPBS_SQUARE_VERSION', '1.0.9');
-        define('WPBS_SQUARE_MIN_WPBS_VERSION', '5.5.4');
+        define('WPBS_SQUARE_VERSION', '1.1.0');
+        define('WPBS_SQUARE_MIN_WPBS_VERSION', '5.6.6');
         define('WPBS_SQUARE_FILE', __FILE__);
         define('WPBS_SQUARE_BASENAME', plugin_basename(__FILE__));
         define('WPBS_SQUARE_PLUGIN_DIR', plugin_dir_path(__FILE__));
