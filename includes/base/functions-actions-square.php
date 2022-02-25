@@ -115,10 +115,24 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
     }
     $emails = array_values(array_filter($form_data, "checkEmail"));
     $customer_email = $emails[0];
-    $customer_email_text = $customer_email  ? (" Customer " . $customer_email) : "";
+    $customer_email_text = $customer_email  ? ("Customer: " . $customer_email) : "";
 
-    $invoice_item_description = (!empty($settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()])) ? $settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()] : (!empty($settings['payment_square_invoice_name']) ? $settings['payment_square_invoice_name'] : get_bloginfo('name') . ' Booking') . $customer_email_text;
+    $invoice_item_description = "";
 
+    if (!empty($settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()])) {
+        $invoice_item_description .= $settings['payment_square_invoice_name_translation_' . $form_outputter->get_language()];
+    }
+
+    if (!empty($settings['payment_square_invoice_name'])) {
+        $invoice_item_description .= $settings['payment_square_invoice_name'] . " | ";
+    }
+
+    $invoice_item_description .= get_bloginfo('name') . ' | Booking';
+    $invoice_item_description .= $customer_email_text;
+
+    if (wpbs_get_calendar($calendar_id)) {
+        $invoice_item_description .= " | Rental: " . wpbs_get_calendar($calendar_id)->get('name');
+    }
 
     /**
      * Prepare Response
@@ -129,147 +143,26 @@ function wpbs_square_submit_form_payment_confirmation($response, $post_data, $fo
         $square_output .= '<p class="wpbs-payment-test-mode-enabled">' . __('Square Test mode is enabled.', 'wp-booking-system-square') . '</p>';
     }
 
-    $square_output .= '<div class="wpbs-payment-confirmation-square-form" id="form-container">';
+    $square_output .= '
+    <div id="card-container"></div>
+    <button class="button-credit-card" id="card-button" type="button">Pay</button>
+    <div id="payment-status-container"></div>
+    <div class="wpbs-payment-confirmation-square-form" id="form-container" style="margin:1rem 0; width: 100%;">
+    <script type="text/javascript">
+        const args = {
+            total: "' . $total . '",
+            wp_nonce: "' . wp_create_nonce('payment_request_nonce') . '",
+            currency: "' . $payment->get_currency() . '",
+            description: "' . $invoice_item_description . '",
+            form_unique: "' . $form_outputter->get_unique() . '"
+        }
+        main(args);
+    </script>
+    ';
 
     if (wpbs_part_payments_enabled() == true && $payment->is_part_payment()) {
         $square_output .= '<label>' . wpbs_get_payment_default_string('amount_billed', $form_outputter->get_language()) . '</label><input class="wpbs-payment-confirmation-square-input" type="text" value="' . wpbs_get_formatted_price($total, $payment->get_currency()) . '" readonly>';
     }
-
-    $square_output .= '
-
-        <div id="sq-card-number"></div>
-        <div class="third" id="sq-expiration-date"></div>
-        <div class="third" id="sq-cvv"></div>
-        <div class="third" id="sq-postal-code"></div>
-        <button id="sq-creditcard" class="button-credit-card" onclick="onGetCardNonce(event)">Pay ' . wpbs_get_formatted_price($total, $payment->get_currency()) . '</button>
-    </div>
-    <script>
-
-    wpbs_lazy_load_script("https://js.' . ($api['environment'] === 'sandbox' ? 'squareupsandbox' : 'squareup') . '.com/v2/paymentform",wpbs_init_square);
-
-    function wpbs_init_square(){
-
-        const idempotency_key = uuidv4();
-        const paymentForm = new SqPaymentForm({
-            applicationId: "' . $api['application_id'] . '",
-            inputClass: "sq-input",
-            autoBuild: false,
-            inputStyles: [{
-                fontSize: "16px",
-                lineHeight: "24px",
-                padding: "16px",
-                placeholderColor: "#a0a0a0",
-                backgroundColor: "transparent",
-            }],
-            // Initialize the credit card placeholders
-            cardNumber: {
-                elementId: "sq-card-number",
-                placeholder: "Card Number"
-            },
-            cvv: {
-                elementId: "sq-cvv",
-                placeholder: "CVV"
-            },
-            expirationDate: {
-                elementId: "sq-expiration-date",
-                placeholder: "MM/YY"
-            },
-            postalCode: {
-                elementId: "sq-postal-code",
-                placeholder: "Postal"
-            },
-            callbacks: {
-                /*
-                * callback function: cardNonceResponseReceived
-                * Triggered when: SqPaymentForm completes a card nonce request
-                */
-                cardNonceResponseReceived: function (errors, nonce, cardData) {
-                if (errors) {
-                    // Log errors from nonce generation to the browser developer console.
-                    console.error("Encountered errors:");
-                    errors.forEach(function (error) {
-                        console.error("  " + error.message);
-                    });
-                    return;
-                }
-                jQuery(".square-error").remove();
-                jQuery(".wpbs-square-payment-confirmation-inner-' . $form_outputter->get_unique() . '").hide();
-                jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").append("<h4 id=\"wpbs-processing\">' . wpbs_get_payment_default_string('processing_payment', $form_outputter->get_language()) . '</h4>");
-
-                fetch(wpbs_ajax.ajax_url, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/x-www-form-urlencoded",
-                      "Cache-Control": "no-cache"
-                    },
-                    body: new URLSearchParams({
-                        action: "payment_request",
-                        nonce: nonce,
-                        wp_nonce: "' . wp_create_nonce('payment_request_nonce') . '",
-                        idempotency_key: idempotency_key,
-                        total: ' .  $total . ',
-                        currency: "' . $payment->get_currency() . '",
-                        description: "' . $invoice_item_description . '",
-                        
-                        
-
-
-                    })   
-                  })
-                  .catch(err => {
-                  })
-                  .then(response => {
-                    if (!response.ok) {
-                      return response.json().then(
-                        errorInfo => Promise.reject(errorInfo));
-                    }
-                    return response.json();
-                  })
-                  .then(data => {
-                    if(!data.success){
-                        jQuery(".wpbs-square-payment-confirmation-inner-' . $form_outputter->get_unique() . '").show();
-                        jQuery("#wpbs-processing").remove();
-                        jQuery(".wpbs-payment-confirmation-square-form").prepend("<p class=\"square-error\">"+data.error+"</p>");
-                        return;
-                    }
-                 
-                    jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").parents(".wpbs-main-wrapper").find(".wpbs-calendar").append("<div class=\"wpbs-overlay\"><div class=\"wpbs-overlay-spinner\"><div class=\"wpbs-overlay-bounce1\"></div><div class=\"wpbs-overlay-bounce2\"></div><div class=\"wpbs-overlay-bounce3\"></div></div></div>");
-                    jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").parents(".wpbs-container").addClass("wpbs-is-loading");
-                    jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . ' form").append("<input type=\"hidden\" name=\"wpbs-square-payment-id\" value=\""+data.id+"\" />")
-                    jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . ' form").submit();
-                  })
-                  .catch(err => {
-                    console.error(err);
-                    jQuery(".wpbs-square-payment-confirmation-inner-' . $form_outputter->get_unique() . '").show();
-                    jQuery(".wpbs-square-payment-confirmation-' . $form_outputter->get_unique() . '").remove();
-                  });
-
-               
-            }
-        }
-        });
-
-        paymentForm.build();
-
-        function uuidv4() {
-            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-            });
-        }
-
-        function onGetCardNonce(event) {
-
-            event.preventDefault();
-            // Request a nonce from the SqPaymentForm object
-            paymentForm.requestCardNonce();
-        }
-        window.onGetCardNonce = onGetCardNonce;
-    }
-
-    
-    </script>
-    ';
 
     $output = wpbs_form_payment_confirmation_screen($form_outputter, $payment, 'square', $square_output);
 
@@ -502,21 +395,21 @@ add_action('wpbs_permanently_delete_booking', 'wpbs_square_permanently_delete_bo
 function process_payment_request()
 {
 
-    if (!wp_verify_nonce($_POST['wp_nonce'], 'payment_request_nonce') || !isset($_POST['total']) || !isset($_POST['currency']) || !isset($_POST['description']) || !isset($_POST['nonce'])) {
+    if (
+        !wp_verify_nonce($_POST['wp_nonce'], 'payment_request_nonce')
+        || !isset($_POST['total'])
+        || !isset($_POST['currency'])
+        || !isset($_POST['description'])
+        || !isset($_POST['source_id'])
+    ) {
         return false;
     }
 
     // Include Square SDK
     include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/vendor/square-api.php';
 
-    $order = WPBS_Square_PaymentIntent::createPaymentIntent($_POST['total'] * 100, $_POST['currency'], $_POST['description'], $_POST['nonce']);
+    $order = WPBS_Square_PaymentIntent::createPaymentIntent($_POST['total'] * 100, $_POST['currency'], $_POST['description'], $_POST['source_id']);
 
-
-    // Get Order
-    // $order = WPBS_Square_PaymentIntent::getPaymentIntent($form_data['wpbs-square-payment-intent-id']);
-    $errors = [
-        "GENERIC_DECLINE" => "Your card was declined. Please try a different payment method."
-    ];
     if ($order->isSuccess()) {
         $details['raw'] = $order->getResult();
 
@@ -540,6 +433,7 @@ function process_payment_request()
     }
     die();
 }
+
 add_action('wp_ajax_payment_request', 'process_payment_request');
 add_action('wp_ajax_nopriv_payment_request', 'process_payment_request');
 

@@ -7,6 +7,7 @@ use Square\Models\UpdatePaymentRequest;
 use Square\Models\Money;
 
 include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/vendor/autoload.php';
+
 use Square\SquareClient;
 
 class WPBS_Square_API
@@ -43,13 +44,12 @@ class WPBS_Square_Client
             'accessToken' => $api['access_token'],
             'environment' => $api['environment']
         ]);
-
     }
 }
 
 class WPBS_Square_PaymentIntent
 {
-    public static function createPaymentIntent($amount, $currency, $description, $nonce, $reference_id = "")
+    public static function createPaymentIntent($amount, $currency, $description, $source_id, $reference_id = "")
     {
 
         $client = WPBS_Square_Client::client();
@@ -58,7 +58,11 @@ class WPBS_Square_PaymentIntent
         $money = new Money();
         $money->setAmount($amount);
         $money->setCurrency($currency);
-        $create_payment_request = new CreatePaymentRequest($nonce, uniqid(), $money);
+        $create_payment_request = new CreatePaymentRequest(
+            $source_id,
+            uniqid(),
+            $money
+        );
         $create_payment_request->setNote($description);
         $create_payment_request->setReferenceId($reference_id);
 
@@ -77,18 +81,18 @@ class WPBS_Square_PaymentIntent
         return $apiResponse;
     }
 
-    
-  
+
+
 
     public static function cancelPayment($id)
-     {
+    {
 
         $client = WPBS_Square_Client::client();
         $payments_api = $client->getPaymentsApi();
 
         $apiResponse = $payments_api->cancelPayment($id);
 
-        if($apiResponse->isSuccess()){
+        if ($apiResponse->isSuccess()) {
             $response = [
                 'success' => true,
                 'data' => $apiResponse->getResult()

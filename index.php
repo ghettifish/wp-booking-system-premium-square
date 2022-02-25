@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: WP Booking System - Square Add-on
  * Plugin URI: https://www.wpbookingsystem.com/
@@ -96,7 +97,6 @@ class WP_Booking_System_Square
          *
          */
         do_action('wpbs_square_initialized');
-
     }
 
     /**
@@ -113,7 +113,6 @@ class WP_Booking_System_Square
         }
 
         return self::$instance;
-
     }
 
     /**
@@ -127,7 +126,7 @@ class WP_Booking_System_Square
 
         if (version_compare(WPBS_SQUARE_MIN_WPBS_VERSION, WPBS_VERSION) > 0) {
             // Add-on Installed
-            wpbs_admin_notices()->register_notice('square_minimum_version', '<p>' . __('The <strong>Square</strong> Add-on requires WP Booking System version ' . WPBS_SQUARE_MIN_WPBS_VERSION . ' or greater. Please <a href="'.admin_url('plugins.php').'">update</a> to the latest version.', 'wp-booking-system-square') . '</p>', 'error');
+            wpbs_admin_notices()->register_notice('square_minimum_version', '<p>' . __('The <strong>Square</strong> Add-on requires WP Booking System version ' . WPBS_SQUARE_MIN_WPBS_VERSION . ' or greater. Please <a href="' . admin_url('plugins.php') . '">update</a> to the latest version.', 'wp-booking-system-square') . '</p>', 'error');
             wpbs_admin_notices()->display_notice('square_minimum_version');
         }
     }
@@ -157,7 +156,6 @@ class WP_Booking_System_Square
             if (get_option('wpbs_square_first_activation', '') == '') {
                 update_option('wpbs_square_first_activation', time());
             }
-
         }
 
         if ($do_update) {
@@ -167,9 +165,7 @@ class WP_Booking_System_Square
 
             // Trigger set cron jobs
             $this->set_cron_jobs();
-
         }
-
     }
 
     /**
@@ -179,20 +175,19 @@ class WP_Booking_System_Square
     public function load_text_domain()
     {
 
-        $locale = apply_filters( 'plugin_locale', get_locale(), WPBS_SQUARE_TRANSLATION_TEXTDOMAIN );
+        $locale = apply_filters('plugin_locale', get_locale(), WPBS_SQUARE_TRANSLATION_TEXTDOMAIN);
 
         // Search for Translation in /wp-content/languages/plugin/
-        if (file_exists(trailingslashit( WP_LANG_DIR ) . 'plugins' . WPBS_SQUARE_TRANSLATION_TEXTDOMAIN . '-' . $locale . '.mo')) {
-            load_plugin_textdomain(WPBS_SQUARE_TRANSLATION_TEXTDOMAIN, false, trailingslashit( WP_LANG_DIR ));
+        if (file_exists(trailingslashit(WP_LANG_DIR) . 'plugins' . WPBS_SQUARE_TRANSLATION_TEXTDOMAIN . '-' . $locale . '.mo')) {
+            load_plugin_textdomain(WPBS_SQUARE_TRANSLATION_TEXTDOMAIN, false, trailingslashit(WP_LANG_DIR));
         }
         // Search for Translation in /wp-content/languages/
-        elseif (file_exists(trailingslashit( WP_LANG_DIR ) . WPBS_SQUARE_TRANSLATION_TEXTDOMAIN . '-' . $locale . '.mo')) {
-            load_textdomain(WPBS_SQUARE_TRANSLATION_TEXTDOMAIN, trailingslashit( WP_LANG_DIR ) . WPBS_SQUARE_TRANSLATION_TEXTDOMAIN . '-' . $locale . '.mo');
-        // Search for Translation in /wp-content/plugins/wp-booking-system-premium/languages/
+        elseif (file_exists(trailingslashit(WP_LANG_DIR) . WPBS_SQUARE_TRANSLATION_TEXTDOMAIN . '-' . $locale . '.mo')) {
+            load_textdomain(WPBS_SQUARE_TRANSLATION_TEXTDOMAIN, trailingslashit(WP_LANG_DIR) . WPBS_SQUARE_TRANSLATION_TEXTDOMAIN . '-' . $locale . '.mo');
+            // Search for Translation in /wp-content/plugins/wp-booking-system-premium/languages/
         } else {
             load_plugin_textdomain(WPBS_SQUARE_TRANSLATION_TEXTDOMAIN, false, plugin_basename(dirname(__FILE__)) . '/languages');
         }
-
     }
 
     /**
@@ -203,7 +198,6 @@ class WP_Booking_System_Square
     {
 
         do_action('wpbs_square_set_cron_jobs');
-
     }
 
     /**
@@ -214,7 +208,6 @@ class WP_Booking_System_Square
     {
 
         do_action('wpbs_square_unset_cron_jobs');
-
     }
 
     /**
@@ -237,7 +230,6 @@ class WP_Booking_System_Square
          *
          */
         do_action('wpbs_square_include_files');
-
     }
 
     /**
@@ -258,9 +250,7 @@ class WP_Booking_System_Square
             }
 
             $this->_recursively_include_files($folder_path);
-
         }
-
     }
 
     /**
@@ -275,7 +265,6 @@ class WP_Booking_System_Square
          *
          */
         do_action('wpbs_square_enqueue_admin_scripts');
-
     }
 
     /**
@@ -288,9 +277,15 @@ class WP_Booking_System_Square
         // Plugin styles from the front-end. 
         wp_register_style('wpbs-square-front-end-style', WPBS_SQUARE_PLUGIN_DIR_URL . 'assets/css/style-front-end.css', array(), WPBS_SQUARE_VERSION);
         wp_enqueue_style('wpbs-square-front-end-style');
+        include_once WPBS_SQUARE_PLUGIN_DIR . 'includes/libs/vendor/square-api.php';
 
-       
+        $api = WPBS_Square_API::keys();
+        unset($api["access_token"]);
 
+        wp_register_script('squareSDK', "https://" . ($api['environment'] === 'sandbox' ? 'sandbox.' : '') . 'web.squarecdn.com/v1/square.js', null, null, true);
+        wp_enqueue_script('squareSDK');
+        wp_enqueue_script("wpbs-square", WPBS_SQUARE_PLUGIN_DIR_URL . "/assets/js/square.js");
+        wp_localize_script("wpbs-square", "square", $api);
     }
 
     /**
@@ -303,9 +298,7 @@ class WP_Booking_System_Square
         $args[] = 'wpbs_square_message';
 
         return $args;
-
     }
-
 }
 
 /**
@@ -316,7 +309,6 @@ function wp_booking_system_square()
 {
 
     return WP_Booking_System_Square::instance();
-
 }
 
 // Let's get the party started
