@@ -14,6 +14,7 @@ $catalogApi = $client->getCatalogApi();
 * [Batch Retrieve Catalog Objects](/doc/apis/catalog.md#batch-retrieve-catalog-objects)
 * [Batch Upsert Catalog Objects](/doc/apis/catalog.md#batch-upsert-catalog-objects)
 * [Create Catalog Image](/doc/apis/catalog.md#create-catalog-image)
+* [Update Catalog Image](/doc/apis/catalog.md#update-catalog-image)
 * [Catalog Info](/doc/apis/catalog.md#catalog-info)
 * [List Catalog](/doc/apis/catalog.md#list-catalog)
 * [Upsert Catalog Object](/doc/apis/catalog.md#upsert-catalog-object)
@@ -27,11 +28,11 @@ $catalogApi = $client->getCatalogApi();
 
 # Batch Delete Catalog Objects
 
-Deletes a set of [CatalogItem](#type-catalogitem)s based on the
+Deletes a set of [CatalogItem](/doc/models/catalog-item.md)s based on the
 provided list of target IDs and returns a set of successfully deleted IDs in
 the response. Deletion is a cascading event such that all children of the
 targeted object are also deleted. For example, deleting a CatalogItem will
-also delete all of its [CatalogItemVariation](#type-catalogitemvariation)
+also delete all of its [CatalogItemVariation](/doc/models/catalog-item-variation.md)
 children.
 
 `BatchDeleteCatalogObjects` succeeds even if only a portion of the targeted
@@ -75,11 +76,11 @@ if ($apiResponse->isSuccess()) {
 # Batch Retrieve Catalog Objects
 
 Returns a set of objects based on the provided ID.
-Each [CatalogItem](#type-catalogitem) returned in the set includes all of its
+Each [CatalogItem](/doc/models/catalog-item.md) returned in the set includes all of its
 child information including: all of its
-[CatalogItemVariation](#type-catalogitemvariation) objects, references to
-its [CatalogModifierList](#type-catalogmodifierlist) objects, and the ids of
-any [CatalogTax](#type-catalogtax) objects that apply to it.
+[CatalogItemVariation](/doc/models/catalog-item-variation.md) objects, references to
+its [CatalogModifierList](/doc/models/catalog-modifier-list.md) objects, and the ids of
+any [CatalogTax](/doc/models/catalog-tax.md) objects that apply to it.
 
 ```php
 function batchRetrieveCatalogObjects(BatchRetrieveCatalogObjectsRequest $body): ApiResponse
@@ -469,9 +470,9 @@ if ($apiResponse->isSuccess()) {
 
 # Create Catalog Image
 
-Uploads an image file to be represented by a [CatalogImage](#type-catalogimage) object linked to an existing
-[CatalogObject](#type-catalogobject) instance. A call to this endpoint can upload an image, link an image to
-a catalog object, or do both.
+Uploads an image file to be represented by a [CatalogImage](/doc/models/catalog-image.md) object that can be linked to an existing
+[CatalogObject](/doc/models/catalog-object.md) instance. The resulting `CatalogImage` is unattached to any `CatalogObject` if the `object_id`
+is not specified.
 
 This `CreateCatalogImage` endpoint accepts HTTP multipart/form-data requests with a JSON part and an image file part in
 JPEG, PJPEG, PNG, or GIF format. The maximum file size is 15MB.
@@ -498,39 +499,92 @@ function createCatalogImage(
 
 ```php
 $request_idempotencyKey = '528dea59-7bfb-43c1-bd48-4a6bba7dd61f86';
-$request = new Models\CreateCatalogImageRequest(
-    $request_idempotencyKey
-);
-$request->setObjectId('ND6EA5AAJEO5WL3JNNIAQA32');
 $request_image_type = Models\CatalogObjectType::IMAGE;
 $request_image_id = '#TEMP_ID';
-$request->setImage(new Models\CatalogObject(
+$request_image = new Models\CatalogObject(
     $request_image_type,
     $request_image_id
-));
-$request->getImage()->setUpdatedAt('updated_at4');
-$request->getImage()->setVersion(68);
-$request->getImage()->setIsDeleted(false);
+);
+$request_image->setUpdatedAt('updated_at4');
+$request_image->setVersion(68);
+$request_image->setIsDeleted(false);
 $request_image_customAttributeValues = [];
 
 $request_image_customAttributeValues[''] = new Models\CatalogCustomAttributeValue;
 
 $request_image_customAttributeValues[''] = new Models\CatalogCustomAttributeValue;
-$request->getImage()->setCustomAttributeValues($request_image_customAttributeValues);
+$request_image->setCustomAttributeValues($request_image_customAttributeValues);
 
 $request_image_catalogV1Ids = [];
 
 $request_image_catalogV1Ids[0] = new Models\CatalogV1Id;
 $request_image_catalogV1Ids[0]->setCatalogV1Id('catalog_v1_id4');
 $request_image_catalogV1Ids[0]->setLocationId('location_id4');
-$request->getImage()->setCatalogV1Ids($request_image_catalogV1Ids);
+$request_image->setCatalogV1Ids($request_image_catalogV1Ids);
 
+$request = new Models\CreateCatalogImageRequest(
+    $request_idempotencyKey,
+    $request_image
+);
+$request->setObjectId('ND6EA5AAJEO5WL3JNNIAQA32');
+$request->setIsPrimary(false);
 $imageFile = 'dummy_file';
 
 $apiResponse = $catalogApi->createCatalogImage($request, $imageFile);
 
 if ($apiResponse->isSuccess()) {
     $createCatalogImageResponse = $apiResponse->getResult();
+} else {
+    $errors = $apiResponse->getErrors();
+}
+
+// Get more response info...
+// $statusCode = $apiResponse->getStatusCode();
+// $headers = $apiResponse->getHeaders();
+```
+
+
+# Update Catalog Image
+
+Uploads a new image file to replace the existing one in the specified [CatalogImage](/doc/models/catalog-image.md) object.
+
+This `UpdateCatalogImage` endpoint accepts HTTP multipart/form-data requests with a JSON part and an image file part in
+JPEG, PJPEG, PNG, or GIF format. The maximum file size is 15MB.
+
+```php
+function updateCatalogImage(
+    string $imageId,
+    ?UpdateCatalogImageRequest $request = null,
+    ?\Square\Utils\FileWrapper $imageFile = null
+): ApiResponse
+```
+
+## Parameters
+
+| Parameter | Type | Tags | Description |
+|  --- | --- | --- | --- |
+| `imageId` | `string` | Template, Required | The ID of the `CatalogImage` object to update the encapsulated image file. |
+| `request` | [`?UpdateCatalogImageRequest`](/doc/models/update-catalog-image-request.md) | Form, Optional | - |
+| `imageFile` | `?\Square\Utils\FileWrapper` | Form, Optional | - |
+
+## Response Type
+
+[`UpdateCatalogImageResponse`](/doc/models/update-catalog-image-response.md)
+
+## Example Usage
+
+```php
+$imageId = 'image_id4';
+$request_idempotencyKey = '528dea59-7bfb-43c1-bd48-4a6bba7dd61f86';
+$request = new Models\UpdateCatalogImageRequest(
+    $request_idempotencyKey
+);
+$imageFile = 'dummy_file';
+
+$apiResponse = $catalogApi->updateCatalogImage($imageId, $request, $imageFile);
+
+if ($apiResponse->isSuccess()) {
+    $updateCatalogImageResponse = $apiResponse->getResult();
 } else {
     $errors = $apiResponse->getErrors();
 }
@@ -573,14 +627,13 @@ if ($apiResponse->isSuccess()) {
 
 # List Catalog
 
-Returns a list of [CatalogObject](#type-catalogobject)s that includes
-all objects of a set of desired types (for example, all [CatalogItem](#type-catalogitem)
-and [CatalogTax](#type-catalogtax) objects) in the catalog. The `types` parameter
-is specified as a comma-separated list of valid [CatalogObject](#type-catalogobject) types:
-`ITEM`, `ITEM_VARIATION`, `MODIFIER`, `MODIFIER_LIST`, `CATEGORY`, `DISCOUNT`, `TAX`, `IMAGE`.
+Returns a list of all [CatalogObject](/doc/models/catalog-object.md)s of the specified types in the catalog.
+
+The `types` parameter is specified as a comma-separated list of the [CatalogObjectType](/doc/models/catalog-object-type.md) values,
+for example, "`ITEM`, `ITEM_VARIATION`, `MODIFIER`, `MODIFIER_LIST`, `CATEGORY`, `DISCOUNT`, `TAX`, `IMAGE`".
 
 __Important:__ ListCatalog does not return deleted catalog items. To retrieve
-deleted catalog items, use [SearchCatalogObjects](#endpoint-Catalog-SearchCatalogObjects)
+deleted catalog items, use [SearchCatalogObjects](/doc/apis/catalog.md#search-catalog-objects)
 and set the `include_deleted_objects` attribute value to `true`.
 
 ```php
@@ -591,9 +644,9 @@ function listCatalog(?string $cursor = null, ?string $types = null, ?int $catalo
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `cursor` | `?string` | Query, Optional | The pagination cursor returned in the previous response. Leave unset for an initial request.<br>See [Pagination](https://developer.squareup.com/docs/basics/api101/pagination) for more information. |
-| `types` | `?string` | Query, Optional | An optional case-insensitive, comma-separated list of object types to retrieve, for example<br>`ITEM,ITEM_VARIATION,CATEGORY,IMAGE`.<br><br>The legal values are taken from the CatalogObjectType enum:<br>`ITEM`, `ITEM_VARIATION`, `CATEGORY`, `DISCOUNT`, `TAX`,<br>`MODIFIER`, `MODIFIER_LIST`, or `IMAGE`. |
-| `catalogVersion` | `?int` | Query, Optional | The specific version of the catalog objects to be included in the response.<br>This allows you to retrieve historical<br>versions of objects. The specified version value is matched against<br>the [CatalogObject](#type-catalogobject)s' `version` attribute. |
+| `cursor` | `?string` | Query, Optional | The pagination cursor returned in the previous response. Leave unset for an initial request.<br>The page size is currently set to be 100.<br>See [Pagination](https://developer.squareup.com/docs/basics/api101/pagination) for more information. |
+| `types` | `?string` | Query, Optional | An optional case-insensitive, comma-separated list of object types to retrieve.<br><br>The valid values are defined in the [CatalogObjectType](/doc/models/catalog-object-type.md) enum, for example,<br>`ITEM`, `ITEM_VARIATION`, `CATEGORY`, `DISCOUNT`, `TAX`,<br>`MODIFIER`, `MODIFIER_LIST`, `IMAGE`, etc.<br><br>If this is unspecified, the operation returns objects of all the top level types at the version<br>of the Square API used to make the request. Object types that are nested onto other object types<br>are not included in the defaults.<br><br>At the current API version the default object types are:<br>ITEM, CATEGORY, TAX, DISCOUNT, MODIFIER_LIST, DINING_OPTION, TAX_EXEMPTION,<br>SERVICE_CHARGE, PRICING_RULE, PRODUCT_SET, TIME_PERIOD, MEASUREMENT_UNIT,<br>SUBSCRIPTION_PLAN, ITEM_OPTION, CUSTOM_ATTRIBUTE_DEFINITION, QUICK_AMOUNT_SETTINGS. |
+| `catalogVersion` | `?int` | Query, Optional | The specific version of the catalog objects to be included in the response.<br>This allows you to retrieve historical<br>versions of objects. The specified version value is matched against<br>the [CatalogObject](/doc/models/catalog-object.md)s' `version` attribute.  If not included, results will<br>be from the current version of the catalog. |
 
 ## Response Type
 
@@ -622,7 +675,7 @@ if ($apiResponse->isSuccess()) {
 
 # Upsert Catalog Object
 
-Creates or updates the target [CatalogObject](#type-catalogobject).
+Creates or updates the target [CatalogObject](/doc/models/catalog-object.md).
 
 ```php
 function upsertCatalogObject(UpsertCatalogObjectRequest $body): ApiResponse
@@ -677,10 +730,96 @@ $body_object->setCatalogV1Ids($body_object_catalogV1Ids);
 
 $body_object->setItemData(new Models\CatalogItem);
 $body_object->getItemData()->setName('Cocoa');
-$body_object->getItemData()->setDescription('Hot chocolate');
+$body_object->getItemData()->setDescription('Hot Chocolate');
 $body_object->getItemData()->setAbbreviation('Ch');
 $body_object->getItemData()->setLabelColor('label_color4');
 $body_object->getItemData()->setAvailableOnline(false);
+$body_object_itemData_variations = [];
+
+$body_object_itemData_variations_0_type = Models\CatalogObjectType::ITEM_VARIATION;
+$body_object_itemData_variations_0_id = '#Small';
+$body_object_itemData_variations[0] = new Models\CatalogObject(
+    $body_object_itemData_variations_0_type,
+    $body_object_itemData_variations_0_id
+);
+$body_object_itemData_variations[0]->setUpdatedAt('updated_at9');
+$body_object_itemData_variations[0]->setVersion(69);
+$body_object_itemData_variations[0]->setIsDeleted(true);
+$body_object_itemData_variations_0_customAttributeValues = [];
+
+$body_object_itemData_variations_0_customAttributeValues['key0'] = new Models\CatalogCustomAttributeValue;
+$body_object_itemData_variations_0_customAttributeValues['key0']->setName('name4');
+$body_object_itemData_variations_0_customAttributeValues['key0']->setStringValue('string_value8');
+$body_object_itemData_variations_0_customAttributeValues['key0']->setCustomAttributeDefinitionId('custom_attribute_definition_id8');
+$body_object_itemData_variations_0_customAttributeValues['key0']->setType(Models\CatalogCustomAttributeDefinitionType::NUMBER);
+$body_object_itemData_variations_0_customAttributeValues['key0']->setNumberValue('number_value4');
+
+$body_object_itemData_variations_0_customAttributeValues['key1'] = new Models\CatalogCustomAttributeValue;
+$body_object_itemData_variations_0_customAttributeValues['key1']->setName('name5');
+$body_object_itemData_variations_0_customAttributeValues['key1']->setStringValue('string_value9');
+$body_object_itemData_variations_0_customAttributeValues['key1']->setCustomAttributeDefinitionId('custom_attribute_definition_id7');
+$body_object_itemData_variations_0_customAttributeValues['key1']->setType(Models\CatalogCustomAttributeDefinitionType::BOOLEAN);
+$body_object_itemData_variations_0_customAttributeValues['key1']->setNumberValue('number_value5');
+$body_object_itemData_variations[0]->setCustomAttributeValues($body_object_itemData_variations_0_customAttributeValues);
+
+$body_object_itemData_variations_0_catalogV1Ids = [];
+
+$body_object_itemData_variations_0_catalogV1Ids[0] = new Models\CatalogV1Id;
+$body_object_itemData_variations_0_catalogV1Ids[0]->setCatalogV1Id('catalog_v1_id9');
+$body_object_itemData_variations_0_catalogV1Ids[0]->setLocationId('location_id9');
+$body_object_itemData_variations[0]->setCatalogV1Ids($body_object_itemData_variations_0_catalogV1Ids);
+
+
+$body_object_itemData_variations_1_type = Models\CatalogObjectType::ITEM_VARIATION;
+$body_object_itemData_variations_1_id = '#Large';
+$body_object_itemData_variations[1] = new Models\CatalogObject(
+    $body_object_itemData_variations_1_type,
+    $body_object_itemData_variations_1_id
+);
+$body_object_itemData_variations[1]->setUpdatedAt('updated_at0');
+$body_object_itemData_variations[1]->setVersion(68);
+$body_object_itemData_variations[1]->setIsDeleted(false);
+$body_object_itemData_variations_1_customAttributeValues = [];
+
+$body_object_itemData_variations_1_customAttributeValues['key0'] = new Models\CatalogCustomAttributeValue;
+$body_object_itemData_variations_1_customAttributeValues['key0']->setName('name5');
+$body_object_itemData_variations_1_customAttributeValues['key0']->setStringValue('string_value9');
+$body_object_itemData_variations_1_customAttributeValues['key0']->setCustomAttributeDefinitionId('custom_attribute_definition_id7');
+$body_object_itemData_variations_1_customAttributeValues['key0']->setType(Models\CatalogCustomAttributeDefinitionType::BOOLEAN);
+$body_object_itemData_variations_1_customAttributeValues['key0']->setNumberValue('number_value5');
+
+$body_object_itemData_variations_1_customAttributeValues['key1'] = new Models\CatalogCustomAttributeValue;
+$body_object_itemData_variations_1_customAttributeValues['key1']->setName('name6');
+$body_object_itemData_variations_1_customAttributeValues['key1']->setStringValue('string_value0');
+$body_object_itemData_variations_1_customAttributeValues['key1']->setCustomAttributeDefinitionId('custom_attribute_definition_id6');
+$body_object_itemData_variations_1_customAttributeValues['key1']->setType(Models\CatalogCustomAttributeDefinitionType::STRING);
+$body_object_itemData_variations_1_customAttributeValues['key1']->setNumberValue('number_value6');
+
+$body_object_itemData_variations_1_customAttributeValues['key2'] = new Models\CatalogCustomAttributeValue;
+$body_object_itemData_variations_1_customAttributeValues['key2']->setName('name7');
+$body_object_itemData_variations_1_customAttributeValues['key2']->setStringValue('string_value1');
+$body_object_itemData_variations_1_customAttributeValues['key2']->setCustomAttributeDefinitionId('custom_attribute_definition_id5');
+$body_object_itemData_variations_1_customAttributeValues['key2']->setType(Models\CatalogCustomAttributeDefinitionType::SELECTION);
+$body_object_itemData_variations_1_customAttributeValues['key2']->setNumberValue('number_value7');
+$body_object_itemData_variations[1]->setCustomAttributeValues($body_object_itemData_variations_1_customAttributeValues);
+
+$body_object_itemData_variations_1_catalogV1Ids = [];
+
+$body_object_itemData_variations_1_catalogV1Ids[0] = new Models\CatalogV1Id;
+$body_object_itemData_variations_1_catalogV1Ids[0]->setCatalogV1Id('catalog_v1_id8');
+$body_object_itemData_variations_1_catalogV1Ids[0]->setLocationId('location_id8');
+
+$body_object_itemData_variations_1_catalogV1Ids[1] = new Models\CatalogV1Id;
+$body_object_itemData_variations_1_catalogV1Ids[1]->setCatalogV1Id('catalog_v1_id9');
+$body_object_itemData_variations_1_catalogV1Ids[1]->setLocationId('location_id9');
+
+$body_object_itemData_variations_1_catalogV1Ids[2] = new Models\CatalogV1Id;
+$body_object_itemData_variations_1_catalogV1Ids[2]->setCatalogV1Id('catalog_v1_id0');
+$body_object_itemData_variations_1_catalogV1Ids[2]->setLocationId('location_id0');
+$body_object_itemData_variations[1]->setCatalogV1Ids($body_object_itemData_variations_1_catalogV1Ids);
+
+$body_object->getItemData()->setVariations($body_object_itemData_variations);
+
 $body = new Models\UpsertCatalogObjectRequest(
     $body_idempotencyKey,
     $body_object
@@ -702,12 +841,12 @@ if ($apiResponse->isSuccess()) {
 
 # Delete Catalog Object
 
-Deletes a single [CatalogObject](#type-catalogobject) based on the
+Deletes a single [CatalogObject](/doc/models/catalog-object.md) based on the
 provided ID and returns the set of successfully deleted IDs in the response.
 Deletion is a cascading event such that all children of the targeted object
-are also deleted. For example, deleting a [CatalogItem](#type-catalogitem)
+are also deleted. For example, deleting a [CatalogItem](/doc/models/catalog-item.md)
 will also delete all of its
-[CatalogItemVariation](#type-catalogitemvariation) children.
+[CatalogItemVariation](/doc/models/catalog-item-variation.md) children.
 
 ```php
 function deleteCatalogObject(string $objectId): ApiResponse
@@ -744,13 +883,13 @@ if ($apiResponse->isSuccess()) {
 
 # Retrieve Catalog Object
 
-Returns a single [CatalogItem](#type-catalogitem) as a
-[CatalogObject](#type-catalogobject) based on the provided ID. The returned
-object includes all of the relevant [CatalogItem](#type-catalogitem)
-information including: [CatalogItemVariation](#type-catalogitemvariation)
+Returns a single [CatalogItem](/doc/models/catalog-item.md) as a
+[CatalogObject](/doc/models/catalog-object.md) based on the provided ID. The returned
+object includes all of the relevant [CatalogItem](/doc/models/catalog-item.md)
+information including: [CatalogItemVariation](/doc/models/catalog-item-variation.md)
 children, references to its
-[CatalogModifierList](#type-catalogmodifierlist) objects, and the ids of
-any [CatalogTax](#type-catalogtax) objects that apply to it.
+[CatalogModifierList](/doc/models/catalog-modifier-list.md) objects, and the ids of
+any [CatalogTax](/doc/models/catalog-tax.md) objects that apply to it.
 
 ```php
 function retrieveCatalogObject(
@@ -765,8 +904,8 @@ function retrieveCatalogObject(
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `objectId` | `string` | Template, Required | The object ID of any type of catalog objects to be retrieved. |
-| `includeRelatedObjects` | `?bool` | Query, Optional | If `true`, the response will include additional objects that are related to the<br>requested object, as follows:<br><br>If the `object` field of the response contains a `CatalogItem`, its associated<br>`CatalogCategory`, `CatalogTax`, `CatalogImage` and `CatalogModifierList` objects will<br>be returned in the `related_objects` field of the response. If the `object` field of<br>the response contains a `CatalogItemVariation`, its parent `CatalogItem` will be returned<br>in the `related_objects` field of the response.<br><br>Default value: `false`<br>**Default**: `false` |
-| `catalogVersion` | `?int` | Query, Optional | Requests objects as of a specific version of the catalog. This allows you to retrieve historical<br>versions of objects. The value to retrieve a specific version of an object can be found<br>in the version field of [CatalogObject](#type-catalogobject)s. |
+| `includeRelatedObjects` | `?bool` | Query, Optional | If `true`, the response will include additional objects that are related to the<br>requested objects. Related objects are defined as any objects referenced by ID by the results in the `objects` field<br>of the response. These objects are put in the `related_objects` field. Setting this to `true` is<br>helpful when the objects are needed for immediate display to a user.<br>This process only goes one level deep. Objects referenced by the related objects will not be included. For example,<br><br>if the `objects` field of the response contains a CatalogItem, its associated<br>CatalogCategory objects, CatalogTax objects, CatalogImage objects and<br>CatalogModifierLists will be returned in the `related_objects` field of the<br>response. If the `objects` field of the response contains a CatalogItemVariation,<br>its parent CatalogItem will be returned in the `related_objects` field of<br>the response.<br><br>Default value: `false`<br>**Default**: `false` |
+| `catalogVersion` | `?int` | Query, Optional | Requests objects as of a specific version of the catalog. This allows you to retrieve historical<br>versions of objects. The value to retrieve a specific version of an object can be found<br>in the version field of [CatalogObject](/doc/models/catalog-object.md)s. If not included, results will<br>be from the current version of the catalog. |
 
 ## Response Type
 
@@ -795,10 +934,10 @@ if ($apiResponse->isSuccess()) {
 
 # Search Catalog Objects
 
-Searches for [CatalogObject](#type-CatalogObject) of any type by matching supported search attribute values,
-excluding custom attribute values on items or item variations, against one or more of the specified query expressions.
+Searches for [CatalogObject](/doc/models/catalog-object.md) of any type by matching supported search attribute values,
+excluding custom attribute values on items or item variations, against one or more of the specified query filters.
 
-This (`SearchCatalogObjects`) endpoint differs from the [SearchCatalogItems](#endpoint-Catalog-SearchCatalogItems)
+This (`SearchCatalogObjects`) endpoint differs from the [SearchCatalogItems](/doc/apis/catalog.md#search-catalog-items)
 endpoint in the following aspects:
 
 - `SearchCatalogItems` can only search for items or item variations, whereas `SearchCatalogObjects` can search for any type of catalog objects.
@@ -879,9 +1018,9 @@ if ($apiResponse->isSuccess()) {
 # Search Catalog Items
 
 Searches for catalog items or item variations by matching supported search attribute values, including
-custom attribute values, against one or more of the specified query expressions.
+custom attribute values, against one or more of the specified query filters.
 
-This (`SearchCatalogItems`) endpoint differs from the [SearchCatalogObjects](#endpoint-Catalog-SearchCatalogObjects)
+This (`SearchCatalogItems`) endpoint differs from the [SearchCatalogObjects](/doc/apis/catalog.md#search-catalog-objects)
 endpoint in the following aspects:
 
 - `SearchCatalogItems` can only search for items or item variations, whereas `SearchCatalogObjects` can search for any type of catalog objects.
@@ -972,8 +1111,8 @@ if ($apiResponse->isSuccess()) {
 
 # Update Item Modifier Lists
 
-Updates the [CatalogModifierList](#type-catalogmodifierlist) objects
-that apply to the targeted [CatalogItem](#type-catalogitem) without having
+Updates the [CatalogModifierList](/doc/models/catalog-modifier-list.md) objects
+that apply to the targeted [CatalogItem](/doc/models/catalog-item.md) without having
 to perform an upsert on the entire item.
 
 ```php
@@ -1016,8 +1155,8 @@ if ($apiResponse->isSuccess()) {
 
 # Update Item Taxes
 
-Updates the [CatalogTax](#type-catalogtax) objects that apply to the
-targeted [CatalogItem](#type-catalogitem) without having to perform an
+Updates the [CatalogTax](/doc/models/catalog-tax.md) objects that apply to the
+targeted [CatalogItem](/doc/models/catalog-item.md) without having to perform an
 upsert on the entire item.
 
 ```php

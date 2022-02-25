@@ -19,6 +19,11 @@ Describes a `PublishInvoice` response.
 ```json
 {
   "invoice": {
+    "accepted_payment_methods": {
+      "bank_account": false,
+      "card": true,
+      "square_gift_card": false
+    },
     "created_at": "2020-06-18T17:45:13Z",
     "custom_fields": [
       {
@@ -34,7 +39,7 @@ Describes a `PublishInvoice` response.
     ],
     "delivery_method": "EMAIL",
     "description": "We appreciate your business!",
-    "id": "gt2zv1z6mnUm1V7KMxxf3w",
+    "id": "inv:0-ChCHu2mZEabLeeHahQnXDjZQECY",
     "invoice_number": "inv-100",
     "location_id": "ES0RJRZYEC39A",
     "order_id": "CAISENgvlJ6jLWAzERDzjyHVybY",
@@ -70,6 +75,8 @@ Describes a `PublishInvoice` response.
       "given_name": "Amelia",
       "phone_number": "1-212-555-4240"
     },
+    "public_url": "https://squareup.com/pay-invoice/inv:0-ChCHu2mZEabLeeHahQnXDjZQECY",
+    "sale_or_service_date": "2030-01-24",
     "scheduled_at": "2030-01-13T10:00:00Z",
     "status": "SCHEDULED",
     "timezone": "America/Los_Angeles",

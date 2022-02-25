@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A discount applicable to items.
  */
@@ -43,6 +45,11 @@ class CatalogDiscount implements \JsonSerializable
      * @var string|null
      */
     private $modifyTaxBasis;
+
+    /**
+     * @var Money|null
+     */
+    private $maximumAmountMoney;
 
     /**
      * Returns Name.
@@ -225,23 +232,78 @@ class CatalogDiscount implements \JsonSerializable
     }
 
     /**
+     * Returns Maximum Amount Money.
+     *
+     * Represents an amount of money. `Money` fields can be signed or unsigned.
+     * Fields that do not explicitly define whether they are signed or unsigned are
+     * considered unsigned and can only hold positive amounts. For signed fields, the
+     * sign of the value indicates the purpose of the money transfer. See
+     * [Working with Monetary Amounts](https://developer.squareup.com/docs/build-basics/working-with-
+     * monetary-amounts)
+     * for more information.
+     */
+    public function getMaximumAmountMoney(): ?Money
+    {
+        return $this->maximumAmountMoney;
+    }
+
+    /**
+     * Sets Maximum Amount Money.
+     *
+     * Represents an amount of money. `Money` fields can be signed or unsigned.
+     * Fields that do not explicitly define whether they are signed or unsigned are
+     * considered unsigned and can only hold positive amounts. For signed fields, the
+     * sign of the value indicates the purpose of the money transfer. See
+     * [Working with Monetary Amounts](https://developer.squareup.com/docs/build-basics/working-with-
+     * monetary-amounts)
+     * for more information.
+     *
+     * @maps maximum_amount_money
+     */
+    public function setMaximumAmountMoney(?Money $maximumAmountMoney): void
+    {
+        $this->maximumAmountMoney = $maximumAmountMoney;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']           = $this->name;
-        $json['discount_type']  = $this->discountType;
-        $json['percentage']     = $this->percentage;
-        $json['amount_money']   = $this->amountMoney;
-        $json['pin_required']   = $this->pinRequired;
-        $json['label_color']    = $this->labelColor;
-        $json['modify_tax_basis'] = $this->modifyTaxBasis;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']                 = $this->name;
+        }
+        if (isset($this->discountType)) {
+            $json['discount_type']        = $this->discountType;
+        }
+        if (isset($this->percentage)) {
+            $json['percentage']           = $this->percentage;
+        }
+        if (isset($this->amountMoney)) {
+            $json['amount_money']         = $this->amountMoney;
+        }
+        if (isset($this->pinRequired)) {
+            $json['pin_required']         = $this->pinRequired;
+        }
+        if (isset($this->labelColor)) {
+            $json['label_color']          = $this->labelColor;
+        }
+        if (isset($this->modifyTaxBasis)) {
+            $json['modify_tax_basis']     = $this->modifyTaxBasis;
+        }
+        if (isset($this->maximumAmountMoney)) {
+            $json['maximum_amount_money'] = $this->maximumAmountMoney;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

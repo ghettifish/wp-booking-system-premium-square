@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * The hourly wage rate that a team member will earn on a `Shift` for doing the job
+ * The hourly wage rate that a team member earns on a `Shift` for doing the job
  * specified by the `title` property of this object.
  */
 class TeamMemberWage implements \JsonSerializable
@@ -33,7 +35,7 @@ class TeamMemberWage implements \JsonSerializable
     /**
      * Returns Id.
      *
-     * UUID for this object.
+     * The UUID for this object.
      */
     public function getId(): ?string
     {
@@ -43,7 +45,7 @@ class TeamMemberWage implements \JsonSerializable
     /**
      * Sets Id.
      *
-     * UUID for this object.
+     * The UUID for this object.
      *
      * @maps id
      */
@@ -55,7 +57,7 @@ class TeamMemberWage implements \JsonSerializable
     /**
      * Returns Team Member Id.
      *
-     * The `Team Member` that this wage is assigned to.
+     * The `TeamMember` that this wage is assigned to.
      */
     public function getTeamMemberId(): ?string
     {
@@ -65,7 +67,7 @@ class TeamMemberWage implements \JsonSerializable
     /**
      * Sets Team Member Id.
      *
-     * The `Team Member` that this wage is assigned to.
+     * The `TeamMember` that this wage is assigned to.
      *
      * @maps team_member_id
      */
@@ -133,18 +135,30 @@ class TeamMemberWage implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']           = $this->id;
-        $json['team_member_id'] = $this->teamMemberId;
-        $json['title']        = $this->title;
-        $json['hourly_rate']  = $this->hourlyRate;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']             = $this->id;
+        }
+        if (isset($this->teamMemberId)) {
+            $json['team_member_id'] = $this->teamMemberId;
+        }
+        if (isset($this->title)) {
+            $json['title']          = $this->title;
+        }
+        if (isset($this->hourlyRate)) {
+            $json['hourly_rate']    = $this->hourlyRate;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

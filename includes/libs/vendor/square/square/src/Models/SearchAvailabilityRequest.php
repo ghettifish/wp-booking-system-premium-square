@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class SearchAvailabilityRequest implements \JsonSerializable
 {
     /**
@@ -22,7 +24,7 @@ class SearchAvailabilityRequest implements \JsonSerializable
     /**
      * Returns Query.
      *
-     * Query conditions to search for availabilities of bookings.
+     * The query used to search for buyer-accessible availabilities of bookings.
      */
     public function getQuery(): SearchAvailabilityQuery
     {
@@ -32,7 +34,7 @@ class SearchAvailabilityRequest implements \JsonSerializable
     /**
      * Sets Query.
      *
-     * Query conditions to search for availabilities of bookings.
+     * The query used to search for buyer-accessible availabilities of bookings.
      *
      * @required
      * @maps query
@@ -45,15 +47,19 @@ class SearchAvailabilityRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
         $json['query'] = $this->query;
-
-        return array_filter($json, function ($val) {
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

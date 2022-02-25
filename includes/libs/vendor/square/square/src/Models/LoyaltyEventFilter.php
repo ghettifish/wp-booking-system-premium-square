@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * The filtering criteria. If the request specifies multiple filters,
  * the endpoint uses a logical AND to evaluate them.
@@ -148,19 +150,33 @@ class LoyaltyEventFilter implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['loyalty_account_filter'] = $this->loyaltyAccountFilter;
-        $json['type_filter']          = $this->typeFilter;
-        $json['date_time_filter']     = $this->dateTimeFilter;
-        $json['location_filter']      = $this->locationFilter;
-        $json['order_filter']         = $this->orderFilter;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->loyaltyAccountFilter)) {
+            $json['loyalty_account_filter'] = $this->loyaltyAccountFilter;
+        }
+        if (isset($this->typeFilter)) {
+            $json['type_filter']            = $this->typeFilter;
+        }
+        if (isset($this->dateTimeFilter)) {
+            $json['date_time_filter']       = $this->dateTimeFilter;
+        }
+        if (isset($this->locationFilter)) {
+            $json['location_filter']        = $this->locationFilter;
+        }
+        if (isset($this->orderFilter)) {
+            $json['order_filter']           = $this->orderFilter;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

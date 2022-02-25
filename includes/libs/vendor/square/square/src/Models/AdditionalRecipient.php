@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents an additional recipient (other than the merchant) receiving a portion of this tender.
  */
@@ -15,7 +17,7 @@ class AdditionalRecipient implements \JsonSerializable
     private $locationId;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $description;
 
@@ -31,13 +33,11 @@ class AdditionalRecipient implements \JsonSerializable
 
     /**
      * @param string $locationId
-     * @param string $description
      * @param Money $amountMoney
      */
-    public function __construct(string $locationId, string $description, Money $amountMoney)
+    public function __construct(string $locationId, Money $amountMoney)
     {
         $this->locationId = $locationId;
-        $this->description = $description;
         $this->amountMoney = $amountMoney;
     }
 
@@ -69,7 +69,7 @@ class AdditionalRecipient implements \JsonSerializable
      *
      * The description of the additional recipient.
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -79,10 +79,9 @@ class AdditionalRecipient implements \JsonSerializable
      *
      * The description of the additional recipient.
      *
-     * @required
      * @maps description
      */
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
@@ -125,8 +124,8 @@ class AdditionalRecipient implements \JsonSerializable
     /**
      * Returns Receivable Id.
      *
-     * The unique ID for this [AdditionalRecipientReceivable](#type-additionalrecipientreceivable),
-     * assigned by the server.
+     * The unique ID for this [AdditionalRecipientReceivable]($m/AdditionalRecipientReceivable), assigned
+     * by the server.
      */
     public function getReceivableId(): ?string
     {
@@ -136,8 +135,8 @@ class AdditionalRecipient implements \JsonSerializable
     /**
      * Sets Receivable Id.
      *
-     * The unique ID for this [AdditionalRecipientReceivable](#type-additionalrecipientreceivable),
-     * assigned by the server.
+     * The unique ID for this [AdditionalRecipientReceivable]($m/AdditionalRecipientReceivable), assigned
+     * by the server.
      *
      * @maps receivable_id
      */
@@ -149,18 +148,26 @@ class AdditionalRecipient implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['location_id']  = $this->locationId;
-        $json['description']  = $this->description;
-        $json['amount_money'] = $this->amountMoney;
-        $json['receivable_id'] = $this->receivableId;
-
-        return array_filter($json, function ($val) {
+        $json['location_id']       = $this->locationId;
+        if (isset($this->description)) {
+            $json['description']   = $this->description;
+        }
+        $json['amount_money']      = $this->amountMoney;
+        if (isset($this->receivableId)) {
+            $json['receivable_id'] = $this->receivableId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

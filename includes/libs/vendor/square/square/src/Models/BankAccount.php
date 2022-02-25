@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
-/**
- * Represents a bank account. For more information about
- * linking a bank account to a Square account, see
- * [Bank Accounts API](https://developer.squareup.com/docs/bank-accounts-api).
- */
+use stdClass;
+
 class BankAccount implements \JsonSerializable
 {
     /**
@@ -541,31 +538,49 @@ class BankAccount implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                                = $this->id;
-        $json['account_number_suffix']             = $this->accountNumberSuffix;
-        $json['country']                           = $this->country;
-        $json['currency']                          = $this->currency;
-        $json['account_type']                      = $this->accountType;
-        $json['holder_name']                       = $this->holderName;
-        $json['primary_bank_identification_number'] = $this->primaryBankIdentificationNumber;
-        $json['secondary_bank_identification_number'] = $this->secondaryBankIdentificationNumber;
-        $json['debit_mandate_reference_id']        = $this->debitMandateReferenceId;
-        $json['reference_id']                      = $this->referenceId;
-        $json['location_id']                       = $this->locationId;
-        $json['status']                            = $this->status;
-        $json['creditable']                        = $this->creditable;
-        $json['debitable']                         = $this->debitable;
-        $json['fingerprint']                       = $this->fingerprint;
-        $json['version']                           = $this->version;
-        $json['bank_name']                         = $this->bankName;
-
-        return array_filter($json, function ($val) {
+        $json['id']                                       = $this->id;
+        $json['account_number_suffix']                    = $this->accountNumberSuffix;
+        $json['country']                                  = $this->country;
+        $json['currency']                                 = $this->currency;
+        $json['account_type']                             = $this->accountType;
+        $json['holder_name']                              = $this->holderName;
+        $json['primary_bank_identification_number']       = $this->primaryBankIdentificationNumber;
+        if (isset($this->secondaryBankIdentificationNumber)) {
+            $json['secondary_bank_identification_number'] = $this->secondaryBankIdentificationNumber;
+        }
+        if (isset($this->debitMandateReferenceId)) {
+            $json['debit_mandate_reference_id']           = $this->debitMandateReferenceId;
+        }
+        if (isset($this->referenceId)) {
+            $json['reference_id']                         = $this->referenceId;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']                          = $this->locationId;
+        }
+        $json['status']                                   = $this->status;
+        $json['creditable']                               = $this->creditable;
+        $json['debitable']                                = $this->debitable;
+        if (isset($this->fingerprint)) {
+            $json['fingerprint']                          = $this->fingerprint;
+        }
+        if (isset($this->version)) {
+            $json['version']                              = $this->version;
+        }
+        if (isset($this->bankName)) {
+            $json['bank_name']                            = $this->bankName;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

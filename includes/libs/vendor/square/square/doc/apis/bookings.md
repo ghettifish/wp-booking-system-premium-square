@@ -10,6 +10,7 @@ $bookingsApi = $client->getBookingsApi();
 
 ## Methods
 
+* [List Bookings](/doc/apis/bookings.md#list-bookings)
 * [Create Booking](/doc/apis/bookings.md#create-booking)
 * [Search Availability](/doc/apis/bookings.md#search-availability)
 * [Retrieve Business Booking Profile](/doc/apis/bookings.md#retrieve-business-booking-profile)
@@ -20,9 +21,69 @@ $bookingsApi = $client->getBookingsApi();
 * [Cancel Booking](/doc/apis/bookings.md#cancel-booking)
 
 
+# List Bookings
+
+Retrieve a collection of bookings.
+
+To call this endpoint with buyer-level permissions, set `APPOINTMENTS_READ` for the OAuth scope.  
+To call this endpoint with seller-level permissions, set `APPOINTMENTS_ALL_READ` and `APPOINTMENTS_READ` for the OAuth scope.
+
+```php
+function listBookings(
+    ?int $limit = null,
+    ?string $cursor = null,
+    ?string $teamMemberId = null,
+    ?string $locationId = null,
+    ?string $startAtMin = null,
+    ?string $startAtMax = null
+): ApiResponse
+```
+
+## Parameters
+
+| Parameter | Type | Tags | Description |
+|  --- | --- | --- | --- |
+| `limit` | `?int` | Query, Optional | The maximum number of results per page to return in a paged response. |
+| `cursor` | `?string` | Query, Optional | The pagination cursor from the preceding response to return the next page of the results. Do not set this when retrieving the first page of the results. |
+| `teamMemberId` | `?string` | Query, Optional | The team member for whom to retrieve bookings. If this is not set, bookings of all members are retrieved. |
+| `locationId` | `?string` | Query, Optional | The location for which to retrieve bookings. If this is not set, all locations' bookings are retrieved. |
+| `startAtMin` | `?string` | Query, Optional | The RFC 3339 timestamp specifying the earliest of the start time. If this is not set, the current time is used. |
+| `startAtMax` | `?string` | Query, Optional | The RFC 3339 timestamp specifying the latest of the start time. If this is not set, the time of 31 days after `start_at_min` is used. |
+
+## Response Type
+
+[`ListBookingsResponse`](/doc/models/list-bookings-response.md)
+
+## Example Usage
+
+```php
+$limit = 172;
+$cursor = 'cursor6';
+$teamMemberId = 'team_member_id0';
+$locationId = 'location_id4';
+$startAtMin = 'start_at_min8';
+$startAtMax = 'start_at_max8';
+
+$apiResponse = $bookingsApi->listBookings($limit, $cursor, $teamMemberId, $locationId, $startAtMin, $startAtMax);
+
+if ($apiResponse->isSuccess()) {
+    $listBookingsResponse = $apiResponse->getResult();
+} else {
+    $errors = $apiResponse->getErrors();
+}
+
+// Get more response info...
+// $statusCode = $apiResponse->getStatusCode();
+// $headers = $apiResponse->getHeaders();
+```
+
+
 # Create Booking
 
 Creates a booking.
+
+To call this endpoint with buyer-level permissions, set `APPOINTMENTS_WRITE` for the OAuth scope.  
+To call this endpoint with seller-level permissions, set `APPOINTMENTS_ALL_WRITE` and `APPOINTMENTS_WRITE` for the OAuth scope.
 
 ```php
 function createBooking(CreateBookingRequest $body): ApiResponse
@@ -69,6 +130,9 @@ if ($apiResponse->isSuccess()) {
 # Search Availability
 
 Searches for availabilities for booking.
+
+To call this endpoint with buyer-level permissions, set `APPOINTMENTS_READ` for the OAuth scope.  
+To call this endpoint with seller-level permissions, set `APPOINTMENTS_ALL_READ` and `APPOINTMENTS_READ` for the OAuth scope.
 
 ```php
 function searchAvailability(SearchAvailabilityRequest $body): ApiResponse
@@ -184,8 +248,8 @@ function listTeamMemberBookingProfiles(
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `bookableOnly` | `?bool` | Query, Optional | Indicates whether to include only bookable team members in the returned result (`true`) or not (`false`).<br>**Default**: `false` |
-| `limit` | `?int` | Query, Optional | The maximum number of results to return. |
-| `cursor` | `?string` | Query, Optional | The cursor for paginating through the results. |
+| `limit` | `?int` | Query, Optional | The maximum number of results to return in a paged response. |
+| `cursor` | `?string` | Query, Optional | The pagination cursor from the preceding response to return the next page of the results. Do not set this when retrieving the first page of the results. |
 | `locationId` | `?string` | Query, Optional | Indicates whether to include only team members enabled at the given location in the returned result. |
 
 ## Response Type
@@ -255,6 +319,9 @@ if ($apiResponse->isSuccess()) {
 
 Retrieves a booking.
 
+To call this endpoint with buyer-level permissions, set `APPOINTMENTS_READ` for the OAuth scope.  
+To call this endpoint with seller-level permissions, set `APPOINTMENTS_ALL_READ` and `APPOINTMENTS_READ` for the OAuth scope.
+
 ```php
 function retrieveBooking(string $bookingId): ApiResponse
 ```
@@ -263,7 +330,7 @@ function retrieveBooking(string $bookingId): ApiResponse
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `bookingId` | `string` | Template, Required | The ID of the [Booking](#type-booking) object representing the to-be-retrieved booking. |
+| `bookingId` | `string` | Template, Required | The ID of the [Booking](/doc/models/booking.md) object representing the to-be-retrieved booking. |
 
 ## Response Type
 
@@ -292,6 +359,9 @@ if ($apiResponse->isSuccess()) {
 
 Updates a booking.
 
+To call this endpoint with buyer-level permissions, set `APPOINTMENTS_WRITE` for the OAuth scope.  
+To call this endpoint with seller-level permissions, set `APPOINTMENTS_ALL_WRITE` and `APPOINTMENTS_WRITE` for the OAuth scope.
+
 ```php
 function updateBooking(string $bookingId, UpdateBookingRequest $body): ApiResponse
 ```
@@ -300,7 +370,7 @@ function updateBooking(string $bookingId, UpdateBookingRequest $body): ApiRespon
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `bookingId` | `string` | Template, Required | The ID of the [Booking](#type-booking) object representing the to-be-updated booking. |
+| `bookingId` | `string` | Template, Required | The ID of the [Booking](/doc/models/booking.md) object representing the to-be-updated booking. |
 | `body` | [`UpdateBookingRequest`](/doc/models/update-booking-request.md) | Body, Required | An object containing the fields to POST for the request.<br><br>See the corresponding object definition for field details. |
 
 ## Response Type
@@ -340,6 +410,9 @@ if ($apiResponse->isSuccess()) {
 
 Cancels an existing booking.
 
+To call this endpoint with buyer-level permissions, set `APPOINTMENTS_WRITE` for the OAuth scope.  
+To call this endpoint with seller-level permissions, set `APPOINTMENTS_ALL_WRITE` and `APPOINTMENTS_WRITE` for the OAuth scope.
+
 ```php
 function cancelBooking(string $bookingId, CancelBookingRequest $body): ApiResponse
 ```
@@ -348,7 +421,7 @@ function cancelBooking(string $bookingId, CancelBookingRequest $body): ApiRespon
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `bookingId` | `string` | Template, Required | The ID of the [Booking](#type-booking) object representing the to-be-cancelled booking. |
+| `bookingId` | `string` | Template, Required | The ID of the [Booking](/doc/models/booking.md) object representing the to-be-cancelled booking. |
 | `body` | [`CancelBookingRequest`](/doc/models/cancel-booking-request.md) | Body, Required | An object containing the fields to POST for the request.<br><br>See the corresponding object definition for field details. |
 
 ## Response Type

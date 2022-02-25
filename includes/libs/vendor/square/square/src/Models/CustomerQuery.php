@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a query (including filtering criteria, sorting criteria, or both) used to search
  * for customer profiles.
@@ -24,7 +26,7 @@ class CustomerQuery implements \JsonSerializable
      * Returns Filter.
      *
      * Represents a set of `CustomerQuery` filters used to limit the set of
-     * `Customers` returned by `SearchCustomers`.
+     * customers returned by the [SearchCustomers]($e/Customers/SearchCustomers) endpoint.
      */
     public function getFilter(): ?CustomerFilter
     {
@@ -35,7 +37,7 @@ class CustomerQuery implements \JsonSerializable
      * Sets Filter.
      *
      * Represents a set of `CustomerQuery` filters used to limit the set of
-     * `Customers` returned by `SearchCustomers`.
+     * customers returned by the [SearchCustomers]($e/Customers/SearchCustomers) endpoint.
      *
      * @maps filter
      */
@@ -69,16 +71,24 @@ class CustomerQuery implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['filter'] = $this->filter;
-        $json['sort']   = $this->sort;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->filter)) {
+            $json['filter'] = $this->filter;
+        }
+        if (isset($this->sort)) {
+            $json['sort']   = $this->sort;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

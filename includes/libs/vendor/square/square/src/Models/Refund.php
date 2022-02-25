@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a refund processed for a Square transaction.
  */
@@ -346,24 +348,34 @@ class Refund implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                   = $this->id;
-        $json['location_id']          = $this->locationId;
-        $json['transaction_id']       = $this->transactionId;
-        $json['tender_id']            = $this->tenderId;
-        $json['created_at']           = $this->createdAt;
-        $json['reason']               = $this->reason;
-        $json['amount_money']         = $this->amountMoney;
-        $json['status']               = $this->status;
-        $json['processing_fee_money'] = $this->processingFeeMoney;
-        $json['additional_recipients'] = $this->additionalRecipients;
-
-        return array_filter($json, function ($val) {
+        $json['id']                        = $this->id;
+        $json['location_id']               = $this->locationId;
+        $json['transaction_id']            = $this->transactionId;
+        $json['tender_id']                 = $this->tenderId;
+        if (isset($this->createdAt)) {
+            $json['created_at']            = $this->createdAt;
+        }
+        $json['reason']                    = $this->reason;
+        $json['amount_money']              = $this->amountMoney;
+        $json['status']                    = $this->status;
+        if (isset($this->processingFeeMoney)) {
+            $json['processing_fee_money']  = $this->processingFeeMoney;
+        }
+        if (isset($this->additionalRecipients)) {
+            $json['additional_recipients'] = $this->additionalRecipients;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Defines the fields that are included in the response from the
- * [SearchSubscriptions](#endpoint-subscriptions-searchsubscriptions) endpoint.
+ * Defines output parameters in a response from the
+ * [SearchSubscriptions]($e/Subscriptions/SearchSubscriptions) endpoint.
  */
 class SearchSubscriptionsResponse implements \JsonSerializable
 {
@@ -28,7 +30,7 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Returns Errors.
      *
-     * Information about errors encountered during the request.
+     * Errors encountered during the request.
      *
      * @return Error[]|null
      */
@@ -40,7 +42,7 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Sets Errors.
      *
-     * Information about errors encountered during the request.
+     * Errors encountered during the request.
      *
      * @maps errors
      *
@@ -54,7 +56,7 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Returns Subscriptions.
      *
-     * The search result.
+     * The subscriptions matching the specified query expressions.
      *
      * @return Subscription[]|null
      */
@@ -66,7 +68,7 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Sets Subscriptions.
      *
-     * The search result.
+     * The subscriptions matching the specified query expressions.
      *
      * @maps subscriptions
      *
@@ -80,9 +82,10 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Returns Cursor.
      *
-     * When a response is truncated, it includes a cursor that you can
-     * use in a subsequent request to fetch the next set of subscriptions.
-     * If empty, this is the final response.
+     * When the total number of resulting subscription exceeds the limit of a paged response,
+     * the response includes a cursor for you to use in a subsequent request to fetch the next set of
+     * results.
+     * If the cursor is unset, the response contains the last page of the results.
      *
      * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
      * apis/pagination).
@@ -95,9 +98,10 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Sets Cursor.
      *
-     * When a response is truncated, it includes a cursor that you can
-     * use in a subsequent request to fetch the next set of subscriptions.
-     * If empty, this is the final response.
+     * When the total number of resulting subscription exceeds the limit of a paged response,
+     * the response includes a cursor for you to use in a subsequent request to fetch the next set of
+     * results.
+     * If the cursor is unset, the response contains the last page of the results.
      *
      * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
      * apis/pagination).
@@ -112,17 +116,27 @@ class SearchSubscriptionsResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']        = $this->errors;
-        $json['subscriptions'] = $this->subscriptions;
-        $json['cursor']        = $this->cursor;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']        = $this->errors;
+        }
+        if (isset($this->subscriptions)) {
+            $json['subscriptions'] = $this->subscriptions;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']        = $this->cursor;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

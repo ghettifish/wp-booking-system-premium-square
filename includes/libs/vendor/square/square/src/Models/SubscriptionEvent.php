@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Describes changes to subscription and billing states.
+ * Describes changes to a subscription and the subscription status.
  */
 class SubscriptionEvent implements \JsonSerializable
 {
@@ -28,6 +30,11 @@ class SubscriptionEvent implements \JsonSerializable
      * @var string
      */
     private $planId;
+
+    /**
+     * @var SubscriptionEventInfo|null
+     */
+    private $info;
 
     /**
      * @param string $id
@@ -69,7 +76,7 @@ class SubscriptionEvent implements \JsonSerializable
     /**
      * Returns Subscription Event Type.
      *
-     * The possible subscription event types.
+     * Supported types of an event occurred to a subscription.
      */
     public function getSubscriptionEventType(): string
     {
@@ -79,7 +86,7 @@ class SubscriptionEvent implements \JsonSerializable
     /**
      * Sets Subscription Event Type.
      *
-     * The possible subscription event types.
+     * Supported types of an event occurred to a subscription.
      *
      * @required
      * @maps subscription_event_type
@@ -92,8 +99,7 @@ class SubscriptionEvent implements \JsonSerializable
     /**
      * Returns Effective Date.
      *
-     * The date, in YYYY-MM-DD format (for
-     * example, 2013-01-15), when the subscription event went into effect.
+     * The `YYYY-MM-DD`-formatted date (for example, 2013-01-15) when the subscription event occurred.
      */
     public function getEffectiveDate(): string
     {
@@ -103,8 +109,7 @@ class SubscriptionEvent implements \JsonSerializable
     /**
      * Sets Effective Date.
      *
-     * The date, in YYYY-MM-DD format (for
-     * example, 2013-01-15), when the subscription event went into effect.
+     * The `YYYY-MM-DD`-formatted date (for example, 2013-01-15) when the subscription event occurred.
      *
      * @required
      * @maps effective_date
@@ -138,20 +143,49 @@ class SubscriptionEvent implements \JsonSerializable
     }
 
     /**
+     * Returns Info.
+     *
+     * Provides information about the subscription event.
+     */
+    public function getInfo(): ?SubscriptionEventInfo
+    {
+        return $this->info;
+    }
+
+    /**
+     * Sets Info.
+     *
+     * Provides information about the subscription event.
+     *
+     * @maps info
+     */
+    public function setInfo(?SubscriptionEventInfo $info): void
+    {
+        $this->info = $info;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                    = $this->id;
+        $json['id']                      = $this->id;
         $json['subscription_event_type'] = $this->subscriptionEventType;
-        $json['effective_date']        = $this->effectiveDate;
-        $json['plan_id']               = $this->planId;
-
-        return array_filter($json, function ($val) {
+        $json['effective_date']          = $this->effectiveDate;
+        $json['plan_id']                 = $this->planId;
+        if (isset($this->info)) {
+            $json['info']                = $this->info;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

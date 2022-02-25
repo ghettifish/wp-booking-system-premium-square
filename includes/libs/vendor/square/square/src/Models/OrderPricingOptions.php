@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Pricing options for an order. The options affect how the order's price is calculated.
- * They can be used, for example, to apply automatic price adjustments that are based on pre-
- * configured
- * [pricing rules](https://developer.squareup.com/docs/reference/square/objects/CatalogPricingRule).
+ * They can be used, for example, to apply automatic price adjustments that are based on preconfigured
+ * [pricing rules]($m/CatalogPricingRule).
  */
 class OrderPricingOptions implements \JsonSerializable
 {
@@ -73,16 +74,24 @@ class OrderPricingOptions implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['auto_apply_discounts'] = $this->autoApplyDiscounts;
-        $json['auto_apply_taxes']   = $this->autoApplyTaxes;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->autoApplyDiscounts)) {
+            $json['auto_apply_discounts'] = $this->autoApplyDiscounts;
+        }
+        if (isset($this->autoApplyTaxes)) {
+            $json['auto_apply_taxes']     = $this->autoApplyTaxes;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

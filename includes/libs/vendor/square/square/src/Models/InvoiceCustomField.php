@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * An additional seller-defined and customer-facing field to include on the invoice. For more
  * information,
  * see [Custom fields](https://developer.squareup.com/docs/invoices-api/overview#custom-fields).
+ *
+ * Adding custom fields to an invoice requires an
+ * [Invoices Plus subscription](https://developer.squareup.com/docs/invoices-api/overview#invoices-plus-
+ * subscription).
  */
 class InvoiceCustomField implements \JsonSerializable
 {
@@ -97,17 +103,27 @@ class InvoiceCustomField implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['label']     = $this->label;
-        $json['value']     = $this->value;
-        $json['placement'] = $this->placement;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->label)) {
+            $json['label']     = $this->label;
+        }
+        if (isset($this->value)) {
+            $json['value']     = $this->value;
+        }
+        if (isset($this->placement)) {
+            $json['placement'] = $this->placement;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

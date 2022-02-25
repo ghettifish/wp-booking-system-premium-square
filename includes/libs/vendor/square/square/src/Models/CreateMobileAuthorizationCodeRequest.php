@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the body parameters that can be provided in a request to the
- * __CreateMobileAuthorizationCode__ endpoint.
+ * `CreateMobileAuthorizationCode` endpoint.
  */
 class CreateMobileAuthorizationCodeRequest implements \JsonSerializable
 {
@@ -18,7 +20,7 @@ class CreateMobileAuthorizationCodeRequest implements \JsonSerializable
     /**
      * Returns Location Id.
      *
-     * The Square location ID the authorization code should be tied to.
+     * The Square location ID that the authorization code should be tied to.
      */
     public function getLocationId(): ?string
     {
@@ -28,7 +30,7 @@ class CreateMobileAuthorizationCodeRequest implements \JsonSerializable
     /**
      * Sets Location Id.
      *
-     * The Square location ID the authorization code should be tied to.
+     * The Square location ID that the authorization code should be tied to.
      *
      * @maps location_id
      */
@@ -40,15 +42,21 @@ class CreateMobileAuthorizationCodeRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['location_id'] = $this->locationId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->locationId)) {
+            $json['location_id'] = $this->locationId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

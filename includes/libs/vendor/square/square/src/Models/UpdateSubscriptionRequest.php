@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Defines parameters in a
- * [UpdateSubscription](#endpoint-subscriptions-updatesubscription) endpoint
- * request.
+ * Defines input parameters in a request to the
+ * [UpdateSubscription]($e/Subscriptions/UpdateSubscription) endpoint.
  */
 class UpdateSubscriptionRequest implements \JsonSerializable
 {
@@ -19,7 +20,8 @@ class UpdateSubscriptionRequest implements \JsonSerializable
     /**
      * Returns Subscription.
      *
-     * Represents a customer subscription to a subscription plan.
+     * Represents a subscription to a subscription plan by a subscriber.
+     *
      * For an overview of the `Subscription` type, see
      * [Subscription object](https://developer.squareup.com/docs/subscriptions-api/overview#subscription-
      * object-overview).
@@ -32,7 +34,8 @@ class UpdateSubscriptionRequest implements \JsonSerializable
     /**
      * Sets Subscription.
      *
-     * Represents a customer subscription to a subscription plan.
+     * Represents a subscription to a subscription plan by a subscriber.
+     *
      * For an overview of the `Subscription` type, see
      * [Subscription object](https://developer.squareup.com/docs/subscriptions-api/overview#subscription-
      * object-overview).
@@ -47,15 +50,21 @@ class UpdateSubscriptionRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['subscription'] = $this->subscription;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->subscription)) {
+            $json['subscription'] = $this->subscription;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

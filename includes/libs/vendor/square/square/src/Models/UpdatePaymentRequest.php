@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Describes a request to update a payment using
- * [UpdatePayment](#endpoint-payments-updatepayment).
+ * [UpdatePayment]($e/Payments/UpdatePayment).
  */
 class UpdatePaymentRequest implements \JsonSerializable
 {
@@ -56,8 +58,6 @@ class UpdatePaymentRequest implements \JsonSerializable
      * A unique string that identifies this `UpdatePayment` request. Keys can be any valid string
      * but must be unique for every `UpdatePayment` request.
      *
-     * The maximum is 45 characters.
-     *
      * For more information, see [Idempotency](https://developer.squareup.
      * com/docs/basics/api101/idempotency).
      */
@@ -71,8 +71,6 @@ class UpdatePaymentRequest implements \JsonSerializable
      *
      * A unique string that identifies this `UpdatePayment` request. Keys can be any valid string
      * but must be unique for every `UpdatePayment` request.
-     *
-     * The maximum is 45 characters.
      *
      * For more information, see [Idempotency](https://developer.squareup.
      * com/docs/basics/api101/idempotency).
@@ -88,16 +86,22 @@ class UpdatePaymentRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['payment']        = $this->payment;
+        if (isset($this->payment)) {
+            $json['payment']     = $this->payment;
+        }
         $json['idempotency_key'] = $this->idempotencyKey;
-
-        return array_filter($json, function ($val) {
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

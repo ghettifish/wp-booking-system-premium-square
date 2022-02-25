@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the fields that are included in the response body of
- * a request to the [ListCustomerGroups](#endpoint-listcustomergroups) endpoint.
+ * a request to the [ListCustomerGroups]($e/CustomerGroups/ListCustomerGroups) endpoint.
  *
- * One of `errors` or `groups` is present in a given response (never both).
+ * Either `errors` or `groups` is present in a given response (never both).
  */
 class ListCustomerGroupsResponse implements \JsonSerializable
 {
@@ -56,7 +58,7 @@ class ListCustomerGroupsResponse implements \JsonSerializable
     /**
      * Returns Groups.
      *
-     * A list of customer groups belonging to the current merchant.
+     * A list of customer groups belonging to the current seller.
      *
      * @return CustomerGroup[]|null
      */
@@ -68,7 +70,7 @@ class ListCustomerGroupsResponse implements \JsonSerializable
     /**
      * Sets Groups.
      *
-     * A list of customer groups belonging to the current merchant.
+     * A list of customer groups belonging to the current seller.
      *
      * @maps groups
      *
@@ -86,8 +88,8 @@ class ListCustomerGroupsResponse implements \JsonSerializable
      * original query to the endpoint. This value is present only if the request
      * succeeded and additional results are available.
      *
-     * See the [Pagination guide](https://developer.squareup.com/docs/working-with-apis/pagination) for
-     * more information.
+     * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
+     * apis/pagination).
      */
     public function getCursor(): ?string
     {
@@ -101,8 +103,8 @@ class ListCustomerGroupsResponse implements \JsonSerializable
      * original query to the endpoint. This value is present only if the request
      * succeeded and additional results are available.
      *
-     * See the [Pagination guide](https://developer.squareup.com/docs/working-with-apis/pagination) for
-     * more information.
+     * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
+     * apis/pagination).
      *
      * @maps cursor
      */
@@ -114,17 +116,27 @@ class ListCustomerGroupsResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors'] = $this->errors;
-        $json['groups'] = $this->groups;
-        $json['cursor'] = $this->cursor;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors'] = $this->errors;
+        }
+        if (isset($this->groups)) {
+            $json['groups'] = $this->groups;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor'] = $this->cursor;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * The booking profile of a seller's team member, including the team member's ID, display name,
  * description and whether the team member can be booked as a service provider.
@@ -38,7 +40,7 @@ class TeamMemberBookingProfile implements \JsonSerializable
     /**
      * Returns Team Member Id.
      *
-     * The ID of the [TeamMember](#type-TeamMember) object for the team member associated with the booking
+     * The ID of the [TeamMember]($m/TeamMember) object for the team member associated with the booking
      * profile.
      */
     public function getTeamMemberId(): ?string
@@ -49,7 +51,7 @@ class TeamMemberBookingProfile implements \JsonSerializable
     /**
      * Sets Team Member Id.
      *
-     * The ID of the [TeamMember](#type-TeamMember) object for the team member associated with the booking
+     * The ID of the [TeamMember]($m/TeamMember) object for the team member associated with the booking
      * profile.
      *
      * @maps team_member_id
@@ -152,19 +154,33 @@ class TeamMemberBookingProfile implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['team_member_id']  = $this->teamMemberId;
-        $json['description']     = $this->description;
-        $json['display_name']    = $this->displayName;
-        $json['is_bookable']     = $this->isBookable;
-        $json['profile_image_url'] = $this->profileImageUrl;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->teamMemberId)) {
+            $json['team_member_id']    = $this->teamMemberId;
+        }
+        if (isset($this->description)) {
+            $json['description']       = $this->description;
+        }
+        if (isset($this->displayName)) {
+            $json['display_name']      = $this->displayName;
+        }
+        if (isset($this->isBookable)) {
+            $json['is_bookable']       = $this->isBookable;
+        }
+        if (isset($this->profileImageUrl)) {
+            $json['profile_image_url'] = $this->profileImageUrl;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

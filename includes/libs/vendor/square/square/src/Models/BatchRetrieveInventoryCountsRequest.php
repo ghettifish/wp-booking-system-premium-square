@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class BatchRetrieveInventoryCountsRequest implements \JsonSerializable
 {
     /**
@@ -176,19 +178,33 @@ class BatchRetrieveInventoryCountsRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['catalog_object_ids'] = $this->catalogObjectIds;
-        $json['location_ids']     = $this->locationIds;
-        $json['updated_after']    = $this->updatedAfter;
-        $json['cursor']           = $this->cursor;
-        $json['states']           = $this->states;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->catalogObjectIds)) {
+            $json['catalog_object_ids'] = $this->catalogObjectIds;
+        }
+        if (isset($this->locationIds)) {
+            $json['location_ids']       = $this->locationIds;
+        }
+        if (isset($this->updatedAfter)) {
+            $json['updated_after']      = $this->updatedAfter;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']             = $this->cursor;
+        }
+        if (isset($this->states)) {
+            $json['states']             = $this->states;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

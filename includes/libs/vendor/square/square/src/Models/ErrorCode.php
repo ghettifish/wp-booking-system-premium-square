@@ -71,6 +71,11 @@ class ErrorCode
     public const CARD_PROCESSING_NOT_ENABLED = 'CARD_PROCESSING_NOT_ENABLED';
 
     /**
+     * A required subscription was not found for the merchant
+     */
+    public const MERCHANT_SUBSCRIPTION_NOT_FOUND = 'MERCHANT_SUBSCRIPTION_NOT_FOUND';
+
+    /**
      * A general error occurred with the request.
      */
     public const BAD_REQUEST = 'BAD_REQUEST';
@@ -287,6 +292,26 @@ class ErrorCode
     public const MAP_KEY_LENGTH_TOO_LONG = 'MAP_KEY_LENGTH_TOO_LONG';
 
     /**
+     * The provided customer does not have a recorded name.
+     */
+    public const CUSTOMER_MISSING_NAME = 'CUSTOMER_MISSING_NAME';
+
+    /**
+     * The provided customer does not have a recorded email.
+     */
+    public const CUSTOMER_MISSING_EMAIL = 'CUSTOMER_MISSING_EMAIL';
+
+    /**
+     * The subscription cannot be paused longer than the duration of the current phase.
+     */
+    public const INVALID_PAUSE_LENGTH = 'INVALID_PAUSE_LENGTH';
+
+    /**
+     * The subscription cannot be paused/resumed on the given date.
+     */
+    public const INVALID_DATE = 'INVALID_DATE';
+
+    /**
      * The card issuer declined the request because the card is expired.
      */
     public const CARD_EXPIRED = 'CARD_EXPIRED';
@@ -330,9 +355,9 @@ class ErrorCode
     public const INVALID_CARD = 'INVALID_CARD';
 
     /**
-     * Square received a decline from the cardholder's bank without any
-     * additional information. If the card information seems correct, the card
-     * holder can contact their card issuer to ask for more information.
+     * Square received a decline without any additional information.
+     * If the payment information seems correct, the buyer can contact their
+     * issuer to ask for more information.
      */
     public const GENERIC_DECLINE = 'GENERIC_DECLINE';
 
@@ -347,7 +372,7 @@ class ErrorCode
     public const ADDRESS_VERIFICATION_FAILURE = 'ADDRESS_VERIFICATION_FAILURE';
 
     /**
-     * The card issuer was not able to locate account on record.
+     * The issuer was not able to locate the account on record.
      */
     public const INVALID_ACCOUNT = 'INVALID_ACCOUNT';
 
@@ -410,8 +435,8 @@ class ErrorCode
 
     /**
      * The card is not supported either in the geographic region or by
-     * the MCC [merchant category code](https://developer.squareup.com/docs/api/connect/v2#navsection-
-     * connectapibasics)
+     * the [merchant category code](https://developer.squareup.com/docs/locations-api#initialize-a-merchant-
+     * category-code) (MCC).
      */
     public const CARD_NOT_SUPPORTED = 'CARD_NOT_SUPPORTED';
 
@@ -419,6 +444,16 @@ class ErrorCode
      * The card issuer declined the request because the PIN is invalid.
      */
     public const INVALID_PIN = 'INVALID_PIN';
+
+    /**
+     * The payment is missing a required PIN.
+     */
+    public const MISSING_PIN = 'MISSING_PIN';
+
+    /**
+     * The payment is missing a required ACCOUNT_TYPE parameter.
+     */
+    public const MISSING_ACCOUNT_TYPE = 'MISSING_ACCOUNT_TYPE';
 
     /**
      * The postal code is incorrectly formatted.
@@ -453,6 +488,16 @@ class ErrorCode
      * api/error-codes#createpayment-errors-additional-information).
      */
     public const GIFT_CARD_AVAILABLE_AMOUNT = 'GIFT_CARD_AVAILABLE_AMOUNT';
+
+    /**
+     * The account provided cannot carry out transactions.
+     */
+    public const ACCOUNT_UNUSABLE = 'ACCOUNT_UNUSABLE';
+
+    /**
+     * Bank account rejected or was not authorized for the payment.
+     */
+    public const BUYER_REFUSED_PAYMENT = 'BUYER_REFUSED_PAYMENT';
 
     /**
      * The application tried to update a delayed-capture payment that has expired.

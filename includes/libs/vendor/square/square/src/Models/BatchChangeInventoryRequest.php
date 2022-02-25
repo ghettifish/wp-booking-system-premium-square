@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class BatchChangeInventoryRequest implements \JsonSerializable
 {
     /**
-     * @var string|null
+     * @var string
      */
     private $idempotencyKey;
 
@@ -22,6 +24,14 @@ class BatchChangeInventoryRequest implements \JsonSerializable
     private $ignoreUnchangedCounts;
 
     /**
+     * @param string $idempotencyKey
+     */
+    public function __construct(string $idempotencyKey)
+    {
+        $this->idempotencyKey = $idempotencyKey;
+    }
+
+    /**
      * Returns Idempotency Key.
      *
      * A client-supplied, universally unique identifier (UUID) for the
@@ -31,7 +41,7 @@ class BatchChangeInventoryRequest implements \JsonSerializable
      * [API Development 101](https://developer.squareup.com/docs/basics/api101/overview) section for more
      * information.
      */
-    public function getIdempotencyKey(): ?string
+    public function getIdempotencyKey(): string
     {
         return $this->idempotencyKey;
     }
@@ -46,9 +56,10 @@ class BatchChangeInventoryRequest implements \JsonSerializable
      * [API Development 101](https://developer.squareup.com/docs/basics/api101/overview) section for more
      * information.
      *
+     * @required
      * @maps idempotency_key
      */
-    public function setIdempotencyKey(?string $idempotencyKey): void
+    public function setIdempotencyKey(string $idempotencyKey): void
     {
         $this->idempotencyKey = $idempotencyKey;
     }
@@ -110,17 +121,25 @@ class BatchChangeInventoryRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['idempotency_key']       = $this->idempotencyKey;
-        $json['changes']               = $this->changes;
-        $json['ignore_unchanged_counts'] = $this->ignoreUnchangedCounts;
-
-        return array_filter($json, function ($val) {
+        $json['idempotency_key']             = $this->idempotencyKey;
+        if (isset($this->changes)) {
+            $json['changes']                 = $this->changes;
+        }
+        if (isset($this->ignoreUnchangedCounts)) {
+            $json['ignore_unchanged_counts'] = $this->ignoreUnchangedCounts;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

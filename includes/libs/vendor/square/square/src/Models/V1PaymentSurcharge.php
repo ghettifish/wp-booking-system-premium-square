@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * V1PaymentSurcharge
  */
@@ -224,22 +226,42 @@ class V1PaymentSurcharge implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']         = $this->name;
-        $json['applied_money'] = $this->appliedMoney;
-        $json['rate']         = $this->rate;
-        $json['amount_money'] = $this->amountMoney;
-        $json['type']         = $this->type;
-        $json['taxable']      = $this->taxable;
-        $json['taxes']        = $this->taxes;
-        $json['surcharge_id'] = $this->surchargeId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']          = $this->name;
+        }
+        if (isset($this->appliedMoney)) {
+            $json['applied_money'] = $this->appliedMoney;
+        }
+        if (isset($this->rate)) {
+            $json['rate']          = $this->rate;
+        }
+        if (isset($this->amountMoney)) {
+            $json['amount_money']  = $this->amountMoney;
+        }
+        if (isset($this->type)) {
+            $json['type']          = $this->type;
+        }
+        if (isset($this->taxable)) {
+            $json['taxable']       = $this->taxable;
+        }
+        if (isset($this->taxes)) {
+            $json['taxes']         = $this->taxes;
+        }
+        if (isset($this->surchargeId)) {
+            $json['surcharge_id']  = $this->surchargeId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class SearchCatalogObjectsRequest implements \JsonSerializable
 {
     /**
@@ -70,6 +72,15 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      *
      * The desired set of object types to appear in the search results.
      *
+     * If this is unspecified, the operation returns objects of all the top level types at the version
+     * of the Square API used to make the request. Object types that are nested onto other object types
+     * are not included in the defaults.
+     *
+     * At the current API version the default object types are:
+     * ITEM, CATEGORY, TAX, DISCOUNT, MODIFIER_LIST, DINING_OPTION, TAX_EXEMPTION,
+     * SERVICE_CHARGE, PRICING_RULE, PRODUCT_SET, TIME_PERIOD, MEASUREMENT_UNIT,
+     * SUBSCRIPTION_PLAN, ITEM_OPTION, CUSTOM_ATTRIBUTE_DEFINITION, QUICK_AMOUNT_SETTINGS.
+     *
      * @return string[]|null
      */
     public function getObjectTypes(): ?array
@@ -81,6 +92,15 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * Sets Object Types.
      *
      * The desired set of object types to appear in the search results.
+     *
+     * If this is unspecified, the operation returns objects of all the top level types at the version
+     * of the Square API used to make the request. Object types that are nested onto other object types
+     * are not included in the defaults.
+     *
+     * At the current API version the default object types are:
+     * ITEM, CATEGORY, TAX, DISCOUNT, MODIFIER_LIST, DINING_OPTION, TAX_EXEMPTION,
+     * SERVICE_CHARGE, PRICING_RULE, PRODUCT_SET, TIME_PERIOD, MEASUREMENT_UNIT,
+     * SUBSCRIPTION_PLAN, ITEM_OPTION, CUSTOM_ATTRIBUTE_DEFINITION, QUICK_AMOUNT_SETTINGS.
      *
      * @maps object_types
      *
@@ -119,16 +139,20 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * Returns Include Related Objects.
      *
      * If `true`, the response will include additional objects that are related to the
-     * requested object, as follows:
+     * requested objects. Related objects are objects that are referenced by object ID by the objects
+     * in the response. This is helpful if the objects are being fetched for immediate display to a user.
+     * This process only goes one level deep. Objects referenced by the related objects will not be
+     * included.
+     * For example:
      *
-     * If a CatalogItem is returned in the object field of the response,
-     * its associated CatalogCategory, CatalogTax objects,
-     * CatalogImage objects and CatalogModifierList objects
-     * will be included in the `related_objects` field of the response.
-     *
-     * If a CatalogItemVariation is returned in the object field of the
-     * response, its parent CatalogItem will be included in the `related_objects` field of
+     * If the `objects` field of the response contains a CatalogItem, its associated
+     * CatalogCategory objects, CatalogTax objects, CatalogImage objects and
+     * CatalogModifierLists will be returned in the `related_objects` field of the
+     * response. If the `objects` field of the response contains a CatalogItemVariation,
+     * its parent CatalogItem will be returned in the `related_objects` field of
      * the response.
+     *
+     * Default value: `false`
      */
     public function getIncludeRelatedObjects(): ?bool
     {
@@ -139,16 +163,20 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * Sets Include Related Objects.
      *
      * If `true`, the response will include additional objects that are related to the
-     * requested object, as follows:
+     * requested objects. Related objects are objects that are referenced by object ID by the objects
+     * in the response. This is helpful if the objects are being fetched for immediate display to a user.
+     * This process only goes one level deep. Objects referenced by the related objects will not be
+     * included.
+     * For example:
      *
-     * If a CatalogItem is returned in the object field of the response,
-     * its associated CatalogCategory, CatalogTax objects,
-     * CatalogImage objects and CatalogModifierList objects
-     * will be included in the `related_objects` field of the response.
-     *
-     * If a CatalogItemVariation is returned in the object field of the
-     * response, its parent CatalogItem will be included in the `related_objects` field of
+     * If the `objects` field of the response contains a CatalogItem, its associated
+     * CatalogCategory objects, CatalogTax objects, CatalogImage objects and
+     * CatalogModifierLists will be returned in the `related_objects` field of the
+     * response. If the `objects` field of the response contains a CatalogItemVariation,
+     * its parent CatalogItem will be returned in the `related_objects` field of
      * the response.
+     *
+     * Default value: `false`
      *
      * @maps include_related_objects
      */
@@ -192,13 +220,13 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * when calling the `SearchCatalogObjects` endpoint.
      *
      * Although a query can have multiple filters, only certain query types can be combined per call to
-     * [SearchCatalogObjects](#endpoint-Catalog-SearchCatalogObjects).
+     * [SearchCatalogObjects]($e/Catalog/SearchCatalogObjects).
      * Any combination of the following types may be used together:
-     * - [exact_query](#type-CatalogExactQuery)
-     * - [prefix_query](#type-CatalogPrefixQuery)
-     * - [range_query](#type-CatalogRangeQuery)
-     * - [sorted_attribute_query](#type-CatalogSortedAttribute)
-     * - [text_query](#type-CatalogTextQuery)
+     * - [exact_query]($m/CatalogQueryExact)
+     * - [prefix_query]($m/CatalogQueryPrefix)
+     * - [range_query]($m/CatalogQueryRange)
+     * - [sorted_attribute_query]($m/CatalogQuerySortedAttribute)
+     * - [text_query]($m/CatalogQueryText)
      * All other query types cannot be combined with any others.
      *
      * When a query filter is based on an attribute, the attribute must be searchable.
@@ -215,8 +243,8 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * - `caption`: `CatalogImage`
      * - `display_name`: `CatalogItemOption`
      *
-     * For example, to search for [CatalogItem](#type-CatalogItem) objects by searchable attributes, you
-     * can use
+     * For example, to search for [CatalogItem]($m/CatalogItem) objects by searchable attributes, you can
+     * use
      * the `"name"`, `"description"`, or `"abbreviation"` attribute in an applicable query filter.
      */
     public function getQuery(): ?CatalogQuery
@@ -231,13 +259,13 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * when calling the `SearchCatalogObjects` endpoint.
      *
      * Although a query can have multiple filters, only certain query types can be combined per call to
-     * [SearchCatalogObjects](#endpoint-Catalog-SearchCatalogObjects).
+     * [SearchCatalogObjects]($e/Catalog/SearchCatalogObjects).
      * Any combination of the following types may be used together:
-     * - [exact_query](#type-CatalogExactQuery)
-     * - [prefix_query](#type-CatalogPrefixQuery)
-     * - [range_query](#type-CatalogRangeQuery)
-     * - [sorted_attribute_query](#type-CatalogSortedAttribute)
-     * - [text_query](#type-CatalogTextQuery)
+     * - [exact_query]($m/CatalogQueryExact)
+     * - [prefix_query]($m/CatalogQueryPrefix)
+     * - [range_query]($m/CatalogQueryRange)
+     * - [sorted_attribute_query]($m/CatalogQuerySortedAttribute)
+     * - [text_query]($m/CatalogQueryText)
      * All other query types cannot be combined with any others.
      *
      * When a query filter is based on an attribute, the attribute must be searchable.
@@ -254,8 +282,8 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
      * - `caption`: `CatalogImage`
      * - `display_name`: `CatalogItemOption`
      *
-     * For example, to search for [CatalogItem](#type-CatalogItem) objects by searchable attributes, you
-     * can use
+     * For example, to search for [CatalogItem]($m/CatalogItem) objects by searchable attributes, you can
+     * use
      * the `"name"`, `"description"`, or `"abbreviation"` attribute in an applicable query filter.
      *
      * @maps query
@@ -294,21 +322,39 @@ class SearchCatalogObjectsRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['cursor']                = $this->cursor;
-        $json['object_types']          = $this->objectTypes;
-        $json['include_deleted_objects'] = $this->includeDeletedObjects;
-        $json['include_related_objects'] = $this->includeRelatedObjects;
-        $json['begin_time']            = $this->beginTime;
-        $json['query']                 = $this->query;
-        $json['limit']                 = $this->limit;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->cursor)) {
+            $json['cursor']                  = $this->cursor;
+        }
+        if (isset($this->objectTypes)) {
+            $json['object_types']            = $this->objectTypes;
+        }
+        if (isset($this->includeDeletedObjects)) {
+            $json['include_deleted_objects'] = $this->includeDeletedObjects;
+        }
+        if (isset($this->includeRelatedObjects)) {
+            $json['include_related_objects'] = $this->includeRelatedObjects;
+        }
+        if (isset($this->beginTime)) {
+            $json['begin_time']              = $this->beginTime;
+        }
+        if (isset($this->query)) {
+            $json['query']                   = $this->query;
+        }
+        if (isset($this->limit)) {
+            $json['limit']                   = $this->limit;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

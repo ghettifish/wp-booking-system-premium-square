@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Price and inventory alerting overrides for a `CatalogItemVariation` at a specific `Location`.
  */
@@ -42,7 +44,7 @@ class ItemVariationLocationOverrides implements \JsonSerializable
     /**
      * Returns Location Id.
      *
-     * The ID of the `Location`.
+     * The ID of the `Location`. This can include locations that are deactivated.
      */
     public function getLocationId(): ?string
     {
@@ -52,7 +54,7 @@ class ItemVariationLocationOverrides implements \JsonSerializable
     /**
      * Sets Location Id.
      *
-     * The ID of the `Location`.
+     * The ID of the `Location`. This can include locations that are deactivated.
      *
      * @maps location_id
      */
@@ -196,20 +198,36 @@ class ItemVariationLocationOverrides implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['location_id']             = $this->locationId;
-        $json['price_money']             = $this->priceMoney;
-        $json['pricing_type']            = $this->pricingType;
-        $json['track_inventory']         = $this->trackInventory;
-        $json['inventory_alert_type']    = $this->inventoryAlertType;
-        $json['inventory_alert_threshold'] = $this->inventoryAlertThreshold;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->locationId)) {
+            $json['location_id']               = $this->locationId;
+        }
+        if (isset($this->priceMoney)) {
+            $json['price_money']               = $this->priceMoney;
+        }
+        if (isset($this->pricingType)) {
+            $json['pricing_type']              = $this->pricingType;
+        }
+        if (isset($this->trackInventory)) {
+            $json['track_inventory']           = $this->trackInventory;
+        }
+        if (isset($this->inventoryAlertType)) {
+            $json['inventory_alert_type']      = $this->inventoryAlertType;
+        }
+        if (isset($this->inventoryAlertThreshold)) {
+            $json['inventory_alert_threshold'] = $this->inventoryAlertThreshold;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

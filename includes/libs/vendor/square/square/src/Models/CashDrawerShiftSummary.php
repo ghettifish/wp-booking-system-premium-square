@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * The summary of a closed cash drawer shift.
  * This model contains only the money counted to start a cash drawer shift, counted
@@ -294,23 +296,45 @@ class CashDrawerShiftSummary implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                = $this->id;
-        $json['state']             = $this->state;
-        $json['opened_at']         = $this->openedAt;
-        $json['ended_at']          = $this->endedAt;
-        $json['closed_at']         = $this->closedAt;
-        $json['description']       = $this->description;
-        $json['opened_cash_money'] = $this->openedCashMoney;
-        $json['expected_cash_money'] = $this->expectedCashMoney;
-        $json['closed_cash_money'] = $this->closedCashMoney;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                  = $this->id;
+        }
+        if (isset($this->state)) {
+            $json['state']               = $this->state;
+        }
+        if (isset($this->openedAt)) {
+            $json['opened_at']           = $this->openedAt;
+        }
+        if (isset($this->endedAt)) {
+            $json['ended_at']            = $this->endedAt;
+        }
+        if (isset($this->closedAt)) {
+            $json['closed_at']           = $this->closedAt;
+        }
+        if (isset($this->description)) {
+            $json['description']         = $this->description;
+        }
+        if (isset($this->openedCashMoney)) {
+            $json['opened_cash_money']   = $this->openedCashMoney;
+        }
+        if (isset($this->expectedCashMoney)) {
+            $json['expected_cash_money'] = $this->expectedCashMoney;
+        }
+        if (isset($this->closedCashMoney)) {
+            $json['closed_cash_money']   = $this->closedCashMoney;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

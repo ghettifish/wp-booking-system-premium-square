@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents an amount of money. `Money` fields can be signed or unsigned.
  * Fields that do not explicitly define whether they are signed or unsigned are
@@ -80,16 +82,24 @@ class Money implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['amount']   = $this->amount;
-        $json['currency'] = $this->currency;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->amount)) {
+            $json['amount']   = $this->amount;
+        }
+        if (isset($this->currency)) {
+            $json['currency'] = $this->currency;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

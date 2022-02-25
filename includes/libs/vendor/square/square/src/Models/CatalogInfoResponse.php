@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class CatalogInfoResponse implements \JsonSerializable
 {
     /**
@@ -90,17 +92,27 @@ class CatalogInfoResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']                       = $this->errors;
-        $json['limits']                       = $this->limits;
-        $json['standard_unit_description_group'] = $this->standardUnitDescriptionGroup;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']                          = $this->errors;
+        }
+        if (isset($this->limits)) {
+            $json['limits']                          = $this->limits;
+        }
+        if (isset($this->standardUnitDescriptionGroup)) {
+            $json['standard_unit_description_group'] = $this->standardUnitDescriptionGroup;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

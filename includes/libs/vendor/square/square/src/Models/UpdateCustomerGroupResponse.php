@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the fields that are included in the response body of
- * a request to the [UpdateCustomerGroup](#endpoint-updatecustomergroup) endpoint.
+ * a request to the [UpdateCustomerGroup]($e/CustomerGroups/UpdateCustomerGroup) endpoint.
  *
- * One of `errors` or `group` is present in a given response (never both).
+ * Either `errors` or `group` is present in a given response (never both).
  */
 class UpdateCustomerGroupResponse implements \JsonSerializable
 {
@@ -53,8 +55,8 @@ class UpdateCustomerGroupResponse implements \JsonSerializable
      *
      * Represents a group of customer profiles.
      *
-     * Customer groups can be created, modified, and have their membership defined either via
-     * the Customers API or within Customer Directory in the Square Dashboard or Point of Sale.
+     * Customer groups can be created, be modified, and have their membership defined using
+     * the Customers API or within the Customer Directory in the Square Seller Dashboard or Point of Sale.
      */
     public function getGroup(): ?CustomerGroup
     {
@@ -66,8 +68,8 @@ class UpdateCustomerGroupResponse implements \JsonSerializable
      *
      * Represents a group of customer profiles.
      *
-     * Customer groups can be created, modified, and have their membership defined either via
-     * the Customers API or within Customer Directory in the Square Dashboard or Point of Sale.
+     * Customer groups can be created, be modified, and have their membership defined using
+     * the Customers API or within the Customer Directory in the Square Seller Dashboard or Point of Sale.
      *
      * @maps group
      */
@@ -79,16 +81,24 @@ class UpdateCustomerGroupResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors'] = $this->errors;
-        $json['group']  = $this->group;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors'] = $this->errors;
+        }
+        if (isset($this->group)) {
+            $json['group']  = $this->group;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

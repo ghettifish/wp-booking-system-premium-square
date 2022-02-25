@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A list of modifiers applicable to items at the time of sale.
  *
@@ -33,6 +35,11 @@ class CatalogModifierList implements \JsonSerializable
      * @var CatalogObject[]|null
      */
     private $modifiers;
+
+    /**
+     * @var string[]|null
+     */
+    private $imageIds;
 
     /**
      * Returns Name.
@@ -135,20 +142,65 @@ class CatalogModifierList implements \JsonSerializable
     }
 
     /**
+     * Returns Image Ids.
+     *
+     * The IDs of images associated with this `CatalogModifierList` instance.
+     * Currently these images are not displayed by Square, but are free to be displayed in 3rd party
+     * applications.
+     *
+     * @return string[]|null
+     */
+    public function getImageIds(): ?array
+    {
+        return $this->imageIds;
+    }
+
+    /**
+     * Sets Image Ids.
+     *
+     * The IDs of images associated with this `CatalogModifierList` instance.
+     * Currently these images are not displayed by Square, but are free to be displayed in 3rd party
+     * applications.
+     *
+     * @maps image_ids
+     *
+     * @param string[]|null $imageIds
+     */
+    public function setImageIds(?array $imageIds): void
+    {
+        $this->imageIds = $imageIds;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']          = $this->name;
-        $json['ordinal']       = $this->ordinal;
-        $json['selection_type'] = $this->selectionType;
-        $json['modifiers']     = $this->modifiers;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']           = $this->name;
+        }
+        if (isset($this->ordinal)) {
+            $json['ordinal']        = $this->ordinal;
+        }
+        if (isset($this->selectionType)) {
+            $json['selection_type'] = $this->selectionType;
+        }
+        if (isset($this->modifiers)) {
+            $json['modifiers']      = $this->modifiers;
+        }
+        if (isset($this->imageIds)) {
+            $json['image_ids']      = $this->imageIds;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

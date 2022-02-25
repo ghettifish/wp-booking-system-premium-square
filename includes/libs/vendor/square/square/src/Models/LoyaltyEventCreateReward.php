@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Provides metadata when the event `type` is `CREATE_REWARD`.
  */
@@ -37,7 +39,7 @@ class LoyaltyEventCreateReward implements \JsonSerializable
     /**
      * Returns Loyalty Program Id.
      *
-     * The ID of the [loyalty program](#type-LoyaltyProgram).
+     * The ID of the [loyalty program]($m/LoyaltyProgram).
      */
     public function getLoyaltyProgramId(): string
     {
@@ -47,7 +49,7 @@ class LoyaltyEventCreateReward implements \JsonSerializable
     /**
      * Sets Loyalty Program Id.
      *
-     * The ID of the [loyalty program](#type-LoyaltyProgram).
+     * The ID of the [loyalty program]($m/LoyaltyProgram).
      *
      * @required
      * @maps loyalty_program_id
@@ -60,7 +62,7 @@ class LoyaltyEventCreateReward implements \JsonSerializable
     /**
      * Returns Reward Id.
      *
-     * The Square-assigned ID of the created [loyalty reward](#type-LoyaltyReward).
+     * The Square-assigned ID of the created [loyalty reward]($m/LoyaltyReward).
      * This field is returned only if the event source is `LOYALTY_API`.
      */
     public function getRewardId(): ?string
@@ -71,7 +73,7 @@ class LoyaltyEventCreateReward implements \JsonSerializable
     /**
      * Sets Reward Id.
      *
-     * The Square-assigned ID of the created [loyalty reward](#type-LoyaltyReward).
+     * The Square-assigned ID of the created [loyalty reward]($m/LoyaltyReward).
      * This field is returned only if the event source is `LOYALTY_API`.
      *
      * @maps reward_id
@@ -107,17 +109,23 @@ class LoyaltyEventCreateReward implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
         $json['loyalty_program_id'] = $this->loyaltyProgramId;
-        $json['reward_id']        = $this->rewardId;
-        $json['points']           = $this->points;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->rewardId)) {
+            $json['reward_id']      = $this->rewardId;
+        }
+        $json['points']             = $this->points;
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

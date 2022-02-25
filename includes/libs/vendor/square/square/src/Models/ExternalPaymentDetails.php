@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Stores details about an external payment. Contains only non-confidential information.
  * For more information, see
@@ -47,7 +49,7 @@ class ExternalPaymentDetails implements \JsonSerializable
      *
      * The type of external payment the seller received. It can be one of the following:
      * - CHECK - Paid using a physical check.
-     * - BANK_TRANSFER - Paid using ACH or another bank transfer.
+     * - BANK_TRANSFER - Paid using external bank transfer.
      * - OTHER\_GIFT\_CARD - Paid using a non-Square gift card.
      * - CRYPTO - Paid using a crypto currency.
      * - SQUARE_CASH - Paid using Square Cash App.
@@ -56,6 +58,7 @@ class ExternalPaymentDetails implements \JsonSerializable
      * - EMONEY - Paid using an E-money provider.
      * - CARD - A credit or debit card that Square does not support.
      * - STORED_BALANCE - Use for house accounts, store credit, and so forth.
+     * - FOOD_VOUCHER - Restaurant voucher provided by employers to employees to pay for meals
      * - OTHER - A type not listed here.
      */
     public function getType(): string
@@ -68,7 +71,7 @@ class ExternalPaymentDetails implements \JsonSerializable
      *
      * The type of external payment the seller received. It can be one of the following:
      * - CHECK - Paid using a physical check.
-     * - BANK_TRANSFER - Paid using ACH or another bank transfer.
+     * - BANK_TRANSFER - Paid using external bank transfer.
      * - OTHER\_GIFT\_CARD - Paid using a non-Square gift card.
      * - CRYPTO - Paid using a crypto currency.
      * - SQUARE_CASH - Paid using Square Cash App.
@@ -77,6 +80,7 @@ class ExternalPaymentDetails implements \JsonSerializable
      * - EMONEY - Paid using an E-money provider.
      * - CARD - A credit or debit card that Square does not support.
      * - STORED_BALANCE - Use for house accounts, store credit, and so forth.
+     * - FOOD_VOUCHER - Restaurant voucher provided by employers to employees to pay for meals
      * - OTHER - A type not listed here.
      *
      * @required
@@ -171,18 +175,26 @@ class ExternalPaymentDetails implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['type']           = $this->type;
-        $json['source']         = $this->source;
-        $json['source_id']      = $this->sourceId;
-        $json['source_fee_money'] = $this->sourceFeeMoney;
-
-        return array_filter($json, function ($val) {
+        $json['type']                 = $this->type;
+        $json['source']               = $this->source;
+        if (isset($this->sourceId)) {
+            $json['source_id']        = $this->sourceId;
+        }
+        if (isset($this->sourceFeeMoney)) {
+            $json['source_fee_money'] = $this->sourceFeeMoney;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

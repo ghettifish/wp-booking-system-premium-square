@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * V1UpdateOrderRequest
  */
@@ -152,19 +154,31 @@ class V1UpdateOrderRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['action']                = $this->action;
-        $json['shipped_tracking_number'] = $this->shippedTrackingNumber;
-        $json['completed_note']        = $this->completedNote;
-        $json['refunded_note']         = $this->refundedNote;
-        $json['canceled_note']         = $this->canceledNote;
-
-        return array_filter($json, function ($val) {
+        $json['action']                      = $this->action;
+        if (isset($this->shippedTrackingNumber)) {
+            $json['shipped_tracking_number'] = $this->shippedTrackingNumber;
+        }
+        if (isset($this->completedNote)) {
+            $json['completed_note']          = $this->completedNote;
+        }
+        if (isset($this->refundedNote)) {
+            $json['refunded_note']           = $this->refundedNote;
+        }
+        if (isset($this->canceledNote)) {
+            $json['canceled_note']           = $this->canceledNote;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

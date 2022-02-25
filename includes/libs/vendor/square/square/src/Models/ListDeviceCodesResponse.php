@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class ListDeviceCodesResponse implements \JsonSerializable
 {
     /**
@@ -80,7 +82,8 @@ class ListDeviceCodesResponse implements \JsonSerializable
      * original query to the endpoint. This value is present only if the request
      * succeeded and additional results are available.
      *
-     * See [Paginating results](#paginatingresults) for more information.
+     * See [Paginating results](https://developer.squareup.com/docs/working-with-apis/pagination) for more
+     * information.
      */
     public function getCursor(): ?string
     {
@@ -94,7 +97,8 @@ class ListDeviceCodesResponse implements \JsonSerializable
      * original query to the endpoint. This value is present only if the request
      * succeeded and additional results are available.
      *
-     * See [Paginating results](#paginatingresults) for more information.
+     * See [Paginating results](https://developer.squareup.com/docs/working-with-apis/pagination) for more
+     * information.
      *
      * @maps cursor
      */
@@ -106,17 +110,27 @@ class ListDeviceCodesResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']      = $this->errors;
-        $json['device_codes'] = $this->deviceCodes;
-        $json['cursor']      = $this->cursor;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']       = $this->errors;
+        }
+        if (isset($this->deviceCodes)) {
+            $json['device_codes'] = $this->deviceCodes;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']       = $this->cursor;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

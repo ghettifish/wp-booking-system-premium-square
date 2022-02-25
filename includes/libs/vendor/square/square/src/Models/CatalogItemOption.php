@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A group of variations for a `CatalogItem`.
  */
@@ -161,19 +163,33 @@ class CatalogItemOption implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']        = $this->name;
-        $json['display_name'] = $this->displayName;
-        $json['description'] = $this->description;
-        $json['show_colors'] = $this->showColors;
-        $json['values']      = $this->values;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']         = $this->name;
+        }
+        if (isset($this->displayName)) {
+            $json['display_name'] = $this->displayName;
+        }
+        if (isset($this->description)) {
+            $json['description']  = $this->description;
+        }
+        if (isset($this->showColors)) {
+            $json['show_colors']  = $this->showColors;
+        }
+        if (isset($this->values)) {
+            $json['values']       = $this->values;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class CashDrawerShiftEvent implements \JsonSerializable
 {
     /**
@@ -189,20 +191,36 @@ class CashDrawerShiftEvent implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']          = $this->id;
-        $json['employee_id'] = $this->employeeId;
-        $json['event_type']  = $this->eventType;
-        $json['event_money'] = $this->eventMoney;
-        $json['created_at']  = $this->createdAt;
-        $json['description'] = $this->description;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']          = $this->id;
+        }
+        if (isset($this->employeeId)) {
+            $json['employee_id'] = $this->employeeId;
+        }
+        if (isset($this->eventType)) {
+            $json['event_type']  = $this->eventType;
+        }
+        if (isset($this->eventMoney)) {
+            $json['event_money'] = $this->eventMoney;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']  = $this->createdAt;
+        }
+        if (isset($this->description)) {
+            $json['description'] = $this->description;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

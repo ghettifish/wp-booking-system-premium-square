@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A collection of various money amounts.
  */
@@ -207,19 +209,33 @@ class OrderMoneyAmounts implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['total_money']        = $this->totalMoney;
-        $json['tax_money']          = $this->taxMoney;
-        $json['discount_money']     = $this->discountMoney;
-        $json['tip_money']          = $this->tipMoney;
-        $json['service_charge_money'] = $this->serviceChargeMoney;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->totalMoney)) {
+            $json['total_money']          = $this->totalMoney;
+        }
+        if (isset($this->taxMoney)) {
+            $json['tax_money']            = $this->taxMoney;
+        }
+        if (isset($this->discountMoney)) {
+            $json['discount_money']       = $this->discountMoney;
+        }
+        if (isset($this->tipMoney)) {
+            $json['tip_money']            = $this->tipMoney;
+        }
+        if (isset($this->serviceChargeMoney)) {
+            $json['service_charge_money'] = $this->serviceChargeMoney;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

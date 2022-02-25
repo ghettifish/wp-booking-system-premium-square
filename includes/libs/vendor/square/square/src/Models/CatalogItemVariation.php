@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * An item variation (i.e., product) in the Catalog object model. Each item
  * may have a maximum of 250 item variations.
@@ -91,9 +93,24 @@ class CatalogItemVariation implements \JsonSerializable
     private $measurementUnitId;
 
     /**
+     * @var bool|null
+     */
+    private $stockable;
+
+    /**
+     * @var string[]|null
+     */
+    private $imageIds;
+
+    /**
      * @var string[]|null
      */
     private $teamMemberIds;
+
+    /**
+     * @var CatalogStockConversion|null
+     */
+    private $stockableConversion;
 
     /**
      * Returns Item Id.
@@ -520,6 +537,58 @@ class CatalogItemVariation implements \JsonSerializable
     }
 
     /**
+     * Returns Stockable.
+     *
+     * Whether stock is counted directly on this variation (TRUE) or only on its components (FALSE).
+     * For backward compatibility missing values will be interpreted as TRUE.
+     */
+    public function getStockable(): ?bool
+    {
+        return $this->stockable;
+    }
+
+    /**
+     * Sets Stockable.
+     *
+     * Whether stock is counted directly on this variation (TRUE) or only on its components (FALSE).
+     * For backward compatibility missing values will be interpreted as TRUE.
+     *
+     * @maps stockable
+     */
+    public function setStockable(?bool $stockable): void
+    {
+        $this->stockable = $stockable;
+    }
+
+    /**
+     * Returns Image Ids.
+     *
+     * The IDs of images associated with this `CatalogItemVariation` instance.
+     * These images will be shown to customers in Square Online Store.
+     *
+     * @return string[]|null
+     */
+    public function getImageIds(): ?array
+    {
+        return $this->imageIds;
+    }
+
+    /**
+     * Sets Image Ids.
+     *
+     * The IDs of images associated with this `CatalogItemVariation` instance.
+     * These images will be shown to customers in Square Online Store.
+     *
+     * @maps image_ids
+     *
+     * @param string[]|null $imageIds
+     */
+    public function setImageIds(?array $imageIds): void
+    {
+        $this->imageIds = $imageIds;
+    }
+
+    /**
      * Returns Team Member Ids.
      *
      * Tokens of employees that can perform the service represented by this variation. Only valid for
@@ -548,33 +617,108 @@ class CatalogItemVariation implements \JsonSerializable
     }
 
     /**
+     * Returns Stockable Conversion.
+     *
+     * Represents the rule of conversion between a stockable
+     * [CatalogItemVariation]($m/CatalogItemVariation)
+     * and a non-stockable sell-by or receive-by `CatalogItemVariation` that
+     * share the same underlying stock.
+     */
+    public function getStockableConversion(): ?CatalogStockConversion
+    {
+        return $this->stockableConversion;
+    }
+
+    /**
+     * Sets Stockable Conversion.
+     *
+     * Represents the rule of conversion between a stockable
+     * [CatalogItemVariation]($m/CatalogItemVariation)
+     * and a non-stockable sell-by or receive-by `CatalogItemVariation` that
+     * share the same underlying stock.
+     *
+     * @maps stockable_conversion
+     */
+    public function setStockableConversion(?CatalogStockConversion $stockableConversion): void
+    {
+        $this->stockableConversion = $stockableConversion;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['item_id']                 = $this->itemId;
-        $json['name']                    = $this->name;
-        $json['sku']                     = $this->sku;
-        $json['upc']                     = $this->upc;
-        $json['ordinal']                 = $this->ordinal;
-        $json['pricing_type']            = $this->pricingType;
-        $json['price_money']             = $this->priceMoney;
-        $json['location_overrides']      = $this->locationOverrides;
-        $json['track_inventory']         = $this->trackInventory;
-        $json['inventory_alert_type']    = $this->inventoryAlertType;
-        $json['inventory_alert_threshold'] = $this->inventoryAlertThreshold;
-        $json['user_data']               = $this->userData;
-        $json['service_duration']        = $this->serviceDuration;
-        $json['available_for_booking']   = $this->availableForBooking;
-        $json['item_option_values']      = $this->itemOptionValues;
-        $json['measurement_unit_id']     = $this->measurementUnitId;
-        $json['team_member_ids']         = $this->teamMemberIds;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->itemId)) {
+            $json['item_id']                   = $this->itemId;
+        }
+        if (isset($this->name)) {
+            $json['name']                      = $this->name;
+        }
+        if (isset($this->sku)) {
+            $json['sku']                       = $this->sku;
+        }
+        if (isset($this->upc)) {
+            $json['upc']                       = $this->upc;
+        }
+        if (isset($this->ordinal)) {
+            $json['ordinal']                   = $this->ordinal;
+        }
+        if (isset($this->pricingType)) {
+            $json['pricing_type']              = $this->pricingType;
+        }
+        if (isset($this->priceMoney)) {
+            $json['price_money']               = $this->priceMoney;
+        }
+        if (isset($this->locationOverrides)) {
+            $json['location_overrides']        = $this->locationOverrides;
+        }
+        if (isset($this->trackInventory)) {
+            $json['track_inventory']           = $this->trackInventory;
+        }
+        if (isset($this->inventoryAlertType)) {
+            $json['inventory_alert_type']      = $this->inventoryAlertType;
+        }
+        if (isset($this->inventoryAlertThreshold)) {
+            $json['inventory_alert_threshold'] = $this->inventoryAlertThreshold;
+        }
+        if (isset($this->userData)) {
+            $json['user_data']                 = $this->userData;
+        }
+        if (isset($this->serviceDuration)) {
+            $json['service_duration']          = $this->serviceDuration;
+        }
+        if (isset($this->availableForBooking)) {
+            $json['available_for_booking']     = $this->availableForBooking;
+        }
+        if (isset($this->itemOptionValues)) {
+            $json['item_option_values']        = $this->itemOptionValues;
+        }
+        if (isset($this->measurementUnitId)) {
+            $json['measurement_unit_id']       = $this->measurementUnitId;
+        }
+        if (isset($this->stockable)) {
+            $json['stockable']                 = $this->stockable;
+        }
+        if (isset($this->imageIds)) {
+            $json['image_ids']                 = $this->imageIds;
+        }
+        if (isset($this->teamMemberIds)) {
+            $json['team_member_ids']           = $this->teamMemberIds;
+        }
+        if (isset($this->stockableConversion)) {
+            $json['stockable_conversion']      = $this->stockableConversion;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

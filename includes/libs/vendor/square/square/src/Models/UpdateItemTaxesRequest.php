@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class UpdateItemTaxesRequest implements \JsonSerializable
 {
     /**
@@ -33,6 +35,7 @@ class UpdateItemTaxesRequest implements \JsonSerializable
      * Returns Item Ids.
      *
      * IDs for the CatalogItems associated with the CatalogTax objects being updated.
+     * No more than 1,000 IDs may be provided.
      *
      * @return string[]
      */
@@ -45,6 +48,7 @@ class UpdateItemTaxesRequest implements \JsonSerializable
      * Sets Item Ids.
      *
      * IDs for the CatalogItems associated with the CatalogTax objects being updated.
+     * No more than 1,000 IDs may be provided.
      *
      * @required
      * @maps item_ids
@@ -60,6 +64,7 @@ class UpdateItemTaxesRequest implements \JsonSerializable
      * Returns Taxes to Enable.
      *
      * IDs of the CatalogTax objects to enable.
+     * At least one of `taxes_to_enable` or `taxes_to_disable` must be specified.
      *
      * @return string[]|null
      */
@@ -72,6 +77,7 @@ class UpdateItemTaxesRequest implements \JsonSerializable
      * Sets Taxes to Enable.
      *
      * IDs of the CatalogTax objects to enable.
+     * At least one of `taxes_to_enable` or `taxes_to_disable` must be specified.
      *
      * @maps taxes_to_enable
      *
@@ -86,6 +92,7 @@ class UpdateItemTaxesRequest implements \JsonSerializable
      * Returns Taxes to Disable.
      *
      * IDs of the CatalogTax objects to disable.
+     * At least one of `taxes_to_enable` or `taxes_to_disable` must be specified.
      *
      * @return string[]|null
      */
@@ -98,6 +105,7 @@ class UpdateItemTaxesRequest implements \JsonSerializable
      * Sets Taxes to Disable.
      *
      * IDs of the CatalogTax objects to disable.
+     * At least one of `taxes_to_enable` or `taxes_to_disable` must be specified.
      *
      * @maps taxes_to_disable
      *
@@ -111,17 +119,25 @@ class UpdateItemTaxesRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['item_ids']       = $this->itemIds;
-        $json['taxes_to_enable'] = $this->taxesToEnable;
-        $json['taxes_to_disable'] = $this->taxesToDisable;
-
-        return array_filter($json, function ($val) {
+        $json['item_ids']             = $this->itemIds;
+        if (isset($this->taxesToEnable)) {
+            $json['taxes_to_enable']  = $this->taxesToEnable;
+        }
+        if (isset($this->taxesToDisable)) {
+            $json['taxes_to_disable'] = $this->taxesToDisable;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

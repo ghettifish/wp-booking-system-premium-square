@@ -6,6 +6,7 @@ namespace Square;
 
 use InvalidArgumentException;
 use JsonSerializable;
+use stdClass;
 
 /**
  * API utility class
@@ -62,10 +63,10 @@ class ApiHelper
         $hasParams = (strrpos($queryBuilder, '?') > 0);
 
         //if already has parameters, use the &amp; to append new parameters
-        $queryBuilder = $queryBuilder . (($hasParams) ? '&' : '?');
+        $queryBuilder .= (($hasParams) ? '&' : '?');
 
         //append parameters
-        $queryBuilder = $queryBuilder . http_build_query($parameters);
+        $queryBuilder .= http_build_query($parameters);
     }
 
     /**
@@ -98,6 +99,21 @@ class ApiHelper
     }
 
     /**
+     * Serialize any given mixed value.
+     *
+     * @param mixed $value Any value to be serialized
+     *
+     * @return string serialized value
+     */
+    public static function serialize($value): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+        return json_encode($value);
+    }
+
+    /**
      * Deserialize a Json string
      *
      * @param  string   $json       A valid Json string
@@ -124,6 +140,64 @@ class ApiHelper
     }
 
     /**
+     * Decodes a valid json string into an array to send in Api calls.
+     *
+     * @param  mixed  $json         Must be null or array or a valid string json to be translated into a php array.
+     * @param  string $name         Name of the argument whose value is being validated in $json parameter.
+     * @param  bool   $associative  Should check for associative? Default: true.
+     *
+     * @return array|null    Returns an array made up of key-value pairs in the provided json string
+     *                       or throws exception, if the provided json is not valid.
+     * @throws InvalidArgumentException
+     */
+    public static function decodeJson($json, string $name, bool $associative = true): ?array
+    {
+        if (is_null($json) || (is_array($json) && (!$associative || self::isAssociative($json)))) {
+            return $json;
+        }
+        if ($json instanceof stdClass) {
+            $json = json_encode($json);
+        }
+        if (is_string($json)) {
+            $decoded = json_decode($json, true);
+            if (is_array($decoded) && (!$associative || self::isAssociative($decoded))) {
+                return $decoded;
+            }
+        }
+        throw new InvalidArgumentException("Invalid json value for argument: '$name'");
+    }
+
+    /**
+     * Decodes a valid jsonArray string into an array to send in Api calls.
+     *
+     * @param  mixed  $json   Must be null or array or a valid string jsonArray to be translated into a php array.
+     * @param  string $name   Name of the argument whose value is being validated in $json parameter.
+     * @param  bool   $asMap  Should decode as map? Default: false.
+     *
+     * @return array|null    Returns an array made up of key-value pairs in the provided jsonArray string
+     *                       or throws exception, if the provided json is not valid.
+     * @throws InvalidArgumentException
+     */
+    public static function decodeJsonArray($json, string $name, bool $asMap = false): ?array
+    {
+        $decoded = self::decodeJson($json, $name, false);
+        if (is_null($decoded)) {
+            return null;
+        }
+        $isAssociative = self::isAssociative($decoded);
+        if (($asMap && $isAssociative) || (!$asMap && !$isAssociative)) {
+            foreach ($decoded as $value) {
+                if (!is_array($value) || !self::isAssociative($value)) {
+                    throw new InvalidArgumentException("Invalid json value for argument: '$name'");
+                }
+            }
+            return $decoded;
+        }
+        $type = $asMap ? 'map' : 'array';
+        throw new InvalidArgumentException("Invalid json $type value for argument: '$name'");
+    }
+
+    /**
      * Check if an array isAssociative (has string keys)
      *
      * @param  array   $arr   A valid array
@@ -142,20 +216,21 @@ class ApiHelper
     }
 
     /**
-     * Prepare a model for form encoding
+     * Prepare a model for form encoding.
      *
-     * @param  JsonSerializable  $model  A valid instance of JsonSerializable
+     * @param JsonSerializable|null $model  A valid instance of JsonSerializable.
      *
-     * @return array                     The model as a map of key value pairs
+     * @return array|null  The model as a map of key value pairs.
      */
-    public static function prepareFormFields(JsonSerializable $model): array
+    public static function prepareFormFields(?JsonSerializable $model): ?array
     {
-        if (!$model instanceof JsonSerializable) {
-            return $model;
+        if ($model == null) {
+            return null;
         }
-
         $arr = $model->jsonSerialize();
-
+        if ($arr instanceof stdClass) {
+            return [];
+        }
         foreach ($arr as $key => $value) {
             if ($value instanceof JsonSerializable) {
                 $arr[$key] = static::prepareFormFields($value);
@@ -170,7 +245,6 @@ class ApiHelper
                 $arr[$key] = $temp;
             }
         }
-
         return $arr;
     }
 

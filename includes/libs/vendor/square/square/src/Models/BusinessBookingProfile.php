@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class BusinessBookingProfile implements \JsonSerializable
 {
     /**
@@ -66,7 +68,7 @@ class BusinessBookingProfile implements \JsonSerializable
     /**
      * Returns Created At.
      *
-     * The RFC-3339 timestamp specifying the booking's creation time.
+     * The RFC 3339 timestamp specifying the booking's creation time.
      */
     public function getCreatedAt(): ?string
     {
@@ -76,7 +78,7 @@ class BusinessBookingProfile implements \JsonSerializable
     /**
      * Sets Created At.
      *
-     * The RFC-3339 timestamp specifying the booking's creation time.
+     * The RFC 3339 timestamp specifying the booking's creation time.
      *
      * @maps created_at
      */
@@ -198,21 +200,39 @@ class BusinessBookingProfile implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['seller_id']                   = $this->sellerId;
-        $json['created_at']                  = $this->createdAt;
-        $json['booking_enabled']             = $this->bookingEnabled;
-        $json['customer_timezone_choice']    = $this->customerTimezoneChoice;
-        $json['booking_policy']              = $this->bookingPolicy;
-        $json['allow_user_cancel']           = $this->allowUserCancel;
-        $json['business_appointment_settings'] = $this->businessAppointmentSettings;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->sellerId)) {
+            $json['seller_id']                     = $this->sellerId;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']                    = $this->createdAt;
+        }
+        if (isset($this->bookingEnabled)) {
+            $json['booking_enabled']               = $this->bookingEnabled;
+        }
+        if (isset($this->customerTimezoneChoice)) {
+            $json['customer_timezone_choice']      = $this->customerTimezoneChoice;
+        }
+        if (isset($this->bookingPolicy)) {
+            $json['booking_policy']                = $this->bookingPolicy;
+        }
+        if (isset($this->allowUserCancel)) {
+            $json['allow_user_cancel']             = $this->allowUserCancel;
+        }
+        if (isset($this->businessAppointmentSettings)) {
+            $json['business_appointment_settings'] = $this->businessAppointmentSettings;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

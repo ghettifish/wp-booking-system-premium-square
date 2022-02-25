@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class ObtainTokenRequest implements \JsonSerializable
 {
     /**
@@ -66,8 +68,8 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Returns Client Id.
      *
-     * The Square-issued ID of your application, available from the
-     * [application dashboard](https://connect.squareup.com/apps).
+     * The Square-issued ID of your application, which is available in the OAuth page in the
+     * [Developer Dashboard](https://developer.squareup.com/apps).
      */
     public function getClientId(): string
     {
@@ -77,8 +79,8 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Sets Client Id.
      *
-     * The Square-issued ID of your application, available from the
-     * [application dashboard](https://connect.squareup.com/apps).
+     * The Square-issued ID of your application, which is available in the OAuth page in the
+     * [Developer Dashboard](https://developer.squareup.com/apps).
      *
      * @required
      * @maps client_id
@@ -91,8 +93,8 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Returns Client Secret.
      *
-     * The Square-issued application secret for your application, available
-     * from the [application dashboard](https://connect.squareup.com/apps).
+     * The Square-issued application secret for your application, which is available in the OAuth page
+     * in the [Developer Dashboard](https://developer.squareup.com/apps).
      */
     public function getClientSecret(): string
     {
@@ -102,8 +104,8 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Sets Client Secret.
      *
-     * The Square-issued application secret for your application, available
-     * from the [application dashboard](https://connect.squareup.com/apps).
+     * The Square-issued application secret for your application, which is available in the OAuth page
+     * in the [Developer Dashboard](https://developer.squareup.com/apps).
      *
      * @required
      * @maps client_secret
@@ -117,7 +119,7 @@ class ObtainTokenRequest implements \JsonSerializable
      * Returns Code.
      *
      * The authorization code to exchange.
-     * This is required if `grant_type` is set to `authorization_code`, to indicate that
+     * This code is required if `grant_type` is set to `authorization_code` to indicate that
      * the application wants to exchange an authorization code for an OAuth access token.
      */
     public function getCode(): ?string
@@ -129,7 +131,7 @@ class ObtainTokenRequest implements \JsonSerializable
      * Sets Code.
      *
      * The authorization code to exchange.
-     * This is required if `grant_type` is set to `authorization_code`, to indicate that
+     * This code is required if `grant_type` is set to `authorization_code` to indicate that
      * the application wants to exchange an authorization code for an OAuth access token.
      *
      * @maps code
@@ -142,7 +144,8 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Returns Redirect Uri.
      *
-     * The redirect URL assigned in the [application dashboard](https://connect.squareup.com/apps).
+     * The redirect URL assigned in the OAuth page for your application in the [Developer Dashboard](https:
+     * //developer.squareup.com/apps).
      */
     public function getRedirectUri(): ?string
     {
@@ -152,7 +155,8 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Sets Redirect Uri.
      *
-     * The redirect URL assigned in the [application dashboard](https://connect.squareup.com/apps).
+     * The redirect URL assigned in the OAuth page for your application in the [Developer Dashboard](https:
+     * //developer.squareup.com/apps).
      *
      * @maps redirect_uri
      */
@@ -165,7 +169,7 @@ class ObtainTokenRequest implements \JsonSerializable
      * Returns Grant Type.
      *
      * Specifies the method to request an OAuth access token.
-     * Valid values are: `authorization_code`, `refresh_token`, and `migration_token`
+     * Valid values are `authorization_code`, `refresh_token`, and `migration_token`.
      */
     public function getGrantType(): string
     {
@@ -176,7 +180,7 @@ class ObtainTokenRequest implements \JsonSerializable
      * Sets Grant Type.
      *
      * Specifies the method to request an OAuth access token.
-     * Valid values are: `authorization_code`, `refresh_token`, and `migration_token`
+     * Valid values are `authorization_code`, `refresh_token`, and `migration_token`.
      *
      * @required
      * @maps grant_type
@@ -190,8 +194,9 @@ class ObtainTokenRequest implements \JsonSerializable
      * Returns Refresh Token.
      *
      * A valid refresh token for generating a new OAuth access token.
-     * A valid refresh token is required if `grant_type` is set to `refresh_token` ,
-     * to indicate the application wants a replacement for an expired OAuth access token.
+     *
+     * A valid refresh token is required if `grant_type` is set to `refresh_token`
+     * to indicate that the application wants a replacement for an expired OAuth access token.
      */
     public function getRefreshToken(): ?string
     {
@@ -202,8 +207,9 @@ class ObtainTokenRequest implements \JsonSerializable
      * Sets Refresh Token.
      *
      * A valid refresh token for generating a new OAuth access token.
-     * A valid refresh token is required if `grant_type` is set to `refresh_token` ,
-     * to indicate the application wants a replacement for an expired OAuth access token.
+     *
+     * A valid refresh token is required if `grant_type` is set to `refresh_token`
+     * to indicate that the application wants a replacement for an expired OAuth access token.
      *
      * @maps refresh_token
      */
@@ -215,12 +221,12 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Returns Migration Token.
      *
-     * Legacy OAuth access token obtained using a Connect API version prior
+     * A legacy OAuth access token obtained using a Connect API version prior
      * to 2019-03-13. This parameter is required if `grant_type` is set to
      * `migration_token` to indicate that the application wants to get a replacement
      * OAuth access token. The response also returns a refresh token.
      * For more information, see [Migrate to Using Refresh Tokens](https://developer.squareup.
-     * com/docs/authz/oauth/migration).
+     * com/docs/oauth-api/migrate-to-refresh-tokens).
      */
     public function getMigrationToken(): ?string
     {
@@ -230,12 +236,12 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Sets Migration Token.
      *
-     * Legacy OAuth access token obtained using a Connect API version prior
+     * A legacy OAuth access token obtained using a Connect API version prior
      * to 2019-03-13. This parameter is required if `grant_type` is set to
      * `migration_token` to indicate that the application wants to get a replacement
      * OAuth access token. The response also returns a refresh token.
      * For more information, see [Migrate to Using Refresh Tokens](https://developer.squareup.
-     * com/docs/authz/oauth/migration).
+     * com/docs/oauth-api/migrate-to-refresh-tokens).
      *
      * @maps migration_token
      */
@@ -247,12 +253,11 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Returns Scopes.
      *
-     * __OPTIONAL__
+     * A JSON list of strings representing the permissions that the application is requesting.
+     * For example, "`["MERCHANT_PROFILE_READ","PAYMENTS_READ","BANK_ACCOUNTS_READ"]`".
      *
-     * A JSON list of strings representing the permissions the application is requesting.
-     * For example: "`["MERCHANT_PROFILE_READ","PAYMENTS_READ","BANK_ACCOUNTS_READ"]`"
      * The access token returned in the response is granted the permissions
-     * that comprise the intersection between the requested list of permissions, and those
+     * that comprise the intersection between the requested list of permissions and those
      * that belong to the provided refresh token.
      *
      * @return string[]|null
@@ -265,12 +270,11 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Sets Scopes.
      *
-     * __OPTIONAL__
+     * A JSON list of strings representing the permissions that the application is requesting.
+     * For example, "`["MERCHANT_PROFILE_READ","PAYMENTS_READ","BANK_ACCOUNTS_READ"]`".
      *
-     * A JSON list of strings representing the permissions the application is requesting.
-     * For example: "`["MERCHANT_PROFILE_READ","PAYMENTS_READ","BANK_ACCOUNTS_READ"]`"
      * The access token returned in the response is granted the permissions
-     * that comprise the intersection between the requested list of permissions, and those
+     * that comprise the intersection between the requested list of permissions and those
      * that belong to the provided refresh token.
      *
      * @maps scopes
@@ -285,10 +289,9 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Returns Short Lived.
      *
-     * __OPTIONAL__
+     * A Boolean indicating a request for a short-lived access token.
      *
-     * A boolean indicating a request for a short-lived access token.
-     * The short-lived access token returned in the response will expire in 24 hours.
+     * The short-lived access token returned in the response expires in 24 hours.
      */
     public function getShortLived(): ?bool
     {
@@ -298,10 +301,9 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Sets Short Lived.
      *
-     * __OPTIONAL__
+     * A Boolean indicating a request for a short-lived access token.
      *
-     * A boolean indicating a request for a short-lived access token.
-     * The short-lived access token returned in the response will expire in 24 hours.
+     * The short-lived access token returned in the response expires in 24 hours.
      *
      * @maps short_lived
      */
@@ -313,23 +315,39 @@ class ObtainTokenRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['client_id']      = $this->clientId;
-        $json['client_secret']  = $this->clientSecret;
-        $json['code']           = $this->code;
-        $json['redirect_uri']   = $this->redirectUri;
-        $json['grant_type']     = $this->grantType;
-        $json['refresh_token']  = $this->refreshToken;
-        $json['migration_token'] = $this->migrationToken;
-        $json['scopes']         = $this->scopes;
-        $json['short_lived']    = $this->shortLived;
-
-        return array_filter($json, function ($val) {
+        $json['client_id']           = $this->clientId;
+        $json['client_secret']       = $this->clientSecret;
+        if (isset($this->code)) {
+            $json['code']            = $this->code;
+        }
+        if (isset($this->redirectUri)) {
+            $json['redirect_uri']    = $this->redirectUri;
+        }
+        $json['grant_type']          = $this->grantType;
+        if (isset($this->refreshToken)) {
+            $json['refresh_token']   = $this->refreshToken;
+        }
+        if (isset($this->migrationToken)) {
+            $json['migration_token'] = $this->migrationToken;
+        }
+        if (isset($this->scopes)) {
+            $json['scopes']          = $this->scopes;
+        }
+        if (isset($this->shortLived)) {
+            $json['short_lived']     = $this->shortLived;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

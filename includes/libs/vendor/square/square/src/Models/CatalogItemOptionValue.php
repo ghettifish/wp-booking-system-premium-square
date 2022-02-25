@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * An enumerated value that can link a
  * `CatalogItemVariation` to an item option as one of
@@ -157,19 +159,33 @@ class CatalogItemOptionValue implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['item_option_id'] = $this->itemOptionId;
-        $json['name']         = $this->name;
-        $json['description']  = $this->description;
-        $json['color']        = $this->color;
-        $json['ordinal']      = $this->ordinal;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->itemOptionId)) {
+            $json['item_option_id'] = $this->itemOptionId;
+        }
+        if (isset($this->name)) {
+            $json['name']           = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description']    = $this->description;
+        }
+        if (isset($this->color)) {
+            $json['color']          = $this->color;
+        }
+        if (isset($this->ordinal)) {
+            $json['ordinal']        = $this->ordinal;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

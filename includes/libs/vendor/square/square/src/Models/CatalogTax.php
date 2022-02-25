@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A tax applicable to an item.
  */
@@ -184,20 +186,36 @@ class CatalogTax implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']                   = $this->name;
-        $json['calculation_phase']      = $this->calculationPhase;
-        $json['inclusion_type']         = $this->inclusionType;
-        $json['percentage']             = $this->percentage;
-        $json['applies_to_custom_amounts'] = $this->appliesToCustomAmounts;
-        $json['enabled']                = $this->enabled;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']                      = $this->name;
+        }
+        if (isset($this->calculationPhase)) {
+            $json['calculation_phase']         = $this->calculationPhase;
+        }
+        if (isset($this->inclusionType)) {
+            $json['inclusion_type']            = $this->inclusionType;
+        }
+        if (isset($this->percentage)) {
+            $json['percentage']                = $this->percentage;
+        }
+        if (isset($this->appliesToCustomAmounts)) {
+            $json['applies_to_custom_amounts'] = $this->appliesToCustomAmounts;
+        }
+        if (isset($this->enabled)) {
+            $json['enabled']                   = $this->enabled;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

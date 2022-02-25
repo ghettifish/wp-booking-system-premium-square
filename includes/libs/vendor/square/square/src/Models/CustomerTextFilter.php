@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A filter to select customers based on exact or fuzzy matching of
- * customer attributes against a specified query. Depending on customer attributes,
- * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+ * customer attributes against a specified query. Depending on the customer attributes,
+ * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
  */
 class CustomerTextFilter implements \JsonSerializable
 {
@@ -74,16 +76,24 @@ class CustomerTextFilter implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['exact'] = $this->exact;
-        $json['fuzzy'] = $this->fuzzy;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->exact)) {
+            $json['exact'] = $this->exact;
+        }
+        if (isset($this->fuzzy)) {
+            $json['fuzzy'] = $this->fuzzy;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

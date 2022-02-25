@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A filter to select resources based on an exact field value. For any given
  * value, the value can only be in one property. Depending on the field, either
@@ -111,17 +113,27 @@ class FilterValue implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['all']  = $this->all;
-        $json['any']  = $this->any;
-        $json['none'] = $this->none;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->all)) {
+            $json['all']  = $this->all;
+        }
+        if (isset($this->any)) {
+            $json['any']  = $this->any;
+        }
+        if (isset($this->none)) {
+            $json['none'] = $this->none;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

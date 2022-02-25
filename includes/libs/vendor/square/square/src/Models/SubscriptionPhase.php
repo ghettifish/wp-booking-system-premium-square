@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Describes a phase in a subscription plan. For more information, see
  * [Set Up and Manage a Subscription Plan](https://developer.squareup.com/docs/subscriptions-api/setup-
@@ -73,7 +75,7 @@ class SubscriptionPhase implements \JsonSerializable
     /**
      * Returns Cadence.
      *
-     * Determines the billing cadence of a [Subscription](#type-Subscription)
+     * Determines the billing cadence of a [Subscription]($m/Subscription)
      */
     public function getCadence(): string
     {
@@ -83,7 +85,7 @@ class SubscriptionPhase implements \JsonSerializable
     /**
      * Sets Cadence.
      *
-     * Determines the billing cadence of a [Subscription](#type-Subscription)
+     * Determines the billing cadence of a [Subscription]($m/Subscription)
      *
      * @required
      * @maps cadence
@@ -179,19 +181,29 @@ class SubscriptionPhase implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['uid']                 = $this->uid;
-        $json['cadence']             = $this->cadence;
-        $json['periods']             = $this->periods;
+        if (isset($this->uid)) {
+            $json['uid']               = $this->uid;
+        }
+        $json['cadence']               = $this->cadence;
+        if (isset($this->periods)) {
+            $json['periods']           = $this->periods;
+        }
         $json['recurring_price_money'] = $this->recurringPriceMoney;
-        $json['ordinal']             = $this->ordinal;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->ordinal)) {
+            $json['ordinal']           = $this->ordinal;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

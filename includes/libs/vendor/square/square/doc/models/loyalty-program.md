@@ -1,6 +1,10 @@
 
 # Loyalty Program
 
+Represents a Square loyalty program. Loyalty programs define how buyers can earn points and redeem points for rewards.
+Square sellers can have only one loyalty program, which is created and managed from the Seller Dashboard.
+For more information, see [Loyalty Program Overview](https://developer.squareup.com/docs/loyalty/overview).
+
 ## Structure
 
 `LoyaltyProgram`
@@ -13,8 +17,8 @@
 | `status` | [`string (LoyaltyProgramStatus)`](/doc/models/loyalty-program-status.md) | Required | Indicates whether the program is currently active. | getStatus(): string | setStatus(string status): void |
 | `rewardTiers` | [`LoyaltyProgramRewardTier[]`](/doc/models/loyalty-program-reward-tier.md) | Required | The list of rewards for buyers, sorted by ascending points. | getRewardTiers(): array | setRewardTiers(array rewardTiers): void |
 | `expirationPolicy` | [`?LoyaltyProgramExpirationPolicy`](/doc/models/loyalty-program-expiration-policy.md) | Optional | Describes when the loyalty program expires. | getExpirationPolicy(): ?LoyaltyProgramExpirationPolicy | setExpirationPolicy(?LoyaltyProgramExpirationPolicy expirationPolicy): void |
-| `terminology` | [`LoyaltyProgramTerminology`](/doc/models/loyalty-program-terminology.md) | Required | - | getTerminology(): LoyaltyProgramTerminology | setTerminology(LoyaltyProgramTerminology terminology): void |
-| `locationIds` | `string[]` | Required | The [locations](#type-Location) at which the program is active. | getLocationIds(): array | setLocationIds(array locationIds): void |
+| `terminology` | [`LoyaltyProgramTerminology`](/doc/models/loyalty-program-terminology.md) | Required | Represents the naming used for loyalty points. | getTerminology(): LoyaltyProgramTerminology | setTerminology(LoyaltyProgramTerminology terminology): void |
+| `locationIds` | `string[]` | Required | The [locations](/doc/models/location.md) at which the program is active. | getLocationIds(): array | setLocationIds(array locationIds): void |
 | `createdAt` | `string` | Required | The timestamp when the program was created, in RFC 3339 format.<br>**Constraints**: *Minimum Length*: `1` | getCreatedAt(): string | setCreatedAt(string createdAt): void |
 | `updatedAt` | `string` | Required | The timestamp when the reward was last updated, in RFC 3339 format.<br>**Constraints**: *Minimum Length*: `1` | getUpdatedAt(): string | setUpdatedAt(string updatedAt): void |
 | `accrualRules` | [`LoyaltyProgramAccrualRule[]`](/doc/models/loyalty-program-accrual-rule.md) | Required | Defines how buyers can earn loyalty points. | getAccrualRules(): array | setAccrualRules(array accrualRules): void |
@@ -97,28 +101,67 @@
     {
       "accrual_type": "ITEM_VARIATION",
       "points": 100,
-      "visit_minimum_amount_money": {
-        "amount": 238,
-        "currency": "ISK"
+      "visit_data": {
+        "minimum_amount_money": {
+          "amount": 160,
+          "currency": "TTD"
+        },
+        "tax_mode": "BEFORE_TAX"
       },
-      "spend_amount_money": {
-        "amount": 98,
-        "currency": "UGX"
+      "spend_data": {
+        "amount_money": {
+          "amount": 128,
+          "currency": "BHD"
+        },
+        "excluded_category_ids": [
+          "excluded_category_ids2",
+          "excluded_category_ids3",
+          "excluded_category_ids4"
+        ],
+        "excluded_item_variation_ids": [
+          "excluded_item_variation_ids5",
+          "excluded_item_variation_ids4",
+          "excluded_item_variation_ids3"
+        ],
+        "tax_mode": "BEFORE_TAX"
       },
-      "catalog_object_id": "catalog_object_id8"
+      "item_variation_data": {
+        "item_variation_id": "item_variation_id8"
+      },
+      "category_data": {
+        "category_id": "category_id4"
+      }
     },
     {
       "accrual_type": "SPEND",
       "points": 99,
-      "visit_minimum_amount_money": {
-        "amount": 237,
-        "currency": "JMD"
+      "visit_data": {
+        "minimum_amount_money": {
+          "amount": 161,
+          "currency": "TWD"
+        },
+        "tax_mode": "AFTER_TAX"
       },
-      "spend_amount_money": {
-        "amount": 99,
-        "currency": "USD"
+      "spend_data": {
+        "amount_money": {
+          "amount": 129,
+          "currency": "BIF"
+        },
+        "excluded_category_ids": [
+          "excluded_category_ids3"
+        ],
+        "excluded_item_variation_ids": [
+          "excluded_item_variation_ids6",
+          "excluded_item_variation_ids5"
+        ],
+        "tax_mode": "AFTER_TAX"
       },
-      "catalog_object_id": "catalog_object_id7"
+      "item_variation_data": {
+        "item_variation_id": "item_variation_id9"
+      },
+      "category_data": {
+        "category_id": "category_id5"
+      }
     }
   ]
 }

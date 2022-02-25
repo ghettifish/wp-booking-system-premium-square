@@ -1,7 +1,7 @@
 
 # Search Orders State Filter
 
-Filter by current Order `state`.
+Filter by the current order `state`.
 
 ## Structure
 
@@ -18,8 +18,8 @@ Filter by current Order `state`.
 ```json
 {
   "states": [
-    "CANCELED",
-    "OPEN"
+    "OPEN",
+    "COMPLETED"
   ]
 }
 ```

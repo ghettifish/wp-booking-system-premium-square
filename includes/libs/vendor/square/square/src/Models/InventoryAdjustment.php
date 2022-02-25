@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a change in state or quantity of product inventory at a
  * particular time and location.
@@ -78,6 +80,11 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * @var string|null
      */
+    private $teamMemberId;
+
+    /**
+     * @var string|null
+     */
     private $transactionId;
 
     /**
@@ -94,6 +101,11 @@ class InventoryAdjustment implements \JsonSerializable
      * @var string|null
      */
     private $goodsReceiptId;
+
+    /**
+     * @var InventoryAdjustmentGroup|null
+     */
+    private $adjustmentGroup;
 
     /**
      * Returns Id.
@@ -192,8 +204,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Location Id.
      *
-     * The Square ID of the [Location](#type-location) where the related
-     * quantity of items are being tracked.
+     * The Square-generated ID of the [Location]($m/Location) where the related
+     * quantity of items is being tracked.
      */
     public function getLocationId(): ?string
     {
@@ -203,8 +215,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Location Id.
      *
-     * The Square ID of the [Location](#type-location) where the related
-     * quantity of items are being tracked.
+     * The Square-generated ID of the [Location]($m/Location) where the related
+     * quantity of items is being tracked.
      *
      * @maps location_id
      */
@@ -216,8 +228,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Catalog Object Id.
      *
-     * The Square generated ID of the
-     * `CatalogObject` being tracked.
+     * The Square-generated ID of the
+     * [CatalogObject]($m/CatalogObject) being tracked.
      */
     public function getCatalogObjectId(): ?string
     {
@@ -227,8 +239,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Catalog Object Id.
      *
-     * The Square generated ID of the
-     * `CatalogObject` being tracked.
+     * The Square-generated ID of the
+     * [CatalogObject]($m/CatalogObject) being tracked.
      *
      * @maps catalog_object_id
      */
@@ -240,8 +252,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Catalog Object Type.
      *
-     * The `CatalogObjectType` of the
-     * `CatalogObject` being tracked. Tracking is only
+     * The [type]($m/CatalogObjectType) of the
+     * [CatalogObject]($m/CatalogObject) being tracked. Tracking is only
      * supported for the `ITEM_VARIATION` type.
      */
     public function getCatalogObjectType(): ?string
@@ -252,8 +264,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Catalog Object Type.
      *
-     * The `CatalogObjectType` of the
-     * `CatalogObject` being tracked. Tracking is only
+     * The [type]($m/CatalogObjectType) of the
+     * [CatalogObject]($m/CatalogObject) being tracked. Tracking is only
      * supported for the `ITEM_VARIATION` type.
      *
      * @maps catalog_object_type
@@ -324,8 +336,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Occurred At.
      *
-     * A client-generated timestamp in RFC 3339 format that indicates when
-     * the adjustment took place. For write actions, the `occurred_at`
+     * A client-generated RFC 3339-formatted timestamp that indicates when
+     * the inventory adjustment took place. For inventory adjustment updates, the `occurred_at`
      * timestamp cannot be older than 24 hours or in the future relative to the
      * time of the request.
      */
@@ -337,8 +349,8 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Occurred At.
      *
-     * A client-generated timestamp in RFC 3339 format that indicates when
-     * the adjustment took place. For write actions, the `occurred_at`
+     * A client-generated RFC 3339-formatted timestamp that indicates when
+     * the inventory adjustment took place. For inventory adjustment updates, the `occurred_at`
      * timestamp cannot be older than 24 hours or in the future relative to the
      * time of the request.
      *
@@ -352,8 +364,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Created At.
      *
-     * A read-only timestamp in RFC 3339 format that indicates when Square
-     * received the adjustment.
+     * An RFC 3339-formatted timestamp that indicates when the inventory adjustment is received.
      */
     public function getCreatedAt(): ?string
     {
@@ -363,8 +374,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Created At.
      *
-     * A read-only timestamp in RFC 3339 format that indicates when Square
-     * received the adjustment.
+     * An RFC 3339-formatted timestamp that indicates when the inventory adjustment is received.
      *
      * @maps created_at
      */
@@ -398,7 +408,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Employee Id.
      *
-     * The Square ID of the [Employee](#type-employee) responsible for the
+     * The Square-generated ID of the [Employee]($m/Employee) responsible for the
      * inventory adjustment.
      */
     public function getEmployeeId(): ?string
@@ -409,7 +419,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Employee Id.
      *
-     * The Square ID of the [Employee](#type-employee) responsible for the
+     * The Square-generated ID of the [Employee]($m/Employee) responsible for the
      * inventory adjustment.
      *
      * @maps employee_id
@@ -420,9 +430,33 @@ class InventoryAdjustment implements \JsonSerializable
     }
 
     /**
+     * Returns Team Member Id.
+     *
+     * The Square-generated ID of the [Team Member]($m/TeamMember) responsible for the
+     * inventory adjustment.
+     */
+    public function getTeamMemberId(): ?string
+    {
+        return $this->teamMemberId;
+    }
+
+    /**
+     * Sets Team Member Id.
+     *
+     * The Square-generated ID of the [Team Member]($m/TeamMember) responsible for the
+     * inventory adjustment.
+     *
+     * @maps team_member_id
+     */
+    public function setTeamMemberId(?string $teamMemberId): void
+    {
+        $this->teamMemberId = $teamMemberId;
+    }
+
+    /**
      * Returns Transaction Id.
      *
-     * The read-only Square ID of the [Transaction][#type-transaction] that
+     * The Square-generated ID of the [Transaction][#type-transaction] that
      * caused the adjustment. Only relevant for payment-related state
      * transitions.
      */
@@ -434,7 +468,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Transaction Id.
      *
-     * The read-only Square ID of the [Transaction][#type-transaction] that
+     * The Square-generated ID of the [Transaction][#type-transaction] that
      * caused the adjustment. Only relevant for payment-related state
      * transitions.
      *
@@ -448,7 +482,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Refund Id.
      *
-     * The read-only Square ID of the [Refund][#type-refund] that
+     * The Square-generated ID of the [Refund][#type-refund] that
      * caused the adjustment. Only relevant for refund-related state
      * transitions.
      */
@@ -460,7 +494,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Refund Id.
      *
-     * The read-only Square ID of the [Refund][#type-refund] that
+     * The Square-generated ID of the [Refund][#type-refund] that
      * caused the adjustment. Only relevant for refund-related state
      * transitions.
      *
@@ -474,7 +508,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Purchase Order Id.
      *
-     * The read-only Square ID of the purchase order that caused the
+     * The Square-generated ID of the purchase order that caused the
      * adjustment. Only relevant for state transitions from the Square for Retail
      * app.
      */
@@ -486,7 +520,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Purchase Order Id.
      *
-     * The read-only Square ID of the purchase order that caused the
+     * The Square-generated ID of the purchase order that caused the
      * adjustment. Only relevant for state transitions from the Square for Retail
      * app.
      *
@@ -500,7 +534,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Returns Goods Receipt Id.
      *
-     * The read-only Square ID of the Square goods receipt that caused the
+     * The Square-generated ID of the goods receipt that caused the
      * adjustment. Only relevant for state transitions from the Square for Retail
      * app.
      */
@@ -512,7 +546,7 @@ class InventoryAdjustment implements \JsonSerializable
     /**
      * Sets Goods Receipt Id.
      *
-     * The read-only Square ID of the Square goods receipt that caused the
+     * The Square-generated ID of the goods receipt that caused the
      * adjustment. Only relevant for state transitions from the Square for Retail
      * app.
      *
@@ -524,33 +558,95 @@ class InventoryAdjustment implements \JsonSerializable
     }
 
     /**
+     * Returns Adjustment Group.
+     */
+    public function getAdjustmentGroup(): ?InventoryAdjustmentGroup
+    {
+        return $this->adjustmentGroup;
+    }
+
+    /**
+     * Sets Adjustment Group.
+     *
+     * @maps adjustment_group
+     */
+    public function setAdjustmentGroup(?InventoryAdjustmentGroup $adjustmentGroup): void
+    {
+        $this->adjustmentGroup = $adjustmentGroup;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                = $this->id;
-        $json['reference_id']      = $this->referenceId;
-        $json['from_state']        = $this->fromState;
-        $json['to_state']          = $this->toState;
-        $json['location_id']       = $this->locationId;
-        $json['catalog_object_id'] = $this->catalogObjectId;
-        $json['catalog_object_type'] = $this->catalogObjectType;
-        $json['quantity']          = $this->quantity;
-        $json['total_price_money'] = $this->totalPriceMoney;
-        $json['occurred_at']       = $this->occurredAt;
-        $json['created_at']        = $this->createdAt;
-        $json['source']            = $this->source;
-        $json['employee_id']       = $this->employeeId;
-        $json['transaction_id']    = $this->transactionId;
-        $json['refund_id']         = $this->refundId;
-        $json['purchase_order_id'] = $this->purchaseOrderId;
-        $json['goods_receipt_id']  = $this->goodsReceiptId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                  = $this->id;
+        }
+        if (isset($this->referenceId)) {
+            $json['reference_id']        = $this->referenceId;
+        }
+        if (isset($this->fromState)) {
+            $json['from_state']          = $this->fromState;
+        }
+        if (isset($this->toState)) {
+            $json['to_state']            = $this->toState;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']         = $this->locationId;
+        }
+        if (isset($this->catalogObjectId)) {
+            $json['catalog_object_id']   = $this->catalogObjectId;
+        }
+        if (isset($this->catalogObjectType)) {
+            $json['catalog_object_type'] = $this->catalogObjectType;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity']            = $this->quantity;
+        }
+        if (isset($this->totalPriceMoney)) {
+            $json['total_price_money']   = $this->totalPriceMoney;
+        }
+        if (isset($this->occurredAt)) {
+            $json['occurred_at']         = $this->occurredAt;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']          = $this->createdAt;
+        }
+        if (isset($this->source)) {
+            $json['source']              = $this->source;
+        }
+        if (isset($this->employeeId)) {
+            $json['employee_id']         = $this->employeeId;
+        }
+        if (isset($this->teamMemberId)) {
+            $json['team_member_id']      = $this->teamMemberId;
+        }
+        if (isset($this->transactionId)) {
+            $json['transaction_id']      = $this->transactionId;
+        }
+        if (isset($this->refundId)) {
+            $json['refund_id']           = $this->refundId;
+        }
+        if (isset($this->purchaseOrderId)) {
+            $json['purchase_order_id']   = $this->purchaseOrderId;
+        }
+        if (isset($this->goodsReceiptId)) {
+            $json['goods_receipt_id']    = $this->goodsReceiptId;
+        }
+        if (isset($this->adjustmentGroup)) {
+            $json['adjustment_group']    = $this->adjustmentGroup;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

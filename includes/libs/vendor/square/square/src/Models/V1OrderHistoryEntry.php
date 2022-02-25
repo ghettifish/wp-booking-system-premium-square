@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * V1OrderHistoryEntry
  */
@@ -62,16 +64,24 @@ class V1OrderHistoryEntry implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['action']    = $this->action;
-        $json['created_at'] = $this->createdAt;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->action)) {
+            $json['action']     = $this->action;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at'] = $this->createdAt;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

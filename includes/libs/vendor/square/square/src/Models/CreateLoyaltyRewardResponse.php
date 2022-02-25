@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A response that includes the loyalty reward created.
  */
@@ -47,6 +49,11 @@ class CreateLoyaltyRewardResponse implements \JsonSerializable
 
     /**
      * Returns Reward.
+     *
+     * Represents a contract to redeem loyalty points for a [reward tier]($m/LoyaltyProgramRewardTier)
+     * discount. Loyalty rewards can be in an ISSUED, REDEEMED, or DELETED state. For more information, see
+     * [Redeem loyalty rewards](https://developer.squareup.com/docs/loyalty-api/overview#redeem-loyalty-
+     * rewards).
      */
     public function getReward(): ?LoyaltyReward
     {
@@ -55,6 +62,11 @@ class CreateLoyaltyRewardResponse implements \JsonSerializable
 
     /**
      * Sets Reward.
+     *
+     * Represents a contract to redeem loyalty points for a [reward tier]($m/LoyaltyProgramRewardTier)
+     * discount. Loyalty rewards can be in an ISSUED, REDEEMED, or DELETED state. For more information, see
+     * [Redeem loyalty rewards](https://developer.squareup.com/docs/loyalty-api/overview#redeem-loyalty-
+     * rewards).
      *
      * @maps reward
      */
@@ -66,16 +78,24 @@ class CreateLoyaltyRewardResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors'] = $this->errors;
-        $json['reward'] = $this->reward;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors'] = $this->errors;
+        }
+        if (isset($this->reward)) {
+            $json['reward'] = $this->reward;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

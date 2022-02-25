@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * An object describing a job that a team member is assigned to.
  */
@@ -183,19 +185,29 @@ class JobAssignment implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['job_title']   = $this->jobTitle;
-        $json['pay_type']    = $this->payType;
-        $json['hourly_rate'] = $this->hourlyRate;
-        $json['annual_rate'] = $this->annualRate;
-        $json['weekly_hours'] = $this->weeklyHours;
-
-        return array_filter($json, function ($val) {
+        $json['job_title']        = $this->jobTitle;
+        $json['pay_type']         = $this->payType;
+        if (isset($this->hourlyRate)) {
+            $json['hourly_rate']  = $this->hourlyRate;
+        }
+        if (isset($this->annualRate)) {
+            $json['annual_rate']  = $this->annualRate;
+        }
+        if (isset($this->weeklyHours)) {
+            $json['weekly_hours'] = $this->weeklyHours;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

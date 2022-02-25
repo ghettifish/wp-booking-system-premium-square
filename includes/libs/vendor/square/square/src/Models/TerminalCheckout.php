@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class TerminalCheckout implements \JsonSerializable
 {
     /**
@@ -75,6 +77,11 @@ class TerminalCheckout implements \JsonSerializable
      * @var string|null
      */
     private $paymentType;
+
+    /**
+     * @var string|null
+     */
+    private $customerId;
 
     /**
      * @param Money $amountMoney
@@ -423,30 +430,83 @@ class TerminalCheckout implements \JsonSerializable
     }
 
     /**
+     * Returns Customer Id.
+     *
+     * An optional ID of the customer associated with the checkout.
+     */
+    public function getCustomerId(): ?string
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * Sets Customer Id.
+     *
+     * An optional ID of the customer associated with the checkout.
+     *
+     * @maps customer_id
+     */
+    public function setCustomerId(?string $customerId): void
+    {
+        $this->customerId = $customerId;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']               = $this->id;
-        $json['amount_money']     = $this->amountMoney;
-        $json['reference_id']     = $this->referenceId;
-        $json['note']             = $this->note;
-        $json['device_options']   = $this->deviceOptions;
-        $json['deadline_duration'] = $this->deadlineDuration;
-        $json['status']           = $this->status;
-        $json['cancel_reason']    = $this->cancelReason;
-        $json['payment_ids']      = $this->paymentIds;
-        $json['created_at']       = $this->createdAt;
-        $json['updated_at']       = $this->updatedAt;
-        $json['app_id']           = $this->appId;
-        $json['location_id']      = $this->locationId;
-        $json['payment_type']     = $this->paymentType;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                = $this->id;
+        }
+        $json['amount_money']          = $this->amountMoney;
+        if (isset($this->referenceId)) {
+            $json['reference_id']      = $this->referenceId;
+        }
+        if (isset($this->note)) {
+            $json['note']              = $this->note;
+        }
+        $json['device_options']        = $this->deviceOptions;
+        if (isset($this->deadlineDuration)) {
+            $json['deadline_duration'] = $this->deadlineDuration;
+        }
+        if (isset($this->status)) {
+            $json['status']            = $this->status;
+        }
+        if (isset($this->cancelReason)) {
+            $json['cancel_reason']     = $this->cancelReason;
+        }
+        if (isset($this->paymentIds)) {
+            $json['payment_ids']       = $this->paymentIds;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']        = $this->createdAt;
+        }
+        if (isset($this->updatedAt)) {
+            $json['updated_at']        = $this->updatedAt;
+        }
+        if (isset($this->appId)) {
+            $json['app_id']            = $this->appId;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']       = $this->locationId;
+        }
+        if (isset($this->paymentType)) {
+            $json['payment_type']      = $this->paymentType;
+        }
+        if (isset($this->customerId)) {
+            $json['customer_id']       = $this->customerId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

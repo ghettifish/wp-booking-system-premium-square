@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a discount being returned that applies to one or more return line items in an
  * order.
@@ -28,6 +30,11 @@ class OrderReturnDiscount implements \JsonSerializable
      * @var string|null
      */
     private $catalogObjectId;
+
+    /**
+     * @var int|null
+     */
+    private $catalogVersion;
 
     /**
      * @var string|null
@@ -62,7 +69,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Returns Uid.
      *
-     * Unique ID that identifies the return discount only within this order.
+     * A unique ID that identifies the returned discount only within this order.
      */
     public function getUid(): ?string
     {
@@ -72,7 +79,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Sets Uid.
      *
-     * Unique ID that identifies the return discount only within this order.
+     * A unique ID that identifies the returned discount only within this order.
      *
      * @maps uid
      */
@@ -84,7 +91,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Returns Source Discount Uid.
      *
-     * `uid` of the Discount from the Order which contains the original application of this discount.
+     * The discount `uid` from the order that contains the original application of this discount.
      */
     public function getSourceDiscountUid(): ?string
     {
@@ -94,7 +101,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Sets Source Discount Uid.
      *
-     * `uid` of the Discount from the Order which contains the original application of this discount.
+     * The discount `uid` from the order that contains the original application of this discount.
      *
      * @maps source_discount_uid
      */
@@ -106,7 +113,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Returns Catalog Object Id.
      *
-     * The catalog object id referencing [CatalogDiscount](#type-catalogdiscount).
+     * The catalog object ID referencing [CatalogDiscount]($m/CatalogDiscount).
      */
     public function getCatalogObjectId(): ?string
     {
@@ -116,13 +123,35 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Sets Catalog Object Id.
      *
-     * The catalog object id referencing [CatalogDiscount](#type-catalogdiscount).
+     * The catalog object ID referencing [CatalogDiscount]($m/CatalogDiscount).
      *
      * @maps catalog_object_id
      */
     public function setCatalogObjectId(?string $catalogObjectId): void
     {
         $this->catalogObjectId = $catalogObjectId;
+    }
+
+    /**
+     * Returns Catalog Version.
+     *
+     * The version of the catalog object that this discount references.
+     */
+    public function getCatalogVersion(): ?int
+    {
+        return $this->catalogVersion;
+    }
+
+    /**
+     * Sets Catalog Version.
+     *
+     * The version of the catalog object that this discount references.
+     *
+     * @maps catalog_version
+     */
+    public function setCatalogVersion(?int $catalogVersion): void
+    {
+        $this->catalogVersion = $catalogVersion;
     }
 
     /**
@@ -173,7 +202,7 @@ class OrderReturnDiscount implements \JsonSerializable
      * Returns Percentage.
      *
      * The percentage of the tax, as a string representation of a decimal number.
-     * A value of `7.25` corresponds to a percentage of 7.25%.
+     * A value of `"7.25"` corresponds to a percentage of 7.25%.
      *
      * `percentage` is not set for amount-based discounts.
      */
@@ -186,7 +215,7 @@ class OrderReturnDiscount implements \JsonSerializable
      * Sets Percentage.
      *
      * The percentage of the tax, as a string representation of a decimal number.
-     * A value of `7.25` corresponds to a percentage of 7.25%.
+     * A value of `"7.25"` corresponds to a percentage of 7.25%.
      *
      * `percentage` is not set for amount-based discounts.
      *
@@ -268,7 +297,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Returns Scope.
      *
-     * Indicates whether this is a line item or order level discount.
+     * Indicates whether this is a line-item or order-level discount.
      */
     public function getScope(): ?string
     {
@@ -278,7 +307,7 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Sets Scope.
      *
-     * Indicates whether this is a line item or order level discount.
+     * Indicates whether this is a line-item or order-level discount.
      *
      * @maps scope
      */
@@ -290,23 +319,48 @@ class OrderReturnDiscount implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['uid']               = $this->uid;
-        $json['source_discount_uid'] = $this->sourceDiscountUid;
-        $json['catalog_object_id'] = $this->catalogObjectId;
-        $json['name']              = $this->name;
-        $json['type']              = $this->type;
-        $json['percentage']        = $this->percentage;
-        $json['amount_money']      = $this->amountMoney;
-        $json['applied_money']     = $this->appliedMoney;
-        $json['scope']             = $this->scope;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->uid)) {
+            $json['uid']                 = $this->uid;
+        }
+        if (isset($this->sourceDiscountUid)) {
+            $json['source_discount_uid'] = $this->sourceDiscountUid;
+        }
+        if (isset($this->catalogObjectId)) {
+            $json['catalog_object_id']   = $this->catalogObjectId;
+        }
+        if (isset($this->catalogVersion)) {
+            $json['catalog_version']     = $this->catalogVersion;
+        }
+        if (isset($this->name)) {
+            $json['name']                = $this->name;
+        }
+        if (isset($this->type)) {
+            $json['type']                = $this->type;
+        }
+        if (isset($this->percentage)) {
+            $json['percentage']          = $this->percentage;
+        }
+        if (isset($this->amountMoney)) {
+            $json['amount_money']        = $this->amountMoney;
+        }
+        if (isset($this->appliedMoney)) {
+            $json['applied_money']       = $this->appliedMoney;
+        }
+        if (isset($this->scope)) {
+            $json['scope']               = $this->scope;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

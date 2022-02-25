@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class DisputeEvidence implements \JsonSerializable
 {
     /**
@@ -14,7 +16,22 @@ class DisputeEvidence implements \JsonSerializable
     /**
      * @var string|null
      */
+    private $id;
+
+    /**
+     * @var string|null
+     */
     private $disputeId;
+
+    /**
+     * @var DisputeEvidenceFile|null
+     */
+    private $evidenceFile;
+
+    /**
+     * @var string|null
+     */
+    private $evidenceText;
 
     /**
      * @var string|null
@@ -49,6 +66,28 @@ class DisputeEvidence implements \JsonSerializable
     }
 
     /**
+     * Returns Id.
+     *
+     * The Square-generated ID of the evidence.
+     */
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    /**
+     * Sets Id.
+     *
+     * The Square-generated ID of the evidence.
+     *
+     * @maps id
+     */
+    public function setId(?string $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
      * Returns Dispute Id.
      *
      * The ID of the dispute the evidence is associated with.
@@ -68,6 +107,50 @@ class DisputeEvidence implements \JsonSerializable
     public function setDisputeId(?string $disputeId): void
     {
         $this->disputeId = $disputeId;
+    }
+
+    /**
+     * Returns Evidence File.
+     *
+     * A file to be uploaded as dispute evidence.
+     */
+    public function getEvidenceFile(): ?DisputeEvidenceFile
+    {
+        return $this->evidenceFile;
+    }
+
+    /**
+     * Sets Evidence File.
+     *
+     * A file to be uploaded as dispute evidence.
+     *
+     * @maps evidence_file
+     */
+    public function setEvidenceFile(?DisputeEvidenceFile $evidenceFile): void
+    {
+        $this->evidenceFile = $evidenceFile;
+    }
+
+    /**
+     * Returns Evidence Text.
+     *
+     * Raw text
+     */
+    public function getEvidenceText(): ?string
+    {
+        return $this->evidenceText;
+    }
+
+    /**
+     * Sets Evidence Text.
+     *
+     * Raw text
+     *
+     * @maps evidence_text
+     */
+    public function setEvidenceText(?string $evidenceText): void
+    {
+        $this->evidenceText = $evidenceText;
     }
 
     /**
@@ -117,18 +200,39 @@ class DisputeEvidence implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['evidence_id']  = $this->evidenceId;
-        $json['dispute_id']   = $this->disputeId;
-        $json['uploaded_at']  = $this->uploadedAt;
-        $json['evidence_type'] = $this->evidenceType;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->evidenceId)) {
+            $json['evidence_id']   = $this->evidenceId;
+        }
+        if (isset($this->id)) {
+            $json['id']            = $this->id;
+        }
+        if (isset($this->disputeId)) {
+            $json['dispute_id']    = $this->disputeId;
+        }
+        if (isset($this->evidenceFile)) {
+            $json['evidence_file'] = $this->evidenceFile;
+        }
+        if (isset($this->evidenceText)) {
+            $json['evidence_text'] = $this->evidenceText;
+        }
+        if (isset($this->uploadedAt)) {
+            $json['uploaded_at']   = $this->uploadedAt;
+        }
+        if (isset($this->evidenceType)) {
+            $json['evidence_type'] = $this->evidenceType;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

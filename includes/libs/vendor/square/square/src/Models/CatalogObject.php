@@ -4,41 +4,20 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * The wrapper object for the Catalog entries of a given object type.
+ * The wrapper object for the catalog entries of a given object type.
  *
- * The type of a particular `CatalogObject` is determined by the value of the
- * `type` attribute and only the corresponding data attribute can be set on the `CatalogObject`
- * instance.
- * For example, the following list shows some instances of `CatalogObject` of a given `type` and
- * their corresponding data attribute that can be set:
- * - For a `CatalogObject` of the `ITEM` type, set the `item_data` attribute to yield the `CatalogItem`
- * object.
- * - For a `CatalogObject` of the `ITEM_VARIATION` type, set the `item_variation_data` attribute to
- * yield the `CatalogItemVariation` object.
- * - For a `CatalogObject` of the `MODIFIER` type, set the `modifier_data` attribute to yield the
- * `CatalogModifier` object.
- * - For a `CatalogObject` of the `MODIFIER_LIST` type, set the `modifier_list_data` attribute to yield
- * the `CatalogModifierList` object.
- * - For a `CatalogObject` of the `CATEGORY` type, set the `category_data` attribute to yield the
- * `CatalogCategory` object.
- * - For a `CatalogObject` of the `DISCOUNT` type, set the `discount_data` attribute to yield the
- * `CatalogDiscount` object.
- * - For a `CatalogObject` of the `TAX` type, set the `tax_data` attribute to yield the `CatalogTax`
- * object.
- * - For a `CatalogObject` of the `IMAGE` type, set the `image_data` attribute to yield the
- * `CatalogImageData`  object.
- * - For a `CatalogObject` of the `QUICK_AMOUNTS_SETTINGS` type, set the `quick_amounts_settings_data`
- * attribute to yield the `CatalogQuickAmountsSettings` object.
- * - For a `CatalogObject` of the `PRICING_RULE` type, set the `pricing_rule_data` attribute to yield
- * the `CatalogPricingRule` object.
- * - For a `CatalogObject` of the `TIME_PERIOD` type, set the `time_period_data` attribute to yield the
- * `CatalogTimePeriod` object.
- * - For a `CatalogObject` of the `PRODUCT_SET` type, set the `product_set_data` attribute to yield the
- * `CatalogProductSet`  object.
- * - For a `CatalogObject` of the `SUBSCRIPTION_PLAN` type, set the `subscription_plan_data` attribute
- * to yield the `CatalogSubscriptionPlan` object.
+ * Depending on the `type` attribute value, a `CatalogObject` instance assumes a type-specific data to
+ * yield the corresponding type of catalog object.
  *
+ * For example, if `type=ITEM`, the `CatalogObject` instance must have the ITEM-specific data set on
+ * the `item_data` attribute. The resulting `CatalogObject` instance is also a `CatalogItem` instance.
+ *
+ * In general, if `type=<OBJECT_TYPE>`, the `CatalogObject` instance must have the `<OBJECT_TYPE>`-
+ * specific data set on the `<object_type>_data` attribute. The resulting `CatalogObject` instance is
+ * also a `Catalog<ObjectType>` instance.
  *
  * For a more detailed discussion of the Catalog data model, please see the
  * [Design a Catalog](https://developer.squareup.com/docs/catalog-api/design-a-catalog) guide.
@@ -94,11 +73,6 @@ class CatalogObject implements \JsonSerializable
      * @var string[]|null
      */
     private $absentAtLocationIds;
-
-    /**
-     * @var string|null
-     */
-    private $imageId;
 
     /**
      * @var CatalogItem|null
@@ -198,8 +172,8 @@ class CatalogObject implements \JsonSerializable
     /**
      * Returns Type.
      *
-     * Possible types of CatalogObjects returned from the Catalog, each
-     * containing type-specific properties in the `*_data` field corresponding to the object type.
+     * Possible types of CatalogObjects returned from the catalog, each
+     * containing type-specific properties in the `*_data` field corresponding to the specfied object type.
      */
     public function getType(): string
     {
@@ -209,8 +183,8 @@ class CatalogObject implements \JsonSerializable
     /**
      * Sets Type.
      *
-     * Possible types of CatalogObjects returned from the Catalog, each
-     * containing type-specific properties in the `*_data` field corresponding to the object type.
+     * Possible types of CatalogObjects returned from the catalog, each
+     * containing type-specific properties in the `*_data` field corresponding to the specfied object type.
      *
      * @required
      * @maps type
@@ -334,10 +308,10 @@ class CatalogObject implements \JsonSerializable
      *
      * A map (key-value pairs) of application-defined custom attribute values. The value of a key-value
      * pair
-     * is a [CatalogCustomAttributeValue](#type-CatalogCustomAttributeValue) object. The key is the `key`
+     * is a [CatalogCustomAttributeValue]($m/CatalogCustomAttributeValue) object. The key is the `key`
      * attribute
-     * value defined in the associated [CatalogCustomAttributeDefinition](#type-
-     * CatalogCustomAttributeDefinition)
+     * value defined in the associated
+     * [CatalogCustomAttributeDefinition]($m/CatalogCustomAttributeDefinition)
      * object defined by the application making the request.
      *
      * If the `CatalogCustomAttributeDefinition` object is
@@ -366,10 +340,10 @@ class CatalogObject implements \JsonSerializable
      *
      * A map (key-value pairs) of application-defined custom attribute values. The value of a key-value
      * pair
-     * is a [CatalogCustomAttributeValue](#type-CatalogCustomAttributeValue) object. The key is the `key`
+     * is a [CatalogCustomAttributeValue]($m/CatalogCustomAttributeValue) object. The key is the `key`
      * attribute
-     * value defined in the associated [CatalogCustomAttributeDefinition](#type-
-     * CatalogCustomAttributeDefinition)
+     * value defined in the associated
+     * [CatalogCustomAttributeDefinition]($m/CatalogCustomAttributeDefinition)
      * object defined by the application making the request.
      *
      * If the `CatalogCustomAttributeDefinition` object is
@@ -459,6 +433,7 @@ class CatalogObject implements \JsonSerializable
      * Returns Present at Location Ids.
      *
      * A list of locations where the object is present, even if `present_at_all_locations` is `false`.
+     * This can include locations that are deactivated.
      *
      * @return string[]|null
      */
@@ -471,6 +446,7 @@ class CatalogObject implements \JsonSerializable
      * Sets Present at Location Ids.
      *
      * A list of locations where the object is present, even if `present_at_all_locations` is `false`.
+     * This can include locations that are deactivated.
      *
      * @maps present_at_location_ids
      *
@@ -485,6 +461,7 @@ class CatalogObject implements \JsonSerializable
      * Returns Absent at Location Ids.
      *
      * A list of locations where the object is not present, even if `present_at_all_locations` is `true`.
+     * This can include locations that are deactivated.
      *
      * @return string[]|null
      */
@@ -497,6 +474,7 @@ class CatalogObject implements \JsonSerializable
      * Sets Absent at Location Ids.
      *
      * A list of locations where the object is not present, even if `present_at_all_locations` is `true`.
+     * This can include locations that are deactivated.
      *
      * @maps absent_at_location_ids
      *
@@ -508,32 +486,10 @@ class CatalogObject implements \JsonSerializable
     }
 
     /**
-     * Returns Image Id.
-     *
-     * Identifies the `CatalogImage` attached to this `CatalogObject`.
-     */
-    public function getImageId(): ?string
-    {
-        return $this->imageId;
-    }
-
-    /**
-     * Sets Image Id.
-     *
-     * Identifies the `CatalogImage` attached to this `CatalogObject`.
-     *
-     * @maps image_id
-     */
-    public function setImageId(?string $imageId): void
-    {
-        $this->imageId = $imageId;
-    }
-
-    /**
      * Returns Item Data.
      *
-     * A [CatalogObject](#type-CatalogObject) instance of the `ITEM` type, also referred to as an item, in
-     * the catalog.
+     * A [CatalogObject]($m/CatalogObject) instance of the `ITEM` type, also referred to as an item, in the
+     * catalog.
      */
     public function getItemData(): ?CatalogItem
     {
@@ -543,8 +499,8 @@ class CatalogObject implements \JsonSerializable
     /**
      * Sets Item Data.
      *
-     * A [CatalogObject](#type-CatalogObject) instance of the `ITEM` type, also referred to as an item, in
-     * the catalog.
+     * A [CatalogObject]($m/CatalogObject) instance of the `ITEM` type, also referred to as an item, in the
+     * catalog.
      *
      * @maps item_data
      */
@@ -776,8 +732,12 @@ class CatalogObject implements \JsonSerializable
     /**
      * Returns Image Data.
      *
-     * An image file to use in Square catalogs. It can be associated with catalog
-     * items, item variations, and categories.
+     * An image file to use in Square catalogs. It can be associated with
+     * `CatalogItem`, `CatalogItemVariation`, `CatalogCategory`, and `CatalogModifierList` objects.
+     * Only the images on items and item variations are exposed in Dashboard.
+     * Only the first image on an item is displayed in Square Point of Sale (SPOS).
+     * Images on items and variations are displayed through Square Online Store.
+     * Images on other object types are for use by 3rd party application developers.
      */
     public function getImageData(): ?CatalogImage
     {
@@ -787,8 +747,12 @@ class CatalogObject implements \JsonSerializable
     /**
      * Sets Image Data.
      *
-     * An image file to use in Square catalogs. It can be associated with catalog
-     * items, item variations, and categories.
+     * An image file to use in Square catalogs. It can be associated with
+     * `CatalogItem`, `CatalogItemVariation`, `CatalogCategory`, and `CatalogModifierList` objects.
+     * Only the images on items and item variations are exposed in Dashboard.
+     * Only the first image on an item is displayed in Square Point of Sale (SPOS).
+     * Images on items and variations are displayed through Square Online Store.
+     * Images on other object types are for use by 3rd party application developers.
      *
      * @maps image_data
      */
@@ -953,42 +917,95 @@ class CatalogObject implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['type']                          = $this->type;
-        $json['id']                            = $this->id;
-        $json['updated_at']                    = $this->updatedAt;
-        $json['version']                       = $this->version;
-        $json['is_deleted']                    = $this->isDeleted;
-        $json['custom_attribute_values']       = $this->customAttributeValues;
-        $json['catalog_v1_ids']                = $this->catalogV1Ids;
-        $json['present_at_all_locations']      = $this->presentAtAllLocations;
-        $json['present_at_location_ids']       = $this->presentAtLocationIds;
-        $json['absent_at_location_ids']        = $this->absentAtLocationIds;
-        $json['image_id']                      = $this->imageId;
-        $json['item_data']                     = $this->itemData;
-        $json['category_data']                 = $this->categoryData;
-        $json['item_variation_data']           = $this->itemVariationData;
-        $json['tax_data']                      = $this->taxData;
-        $json['discount_data']                 = $this->discountData;
-        $json['modifier_list_data']            = $this->modifierListData;
-        $json['modifier_data']                 = $this->modifierData;
-        $json['time_period_data']              = $this->timePeriodData;
-        $json['product_set_data']              = $this->productSetData;
-        $json['pricing_rule_data']             = $this->pricingRuleData;
-        $json['image_data']                    = $this->imageData;
-        $json['measurement_unit_data']         = $this->measurementUnitData;
-        $json['subscription_plan_data']        = $this->subscriptionPlanData;
-        $json['item_option_data']              = $this->itemOptionData;
-        $json['item_option_value_data']        = $this->itemOptionValueData;
-        $json['custom_attribute_definition_data'] = $this->customAttributeDefinitionData;
-        $json['quick_amounts_settings_data']   = $this->quickAmountsSettingsData;
-
-        return array_filter($json, function ($val) {
+        $json['type']                                 = $this->type;
+        $json['id']                                   = $this->id;
+        if (isset($this->updatedAt)) {
+            $json['updated_at']                       = $this->updatedAt;
+        }
+        if (isset($this->version)) {
+            $json['version']                          = $this->version;
+        }
+        if (isset($this->isDeleted)) {
+            $json['is_deleted']                       = $this->isDeleted;
+        }
+        if (isset($this->customAttributeValues)) {
+            $json['custom_attribute_values']          = $this->customAttributeValues;
+        }
+        if (isset($this->catalogV1Ids)) {
+            $json['catalog_v1_ids']                   = $this->catalogV1Ids;
+        }
+        if (isset($this->presentAtAllLocations)) {
+            $json['present_at_all_locations']         = $this->presentAtAllLocations;
+        }
+        if (isset($this->presentAtLocationIds)) {
+            $json['present_at_location_ids']          = $this->presentAtLocationIds;
+        }
+        if (isset($this->absentAtLocationIds)) {
+            $json['absent_at_location_ids']           = $this->absentAtLocationIds;
+        }
+        if (isset($this->itemData)) {
+            $json['item_data']                        = $this->itemData;
+        }
+        if (isset($this->categoryData)) {
+            $json['category_data']                    = $this->categoryData;
+        }
+        if (isset($this->itemVariationData)) {
+            $json['item_variation_data']              = $this->itemVariationData;
+        }
+        if (isset($this->taxData)) {
+            $json['tax_data']                         = $this->taxData;
+        }
+        if (isset($this->discountData)) {
+            $json['discount_data']                    = $this->discountData;
+        }
+        if (isset($this->modifierListData)) {
+            $json['modifier_list_data']               = $this->modifierListData;
+        }
+        if (isset($this->modifierData)) {
+            $json['modifier_data']                    = $this->modifierData;
+        }
+        if (isset($this->timePeriodData)) {
+            $json['time_period_data']                 = $this->timePeriodData;
+        }
+        if (isset($this->productSetData)) {
+            $json['product_set_data']                 = $this->productSetData;
+        }
+        if (isset($this->pricingRuleData)) {
+            $json['pricing_rule_data']                = $this->pricingRuleData;
+        }
+        if (isset($this->imageData)) {
+            $json['image_data']                       = $this->imageData;
+        }
+        if (isset($this->measurementUnitData)) {
+            $json['measurement_unit_data']            = $this->measurementUnitData;
+        }
+        if (isset($this->subscriptionPlanData)) {
+            $json['subscription_plan_data']           = $this->subscriptionPlanData;
+        }
+        if (isset($this->itemOptionData)) {
+            $json['item_option_data']                 = $this->itemOptionData;
+        }
+        if (isset($this->itemOptionValueData)) {
+            $json['item_option_value_data']           = $this->itemOptionValueData;
+        }
+        if (isset($this->customAttributeDefinitionData)) {
+            $json['custom_attribute_definition_data'] = $this->customAttributeDefinitionData;
+        }
+        if (isset($this->quickAmountsSettingsData)) {
+            $json['quick_amounts_settings_data']      = $this->quickAmountsSettingsData;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

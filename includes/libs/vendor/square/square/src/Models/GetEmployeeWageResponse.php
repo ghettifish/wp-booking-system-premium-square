@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * A response to a request to get an `EmployeeWage`. Contains
- * the requested `EmployeeWage` objects. May contain a set of `Error` objects if
+ * A response to a request to get an `EmployeeWage`. The response contains
+ * the requested `EmployeeWage` objects and might contain a set of `Error` objects if
  * the request resulted in errors.
  */
 class GetEmployeeWageResponse implements \JsonSerializable
@@ -24,8 +26,8 @@ class GetEmployeeWageResponse implements \JsonSerializable
     /**
      * Returns Employee Wage.
      *
-     * The hourly wage rate that an employee will earn on a `Shift` for doing the job
-     * specified by the `title` property of this object. Deprecated at verison 2020-08-26. Use
+     * The hourly wage rate that an employee earns on a `Shift` for doing the job
+     * specified by the `title` property of this object. Deprecated at version 2020-08-26. Use
      * `TeamMemberWage` instead.
      */
     public function getEmployeeWage(): ?EmployeeWage
@@ -36,8 +38,8 @@ class GetEmployeeWageResponse implements \JsonSerializable
     /**
      * Sets Employee Wage.
      *
-     * The hourly wage rate that an employee will earn on a `Shift` for doing the job
-     * specified by the `title` property of this object. Deprecated at verison 2020-08-26. Use
+     * The hourly wage rate that an employee earns on a `Shift` for doing the job
+     * specified by the `title` property of this object. Deprecated at version 2020-08-26. Use
      * `TeamMemberWage` instead.
      *
      * @maps employee_wage
@@ -76,16 +78,24 @@ class GetEmployeeWageResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['employee_wage'] = $this->employeeWage;
-        $json['errors']       = $this->errors;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->employeeWage)) {
+            $json['employee_wage'] = $this->employeeWage;
+        }
+        if (isset($this->errors)) {
+            $json['errors']        = $this->errors;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

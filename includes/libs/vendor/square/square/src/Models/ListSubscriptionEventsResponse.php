@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Defines the fields that are included in the response from the
- * [ListSubscriptionEvents](#endpoint-subscriptions-listsubscriptionevents)
- * endpoint.
+ * Defines output parameters in a response from the
+ * [ListSubscriptionEvents]($e/Subscriptions/ListSubscriptionEvents).
  */
 class ListSubscriptionEventsResponse implements \JsonSerializable
 {
@@ -29,7 +30,7 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Returns Errors.
      *
-     * Information about errors encountered during the request.
+     * Errors encountered during the request.
      *
      * @return Error[]|null
      */
@@ -41,7 +42,7 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Sets Errors.
      *
-     * Information about errors encountered during the request.
+     * Errors encountered during the request.
      *
      * @maps errors
      *
@@ -55,7 +56,7 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Returns Subscription Events.
      *
-     * The `SubscriptionEvents` retrieved.
+     * The retrieved subscription events.
      *
      * @return SubscriptionEvent[]|null
      */
@@ -67,7 +68,7 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Sets Subscription Events.
      *
-     * The `SubscriptionEvents` retrieved.
+     * The retrieved subscription events.
      *
      * @maps subscription_events
      *
@@ -81,9 +82,10 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Returns Cursor.
      *
-     * When a response is truncated, it includes a cursor that you can
-     * use in a subsequent request to fetch the next set of events.
-     * If empty, this is the final response.
+     * When the total number of resulting subscription events exceeds the limit of a paged response,
+     * the response includes a cursor for you to use in a subsequent request to fetch the next set of
+     * events.
+     * If the cursor is unset, the response contains the last page of the results.
      *
      * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
      * apis/pagination).
@@ -96,9 +98,10 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Sets Cursor.
      *
-     * When a response is truncated, it includes a cursor that you can
-     * use in a subsequent request to fetch the next set of events.
-     * If empty, this is the final response.
+     * When the total number of resulting subscription events exceeds the limit of a paged response,
+     * the response includes a cursor for you to use in a subsequent request to fetch the next set of
+     * events.
+     * If the cursor is unset, the response contains the last page of the results.
      *
      * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
      * apis/pagination).
@@ -113,17 +116,27 @@ class ListSubscriptionEventsResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']             = $this->errors;
-        $json['subscription_events'] = $this->subscriptionEvents;
-        $json['cursor']             = $this->cursor;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']              = $this->errors;
+        }
+        if (isset($this->subscriptionEvents)) {
+            $json['subscription_events'] = $this->subscriptionEvents;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']              = $this->cursor;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

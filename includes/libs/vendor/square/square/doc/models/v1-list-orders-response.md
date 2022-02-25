@@ -19,20 +19,20 @@
     {
       "errors": [
         {
-          "category": "PAYMENT_METHOD_ERROR",
-          "code": "CARD_TOKEN_USED",
+          "category": "MERCHANT_SUBSCRIPTION_ERROR",
+          "code": "UNSUPPORTED_ENTRY_METHOD",
           "detail": "detail8",
           "field": "field6"
         },
         {
-          "category": "REFUND_ERROR",
-          "code": "AMOUNT_TOO_HIGH",
+          "category": "API_ERROR",
+          "code": "INVALID_ENCRYPTED_CARD",
           "detail": "detail9",
           "field": "field7"
         },
         {
-          "category": "API_ERROR",
-          "code": "UNSUPPORTED_INSTRUMENT_TYPE",
+          "category": "AUTHENTICATION_ERROR",
+          "code": "INVALID_CARD",
           "detail": "detail0",
           "field": "field8"
         }
@@ -45,8 +45,8 @@
     {
       "errors": [
         {
-          "category": "REFUND_ERROR",
-          "code": "AMOUNT_TOO_HIGH",
+          "category": "API_ERROR",
+          "code": "INVALID_ENCRYPTED_CARD",
           "detail": "detail9",
           "field": "field7"
         }

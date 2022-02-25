@@ -19,6 +19,11 @@ Describes a `UpdateInvoice` response.
 ```json
 {
   "invoice": {
+    "accepted_payment_methods": {
+      "bank_account": false,
+      "card": true,
+      "square_gift_card": false
+    },
     "created_at": "2020-06-18T17:45:13Z",
     "custom_fields": [
       {
@@ -34,7 +39,7 @@ Describes a `UpdateInvoice` response.
     ],
     "delivery_method": "EMAIL",
     "description": "We appreciate your business!",
-    "id": "gt2zv1z6mnUm1V7KMxxf3w",
+    "id": "inv:0-ChCHu2mZEabLeeHahQnXDjZQECY",
     "invoice_number": "inv-100",
     "location_id": "ES0RJRZYEC39A",
     "next_payment_amount_money": {
@@ -66,6 +71,7 @@ Describes a `UpdateInvoice` response.
       "given_name": "Amelia",
       "phone_number": "1-212-555-4240"
     },
+    "sale_or_service_date": "2030-01-24",
     "scheduled_at": "2030-01-13T10:00:00Z",
     "status": "UNPAID",
     "timezone": "America/Los_Angeles",

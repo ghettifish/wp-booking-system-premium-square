@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Filter based on [Order Fulfillment](#type-orderfulfillment) information.
+ * Filter based on [order fulfillment]($m/OrderFulfillment) information.
  */
 class SearchOrdersFulfillmentFilter implements \JsonSerializable
 {
@@ -22,8 +24,8 @@ class SearchOrdersFulfillmentFilter implements \JsonSerializable
     /**
      * Returns Fulfillment Types.
      *
-     * List of [fulfillment types](#type-orderfulfillmenttype) to filter
-     * for. Will return orders if any of its fulfillments match any of the fulfillment types
+     * A list of [fulfillment types]($m/OrderFulfillmentType) to filter
+     * for. The list returns orders if any of its fulfillments match any of the fulfillment types
      * listed in this field.
      * See [OrderFulfillmentType](#type-orderfulfillmenttype) for possible values
      *
@@ -37,8 +39,8 @@ class SearchOrdersFulfillmentFilter implements \JsonSerializable
     /**
      * Sets Fulfillment Types.
      *
-     * List of [fulfillment types](#type-orderfulfillmenttype) to filter
-     * for. Will return orders if any of its fulfillments match any of the fulfillment types
+     * A list of [fulfillment types]($m/OrderFulfillmentType) to filter
+     * for. The list returns orders if any of its fulfillments match any of the fulfillment types
      * listed in this field.
      * See [OrderFulfillmentType](#type-orderfulfillmenttype) for possible values
      *
@@ -54,8 +56,8 @@ class SearchOrdersFulfillmentFilter implements \JsonSerializable
     /**
      * Returns Fulfillment States.
      *
-     * List of [fulfillment states](#type-orderfulfillmentstate) to filter
-     * for. Will return orders if any of its fulfillments match any of the
+     * A list of [fulfillment states]($m/OrderFulfillmentState) to filter
+     * for. The list returns orders if any of its fulfillments match any of the
      * fulfillment states listed in this field.
      * See [OrderFulfillmentState](#type-orderfulfillmentstate) for possible values
      *
@@ -69,8 +71,8 @@ class SearchOrdersFulfillmentFilter implements \JsonSerializable
     /**
      * Sets Fulfillment States.
      *
-     * List of [fulfillment states](#type-orderfulfillmentstate) to filter
-     * for. Will return orders if any of its fulfillments match any of the
+     * A list of [fulfillment states]($m/OrderFulfillmentState) to filter
+     * for. The list returns orders if any of its fulfillments match any of the
      * fulfillment states listed in this field.
      * See [OrderFulfillmentState](#type-orderfulfillmentstate) for possible values
      *
@@ -86,16 +88,24 @@ class SearchOrdersFulfillmentFilter implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['fulfillment_types'] = $this->fulfillmentTypes;
-        $json['fulfillment_states'] = $this->fulfillmentStates;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->fulfillmentTypes)) {
+            $json['fulfillment_types']  = $this->fulfillmentTypes;
+        }
+        if (isset($this->fulfillmentStates)) {
+            $json['fulfillment_states'] = $this->fulfillmentStates;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

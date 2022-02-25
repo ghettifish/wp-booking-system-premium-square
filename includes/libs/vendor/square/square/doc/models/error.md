@@ -3,7 +3,7 @@
 
 Represents an error encountered during a request to the Connect API.
 
-See [Handling errors](#handlingerrors) for more information.
+See [Handling errors](https://developer.squareup.com/docs/build-basics/handling-errors) for more information.
 
 ## Structure
 
@@ -22,8 +22,8 @@ See [Handling errors](#handlingerrors) for more information.
 
 ```json
 {
-  "category": "INVALID_REQUEST_ERROR",
-  "code": "ACCESS_TOKEN_EXPIRED",
+  "category": "RATE_LIMIT_ERROR",
+  "code": "INVALID_EXPIRATION_DATE",
   "detail": "detail6",
   "field": "field6"
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the fields that are included in the response body of
- * a request to the __CreateMobileAuthorizationCode__ endpoint.
+ * a request to the `CreateMobileAuthorizationCode` endpoint.
  */
 class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
 {
@@ -28,7 +30,7 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
     /**
      * Returns Authorization Code.
      *
-     * Generated authorization code that connects a mobile application instance
+     * The generated authorization code that connects a mobile application instance
      * to a Square account.
      */
     public function getAuthorizationCode(): ?string
@@ -39,7 +41,7 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
     /**
      * Sets Authorization Code.
      *
-     * Generated authorization code that connects a mobile application instance
+     * The generated authorization code that connects a mobile application instance
      * to a Square account.
      *
      * @maps authorization_code
@@ -52,8 +54,8 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
     /**
      * Returns Expires At.
      *
-     * The timestamp when `authorization_code` expires in
-     * [RFC 3339](https://tools.ietf.org/html/rfc3339) format, e.g., "2016-09-04T23:59:33.123Z".
+     * The timestamp when `authorization_code` expires, in
+     * [RFC 3339](https://tools.ietf.org/html/rfc3339) format (for example, "2016-09-04T23:59:33.123Z").
      */
     public function getExpiresAt(): ?string
     {
@@ -63,8 +65,8 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
     /**
      * Sets Expires At.
      *
-     * The timestamp when `authorization_code` expires in
-     * [RFC 3339](https://tools.ietf.org/html/rfc3339) format, e.g., "2016-09-04T23:59:33.123Z".
+     * The timestamp when `authorization_code` expires, in
+     * [RFC 3339](https://tools.ietf.org/html/rfc3339) format (for example, "2016-09-04T23:59:33.123Z").
      *
      * @maps expires_at
      */
@@ -78,7 +80,8 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
      *
      * Represents an error encountered during a request to the Connect API.
      *
-     * See [Handling errors](#handlingerrors) for more information.
+     * See [Handling errors](https://developer.squareup.com/docs/build-basics/handling-errors) for more
+     * information.
      */
     public function getError(): ?Error
     {
@@ -90,7 +93,8 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
      *
      * Represents an error encountered during a request to the Connect API.
      *
-     * See [Handling errors](#handlingerrors) for more information.
+     * See [Handling errors](https://developer.squareup.com/docs/build-basics/handling-errors) for more
+     * information.
      *
      * @maps error
      */
@@ -102,17 +106,27 @@ class CreateMobileAuthorizationCodeResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['authorization_code'] = $this->authorizationCode;
-        $json['expires_at']        = $this->expiresAt;
-        $json['error']             = $this->error;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->authorizationCode)) {
+            $json['authorization_code'] = $this->authorizationCode;
+        }
+        if (isset($this->expiresAt)) {
+            $json['expires_at']         = $this->expiresAt;
+        }
+        if (isset($this->error)) {
+            $json['error']              = $this->error;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

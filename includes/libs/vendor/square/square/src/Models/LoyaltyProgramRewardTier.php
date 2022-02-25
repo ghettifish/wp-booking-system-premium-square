@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Describes a loyalty program reward tier.
+ * Represents a reward tier in a loyalty program. A reward tier defines how buyers can redeem points
+ * for a reward, such as the number of points required and the value and scope of the discount. A
+ * loyalty program can offer multiple reward tiers.
  */
 class LoyaltyProgramRewardTier implements \JsonSerializable
 {
@@ -210,20 +214,26 @@ class LoyaltyProgramRewardTier implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                   = $this->id;
-        $json['points']               = $this->points;
-        $json['name']                 = $this->name;
-        $json['definition']           = $this->definition;
-        $json['created_at']           = $this->createdAt;
-        $json['pricing_rule_reference'] = $this->pricingRuleReference;
-
-        return array_filter($json, function ($val) {
+        $json['id']                         = $this->id;
+        $json['points']                     = $this->points;
+        $json['name']                       = $this->name;
+        $json['definition']                 = $this->definition;
+        $json['created_at']                 = $this->createdAt;
+        if (isset($this->pricingRuleReference)) {
+            $json['pricing_rule_reference'] = $this->pricingRuleReference;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

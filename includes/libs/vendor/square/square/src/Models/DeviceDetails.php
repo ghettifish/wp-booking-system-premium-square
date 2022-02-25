@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Details about the device that took the payment.
  */
@@ -93,17 +95,27 @@ class DeviceDetails implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['device_id']            = $this->deviceId;
-        $json['device_installation_id'] = $this->deviceInstallationId;
-        $json['device_name']          = $this->deviceName;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->deviceId)) {
+            $json['device_id']              = $this->deviceId;
+        }
+        if (isset($this->deviceInstallationId)) {
+            $json['device_installation_id'] = $this->deviceInstallationId;
+        }
+        if (isset($this->deviceName)) {
+            $json['device_name']            = $this->deviceName;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

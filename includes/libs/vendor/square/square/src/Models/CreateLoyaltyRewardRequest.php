@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A request to create a loyalty reward.
  */
@@ -31,6 +33,11 @@ class CreateLoyaltyRewardRequest implements \JsonSerializable
 
     /**
      * Returns Reward.
+     *
+     * Represents a contract to redeem loyalty points for a [reward tier]($m/LoyaltyProgramRewardTier)
+     * discount. Loyalty rewards can be in an ISSUED, REDEEMED, or DELETED state. For more information, see
+     * [Redeem loyalty rewards](https://developer.squareup.com/docs/loyalty-api/overview#redeem-loyalty-
+     * rewards).
      */
     public function getReward(): LoyaltyReward
     {
@@ -39,6 +46,11 @@ class CreateLoyaltyRewardRequest implements \JsonSerializable
 
     /**
      * Sets Reward.
+     *
+     * Represents a contract to redeem loyalty points for a [reward tier]($m/LoyaltyProgramRewardTier)
+     * discount. Loyalty rewards can be in an ISSUED, REDEEMED, or DELETED state. For more information, see
+     * [Redeem loyalty rewards](https://developer.squareup.com/docs/loyalty-api/overview#redeem-loyalty-
+     * rewards).
      *
      * @required
      * @maps reward
@@ -76,16 +88,20 @@ class CreateLoyaltyRewardRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['reward']         = $this->reward;
+        $json['reward']          = $this->reward;
         $json['idempotency_key'] = $this->idempotencyKey;
-
-        return array_filter($json, function ($val) {
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

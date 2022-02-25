@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Filter events by the order associated with the event.
  */
@@ -25,7 +27,7 @@ class LoyaltyEventOrderFilter implements \JsonSerializable
     /**
      * Returns Order Id.
      *
-     * The ID of the [order](#type-Order) associated with the event.
+     * The ID of the [order]($m/Order) associated with the event.
      */
     public function getOrderId(): string
     {
@@ -35,7 +37,7 @@ class LoyaltyEventOrderFilter implements \JsonSerializable
     /**
      * Sets Order Id.
      *
-     * The ID of the [order](#type-Order) associated with the event.
+     * The ID of the [order]($m/Order) associated with the event.
      *
      * @required
      * @maps order_id
@@ -48,15 +50,19 @@ class LoyaltyEventOrderFilter implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
         $json['order_id'] = $this->orderId;
-
-        return array_filter($json, function ($val) {
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

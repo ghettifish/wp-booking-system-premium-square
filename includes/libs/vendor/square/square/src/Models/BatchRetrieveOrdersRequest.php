@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the fields that are included in requests to the
- * BatchRetrieveOrders endpoint.
+ * `BatchRetrieveOrders` endpoint.
  */
 class BatchRetrieveOrdersRequest implements \JsonSerializable
 {
@@ -82,16 +84,22 @@ class BatchRetrieveOrdersRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['location_id'] = $this->locationId;
-        $json['order_ids']  = $this->orderIds;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->locationId)) {
+            $json['location_id'] = $this->locationId;
+        }
+        $json['order_ids']       = $this->orderIds;
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

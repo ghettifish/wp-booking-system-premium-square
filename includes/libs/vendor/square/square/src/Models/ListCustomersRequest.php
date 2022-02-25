@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Defines the query parameters that can be provided in a request to the
- * ListCustomers endpoint.
+ * Defines the query parameters that can be included in a request to the
+ * `ListCustomers` endpoint.
  */
 class ListCustomersRequest implements \JsonSerializable
 {
@@ -14,6 +16,11 @@ class ListCustomersRequest implements \JsonSerializable
      * @var string|null
      */
     private $cursor;
+
+    /**
+     * @var int|null
+     */
+    private $limit;
 
     /**
      * @var string|null
@@ -29,10 +36,10 @@ class ListCustomersRequest implements \JsonSerializable
      * Returns Cursor.
      *
      * A pagination cursor returned by a previous call to this endpoint.
-     * Provide this to retrieve the next set of results for your original query.
+     * Provide this cursor to retrieve the next set of results for your original query.
      *
-     * See the [Pagination guide](https://developer.squareup.com/docs/working-with-apis/pagination) for
-     * more information.
+     * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
+     * apis/pagination).
      */
     public function getCursor(): ?string
     {
@@ -43,16 +50,48 @@ class ListCustomersRequest implements \JsonSerializable
      * Sets Cursor.
      *
      * A pagination cursor returned by a previous call to this endpoint.
-     * Provide this to retrieve the next set of results for your original query.
+     * Provide this cursor to retrieve the next set of results for your original query.
      *
-     * See the [Pagination guide](https://developer.squareup.com/docs/working-with-apis/pagination) for
-     * more information.
+     * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
+     * apis/pagination).
      *
      * @maps cursor
      */
     public function setCursor(?string $cursor): void
     {
         $this->cursor = $cursor;
+    }
+
+    /**
+     * Returns Limit.
+     *
+     * The maximum number of results to return in a single page. This limit is advisory. The response might
+     * contain more or fewer results.
+     * The limit is ignored if it is less than 1 or greater than 100. The default value is 100.
+     *
+     * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
+     * apis/pagination).
+     */
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    /**
+     * Sets Limit.
+     *
+     * The maximum number of results to return in a single page. This limit is advisory. The response might
+     * contain more or fewer results.
+     * The limit is ignored if it is less than 1 or greater than 100. The default value is 100.
+     *
+     * For more information, see [Pagination](https://developer.squareup.com/docs/working-with-
+     * apis/pagination).
+     *
+     * @maps limit
+     */
+    public function setLimit(?int $limit): void
+    {
+        $this->limit = $limit;
     }
 
     /**
@@ -102,17 +141,30 @@ class ListCustomersRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['cursor']    = $this->cursor;
-        $json['sort_field'] = $this->sortField;
-        $json['sort_order'] = $this->sortOrder;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->cursor)) {
+            $json['cursor']     = $this->cursor;
+        }
+        if (isset($this->limit)) {
+            $json['limit']      = $this->limit;
+        }
+        if (isset($this->sortField)) {
+            $json['sort_field'] = $this->sortField;
+        }
+        if (isset($this->sortOrder)) {
+            $json['sort_order'] = $this->sortOrder;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

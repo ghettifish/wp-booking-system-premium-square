@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Provides details about the reward tier discount. DEPRECATED at version 2020-12-16. Discount
  * details
@@ -246,20 +248,32 @@ class LoyaltyProgramRewardDefinition implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['scope']              = $this->scope;
-        $json['discount_type']      = $this->discountType;
-        $json['percentage_discount'] = $this->percentageDiscount;
-        $json['catalog_object_ids'] = $this->catalogObjectIds;
-        $json['fixed_discount_money'] = $this->fixedDiscountMoney;
-        $json['max_discount_money'] = $this->maxDiscountMoney;
-
-        return array_filter($json, function ($val) {
+        $json['scope']                    = $this->scope;
+        $json['discount_type']            = $this->discountType;
+        if (isset($this->percentageDiscount)) {
+            $json['percentage_discount']  = $this->percentageDiscount;
+        }
+        if (isset($this->catalogObjectIds)) {
+            $json['catalog_object_ids']   = $this->catalogObjectIds;
+        }
+        if (isset($this->fixedDiscountMoney)) {
+            $json['fixed_discount_money'] = $this->fixedDiscountMoney;
+        }
+        if (isset($this->maxDiscountMoney)) {
+            $json['max_discount_money']   = $this->maxDiscountMoney;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

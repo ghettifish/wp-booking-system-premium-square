@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a refund of a payment made using Square. Contains information about
  * the original payment and the amount of money refunded.
@@ -64,6 +66,11 @@ class PaymentRefund implements \JsonSerializable
      * @var string|null
      */
     private $updatedAt;
+
+    /**
+     * @var string|null
+     */
+    private $teamMemberId;
 
     /**
      * @param string $id
@@ -356,27 +363,74 @@ class PaymentRefund implements \JsonSerializable
     }
 
     /**
+     * Returns Team Member Id.
+     *
+     * An optional ID of the team member associated with taking the payment.
+     */
+    public function getTeamMemberId(): ?string
+    {
+        return $this->teamMemberId;
+    }
+
+    /**
+     * Sets Team Member Id.
+     *
+     * An optional ID of the team member associated with taking the payment.
+     *
+     * @maps team_member_id
+     */
+    public function setTeamMemberId(?string $teamMemberId): void
+    {
+        $this->teamMemberId = $teamMemberId;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']            = $this->id;
-        $json['status']        = $this->status;
-        $json['location_id']   = $this->locationId;
-        $json['amount_money']  = $this->amountMoney;
-        $json['app_fee_money'] = $this->appFeeMoney;
-        $json['processing_fee'] = $this->processingFee;
-        $json['payment_id']    = $this->paymentId;
-        $json['order_id']      = $this->orderId;
-        $json['reason']        = $this->reason;
-        $json['created_at']    = $this->createdAt;
-        $json['updated_at']    = $this->updatedAt;
-
-        return array_filter($json, function ($val) {
+        $json['id']                 = $this->id;
+        if (isset($this->status)) {
+            $json['status']         = $this->status;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']    = $this->locationId;
+        }
+        $json['amount_money']       = $this->amountMoney;
+        if (isset($this->appFeeMoney)) {
+            $json['app_fee_money']  = $this->appFeeMoney;
+        }
+        if (isset($this->processingFee)) {
+            $json['processing_fee'] = $this->processingFee;
+        }
+        if (isset($this->paymentId)) {
+            $json['payment_id']     = $this->paymentId;
+        }
+        if (isset($this->orderId)) {
+            $json['order_id']       = $this->orderId;
+        }
+        if (isset($this->reason)) {
+            $json['reason']         = $this->reason;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']     = $this->createdAt;
+        }
+        if (isset($this->updatedAt)) {
+            $json['updated_at']     = $this->updatedAt;
+        }
+        if (isset($this->teamMemberId)) {
+            $json['team_member_id'] = $this->teamMemberId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -1,7 +1,7 @@
 
 # Order Return
 
-The set of line items, service charges, taxes, discounts, tips, etc. being returned in an Order.
+The set of line items, service charges, taxes, discounts, tips, and other items being returned in an order.
 
 ## Structure
 
@@ -11,13 +11,13 @@ The set of line items, service charges, taxes, discounts, tips, etc. being retur
 
 | Name | Type | Tags | Description | Getter | Setter |
 |  --- | --- | --- | --- | --- | --- |
-| `uid` | `?string` | Optional | Unique ID that identifies the return only within this order.<br>**Constraints**: *Maximum Length*: `60` | getUid(): ?string | setUid(?string uid): void |
-| `sourceOrderId` | `?string` | Optional | Order which contains the original sale of these returned line items. This will be unset<br>for unlinked returns. | getSourceOrderId(): ?string | setSourceOrderId(?string sourceOrderId): void |
-| `returnLineItems` | [`?(OrderReturnLineItem[])`](/doc/models/order-return-line-item.md) | Optional | Collection of line items which are being returned. | getReturnLineItems(): ?array | setReturnLineItems(?array returnLineItems): void |
-| `returnServiceCharges` | [`?(OrderReturnServiceCharge[])`](/doc/models/order-return-service-charge.md) | Optional | Collection of service charges which are being returned. | getReturnServiceCharges(): ?array | setReturnServiceCharges(?array returnServiceCharges): void |
-| `returnTaxes` | [`?(OrderReturnTax[])`](/doc/models/order-return-tax.md) | Optional | Collection of references to taxes being returned for an order, including the total<br>applied tax amount to be returned. The taxes must reference a top-level tax ID from the source<br>order. | getReturnTaxes(): ?array | setReturnTaxes(?array returnTaxes): void |
-| `returnDiscounts` | [`?(OrderReturnDiscount[])`](/doc/models/order-return-discount.md) | Optional | Collection of references to discounts being returned for an order, including the total<br>applied discount amount to be returned. The discounts must reference a top-level discount ID<br>from the source order. | getReturnDiscounts(): ?array | setReturnDiscounts(?array returnDiscounts): void |
-| `roundingAdjustment` | [`?OrderRoundingAdjustment`](/doc/models/order-rounding-adjustment.md) | Optional | A rounding adjustment of the money being returned. Commonly used to apply Cash Rounding<br>when the minimum unit of account is smaller than the lowest physical denomination of currency. | getRoundingAdjustment(): ?OrderRoundingAdjustment | setRoundingAdjustment(?OrderRoundingAdjustment roundingAdjustment): void |
+| `uid` | `?string` | Optional | A unique ID that identifies the return only within this order.<br>**Constraints**: *Maximum Length*: `60` | getUid(): ?string | setUid(?string uid): void |
+| `sourceOrderId` | `?string` | Optional | An order that contains the original sale of these return line items. This is unset<br>for unlinked returns. | getSourceOrderId(): ?string | setSourceOrderId(?string sourceOrderId): void |
+| `returnLineItems` | [`?(OrderReturnLineItem[])`](/doc/models/order-return-line-item.md) | Optional | A collection of line items that are being returned. | getReturnLineItems(): ?array | setReturnLineItems(?array returnLineItems): void |
+| `returnServiceCharges` | [`?(OrderReturnServiceCharge[])`](/doc/models/order-return-service-charge.md) | Optional | A collection of service charges that are being returned. | getReturnServiceCharges(): ?array | setReturnServiceCharges(?array returnServiceCharges): void |
+| `returnTaxes` | [`?(OrderReturnTax[])`](/doc/models/order-return-tax.md) | Optional | A collection of references to taxes being returned for an order, including the total<br>applied tax amount to be returned. The taxes must reference a top-level tax ID from the source<br>order. | getReturnTaxes(): ?array | setReturnTaxes(?array returnTaxes): void |
+| `returnDiscounts` | [`?(OrderReturnDiscount[])`](/doc/models/order-return-discount.md) | Optional | A collection of references to discounts being returned for an order, including the total<br>applied discount amount to be returned. The discounts must reference a top-level discount ID<br>from the source order. | getReturnDiscounts(): ?array | setReturnDiscounts(?array returnDiscounts): void |
+| `roundingAdjustment` | [`?OrderRoundingAdjustment`](/doc/models/order-rounding-adjustment.md) | Optional | A rounding adjustment of the money being returned. Commonly used to apply cash rounding<br>when the minimum unit of the account is smaller than the lowest physical denomination of the currency. | getRoundingAdjustment(): ?OrderRoundingAdjustment | setRoundingAdjustment(?OrderRoundingAdjustment roundingAdjustment): void |
 | `returnAmounts` | [`?OrderMoneyAmounts`](/doc/models/order-money-amounts.md) | Optional | A collection of various money amounts. | getReturnAmounts(): ?OrderMoneyAmounts | setReturnAmounts(?OrderMoneyAmounts returnAmounts): void |
 
 ## Example (as JSON)
@@ -43,7 +43,9 @@ The set of line items, service charges, taxes, discounts, tips, etc. being retur
           "volume_unit": "IMPERIAL_CUBIC_FOOT",
           "weight_unit": "METRIC_KILOGRAM"
         },
-        "precision": 73
+        "precision": 73,
+        "catalog_object_id": "catalog_object_id5",
+        "catalog_version": 249
       },
       "note": "note9"
     },
@@ -63,7 +65,9 @@ The set of line items, service charges, taxes, discounts, tips, etc. being retur
           "volume_unit": "IMPERIAL_CUBIC_YARD",
           "weight_unit": "METRIC_GRAM"
         },
-        "precision": 74
+        "precision": 74,
+        "catalog_object_id": "catalog_object_id4",
+        "catalog_version": 248
       },
       "note": "note8"
     },
@@ -83,7 +87,9 @@ The set of line items, service charges, taxes, discounts, tips, etc. being retur
           "volume_unit": "METRIC_MILLILITER",
           "weight_unit": "METRIC_MILLIGRAM"
         },
-        "precision": 75
+        "precision": 75,
+        "catalog_object_id": "catalog_object_id3",
+        "catalog_version": 247
       },
       "note": "note7"
     }
@@ -94,14 +100,14 @@ The set of line items, service charges, taxes, discounts, tips, etc. being retur
       "source_service_charge_uid": "source_service_charge_uid3",
       "name": "name3",
       "catalog_object_id": "catalog_object_id3",
-      "percentage": "percentage1"
+      "catalog_version": 197
     },
     {
       "uid": "uid4",
       "source_service_charge_uid": "source_service_charge_uid2",
       "name": "name4",
       "catalog_object_id": "catalog_object_id2",
-      "percentage": "percentage2"
+      "catalog_version": 196
     }
   ],
   "return_taxes": [
@@ -109,8 +115,8 @@ The set of line items, service charges, taxes, discounts, tips, etc. being retur
       "uid": "uid6",
       "source_tax_uid": "source_tax_uid4",
       "catalog_object_id": "catalog_object_id0",
-      "name": "name6",
-      "type": "INCLUSIVE"
+      "catalog_version": 116,
+      "name": "name6"
     }
   ]
 }

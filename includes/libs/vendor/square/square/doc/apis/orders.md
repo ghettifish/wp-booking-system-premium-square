@@ -13,6 +13,7 @@ $ordersApi = $client->getOrdersApi();
 * [Create Order](/doc/apis/orders.md#create-order)
 * [Batch Retrieve Orders](/doc/apis/orders.md#batch-retrieve-orders)
 * [Calculate Order](/doc/apis/orders.md#calculate-order)
+* [Clone Order](/doc/apis/orders.md#clone-order)
 * [Search Orders](/doc/apis/orders.md#search-orders)
 * [Retrieve Order](/doc/apis/orders.md#retrieve-order)
 * [Update Order](/doc/apis/orders.md#update-order)
@@ -21,13 +22,13 @@ $ordersApi = $client->getOrdersApi();
 
 # Create Order
 
-Creates a new [Order](#type-order) which can include information on products for
+Creates a new [order](/doc/models/order.md) that can include information about products for
 purchase and settings to apply to the purchase.
 
-To pay for a created order, please refer to the [Pay for Orders](https://developer.squareup.com/docs/orders-api/pay-for-orders)
-guide.
+To pay for a created order, see
+[Pay for Orders](https://developer.squareup.com/docs/orders-api/pay-for-orders).
 
-You can modify open orders using the [UpdateOrder](#endpoint-orders-updateorder) endpoint.
+You can modify open orders using the [UpdateOrder](/doc/apis/orders.md#update-order) endpoint.
 
 ```php
 function createOrder(CreateOrderRequest $body): ApiResponse
@@ -77,6 +78,8 @@ $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setLengthUnit
 $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setVolumeUnit(Models\MeasurementUnitVolume::GENERIC_QUART);
 $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setWeightUnit(Models\MeasurementUnitWeight::METRIC_MILLIGRAM);
 $body_order_lineItems[0]->getQuantityUnit()->setPrecision(189);
+$body_order_lineItems[0]->getQuantityUnit()->setCatalogObjectId('catalog_object_id1');
+$body_order_lineItems[0]->getQuantityUnit()->setCatalogVersion(133);
 $body_order_lineItems[0]->setNote('note3');
 $body_order_lineItems[0]->setCatalogObjectId('catalog_object_id5');
 $body_order_lineItems[0]->setBasePriceMoney(new Models\Money);
@@ -102,6 +105,8 @@ $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setLengthUnit
 $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setVolumeUnit(Models\MeasurementUnitVolume::GENERIC_PINT);
 $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setWeightUnit(Models\MeasurementUnitWeight::METRIC_GRAM);
 $body_order_lineItems[1]->getQuantityUnit()->setPrecision(188);
+$body_order_lineItems[1]->getQuantityUnit()->setCatalogObjectId('catalog_object_id0');
+$body_order_lineItems[1]->getQuantityUnit()->setCatalogVersion(134);
 $body_order_lineItems[1]->setNote('note4');
 $body_order_lineItems[1]->setCatalogObjectId('BEMYCSMIJL46OCDV4KYIKXIB');
 $body_order_lineItems_1_modifiers = [];
@@ -109,13 +114,11 @@ $body_order_lineItems_1_modifiers = [];
 $body_order_lineItems_1_modifiers[0] = new Models\OrderLineItemModifier;
 $body_order_lineItems_1_modifiers[0]->setUid('uid1');
 $body_order_lineItems_1_modifiers[0]->setCatalogObjectId('CHQX7Y4KY6N5KINJKZCFURPZ');
+$body_order_lineItems_1_modifiers[0]->setCatalogVersion(69);
 $body_order_lineItems_1_modifiers[0]->setName('name1');
 $body_order_lineItems_1_modifiers[0]->setBasePriceMoney(new Models\Money);
 $body_order_lineItems_1_modifiers[0]->getBasePriceMoney()->setAmount(53);
 $body_order_lineItems_1_modifiers[0]->getBasePriceMoney()->setCurrency(Models\Currency::TTD);
-$body_order_lineItems_1_modifiers[0]->setTotalPriceMoney(new Models\Money);
-$body_order_lineItems_1_modifiers[0]->getTotalPriceMoney()->setAmount(51);
-$body_order_lineItems_1_modifiers[0]->getTotalPriceMoney()->setCurrency(Models\Currency::EUR);
 $body_order_lineItems[1]->setModifiers($body_order_lineItems_1_modifiers);
 
 $body_order_lineItems_1_appliedDiscounts = [];
@@ -137,6 +140,7 @@ $body_order_taxes = [];
 $body_order_taxes[0] = new Models\OrderLineItemTax;
 $body_order_taxes[0]->setUid('state-sales-tax');
 $body_order_taxes[0]->setCatalogObjectId('catalog_object_id1');
+$body_order_taxes[0]->setCatalogVersion(189);
 $body_order_taxes[0]->setName('State Sales Tax');
 $body_order_taxes[0]->setType(Models\OrderLineItemTaxType::UNKNOWN_TAX);
 $body_order_taxes[0]->setPercentage('9');
@@ -148,6 +152,7 @@ $body_order_discounts = [];
 $body_order_discounts[0] = new Models\OrderLineItemDiscount;
 $body_order_discounts[0]->setUid('labor-day-sale');
 $body_order_discounts[0]->setCatalogObjectId('catalog_object_id5');
+$body_order_discounts[0]->setCatalogVersion(89);
 $body_order_discounts[0]->setName('Labor Day Sale');
 $body_order_discounts[0]->setType(Models\OrderLineItemDiscountType::FIXED_PERCENTAGE);
 $body_order_discounts[0]->setPercentage('5');
@@ -156,17 +161,17 @@ $body_order_discounts[0]->setScope(Models\OrderLineItemDiscountScope::ORDER);
 $body_order_discounts[1] = new Models\OrderLineItemDiscount;
 $body_order_discounts[1]->setUid('membership-discount');
 $body_order_discounts[1]->setCatalogObjectId('DB7L55ZH2BGWI4H23ULIWOQ7');
+$body_order_discounts[1]->setCatalogVersion(90);
 $body_order_discounts[1]->setName('name2');
 $body_order_discounts[1]->setType(Models\OrderLineItemDiscountType::FIXED_AMOUNT);
-$body_order_discounts[1]->setPercentage('percentage0');
 $body_order_discounts[1]->setScope(Models\OrderLineItemDiscountScope::ORDER);
 
 $body_order_discounts[2] = new Models\OrderLineItemDiscount;
 $body_order_discounts[2]->setUid('one-dollar-off');
 $body_order_discounts[2]->setCatalogObjectId('catalog_object_id7');
+$body_order_discounts[2]->setCatalogVersion(91);
 $body_order_discounts[2]->setName('Sale - $1.00 off');
 $body_order_discounts[2]->setType(Models\OrderLineItemDiscountType::VARIABLE_PERCENTAGE);
-$body_order_discounts[2]->setPercentage('percentage1');
 $body_order_discounts[2]->setAmountMoney(new Models\Money);
 $body_order_discounts[2]->getAmountMoney()->setAmount(100);
 $body_order_discounts[2]->getAmountMoney()->setCurrency(Models\Currency::USD);
@@ -191,9 +196,9 @@ if ($apiResponse->isSuccess()) {
 
 # Batch Retrieve Orders
 
-Retrieves a set of [Order](#type-order)s by their IDs.
+Retrieves a set of [orders](/doc/models/order.md) by their IDs.
 
-If a given Order ID does not exist, the ID is ignored instead of generating an error.
+If a given order ID does not exist, the ID is ignored instead of generating an error.
 
 ```php
 function batchRetrieveOrders(BatchRetrieveOrdersRequest $body): ApiResponse
@@ -234,7 +239,7 @@ if ($apiResponse->isSuccess()) {
 
 # Calculate Order
 
-Calculates an [Order](#type-order).
+Enables applications to preview order pricing without creating an order.
 
 ```php
 function calculateOrder(CalculateOrderRequest $body): ApiResponse
@@ -283,6 +288,8 @@ $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setLengthUnit
 $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setVolumeUnit(Models\MeasurementUnitVolume::GENERIC_QUART);
 $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setWeightUnit(Models\MeasurementUnitWeight::METRIC_MILLIGRAM);
 $body_order_lineItems[0]->getQuantityUnit()->setPrecision(189);
+$body_order_lineItems[0]->getQuantityUnit()->setCatalogObjectId('catalog_object_id1');
+$body_order_lineItems[0]->getQuantityUnit()->setCatalogVersion(133);
 $body_order_lineItems[0]->setNote('note3');
 $body_order_lineItems[0]->setCatalogObjectId('catalog_object_id5');
 $body_order_lineItems[0]->setBasePriceMoney(new Models\Money);
@@ -308,6 +315,8 @@ $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setLengthUnit
 $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setVolumeUnit(Models\MeasurementUnitVolume::GENERIC_PINT);
 $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setWeightUnit(Models\MeasurementUnitWeight::METRIC_GRAM);
 $body_order_lineItems[1]->getQuantityUnit()->setPrecision(188);
+$body_order_lineItems[1]->getQuantityUnit()->setCatalogObjectId('catalog_object_id0');
+$body_order_lineItems[1]->getQuantityUnit()->setCatalogVersion(134);
 $body_order_lineItems[1]->setNote('note4');
 $body_order_lineItems[1]->setCatalogObjectId('catalog_object_id6');
 $body_order_lineItems[1]->setBasePriceMoney(new Models\Money);
@@ -320,6 +329,7 @@ $body_order_discounts = [];
 $body_order_discounts[0] = new Models\OrderLineItemDiscount;
 $body_order_discounts[0]->setUid('uid1');
 $body_order_discounts[0]->setCatalogObjectId('catalog_object_id5');
+$body_order_discounts[0]->setCatalogVersion(89);
 $body_order_discounts[0]->setName('50% Off');
 $body_order_discounts[0]->setType(Models\OrderLineItemDiscountType::FIXED_PERCENTAGE);
 $body_order_discounts[0]->setPercentage('50');
@@ -368,23 +378,66 @@ if ($apiResponse->isSuccess()) {
 ```
 
 
+# Clone Order
+
+Creates a new order, in the `DRAFT` state, by duplicating an existing order. The newly created order has
+only the core fields (such as line items, taxes, and discounts) copied from the original order.
+
+```php
+function cloneOrder(CloneOrderRequest $body): ApiResponse
+```
+
+## Parameters
+
+| Parameter | Type | Tags | Description |
+|  --- | --- | --- | --- |
+| `body` | [`CloneOrderRequest`](/doc/models/clone-order-request.md) | Body, Required | An object containing the fields to POST for the request.<br><br>See the corresponding object definition for field details. |
+
+## Response Type
+
+[`CloneOrderResponse`](/doc/models/clone-order-response.md)
+
+## Example Usage
+
+```php
+$body_orderId = 'ZAISEM52YcpmcWAzERDOyiWS123';
+$body = new Models\CloneOrderRequest(
+    $body_orderId
+);
+$body->setVersion(3);
+$body->setIdempotencyKey('UNIQUE_STRING');
+
+$apiResponse = $ordersApi->cloneOrder($body);
+
+if ($apiResponse->isSuccess()) {
+    $cloneOrderResponse = $apiResponse->getResult();
+} else {
+    $errors = $apiResponse->getErrors();
+}
+
+// Get more response info...
+// $statusCode = $apiResponse->getStatusCode();
+// $headers = $apiResponse->getHeaders();
+```
+
+
 # Search Orders
 
 Search all orders for one or more locations. Orders include all sales,
 returns, and exchanges regardless of how or when they entered the Square
-Ecosystem (e.g. Point of Sale, Invoices, Connect APIs, etc).
+ecosystem (such as Point of Sale, Invoices, and Connect APIs).
 
-SearchOrders requests need to specify which locations to search and define a
-[`SearchOrdersQuery`](#type-searchordersquery) object which controls
-how to sort or filter the results. Your SearchOrdersQuery can:
+`SearchOrders` requests need to specify which locations to search and define a
+[SearchOrdersQuery](/doc/models/search-orders-query.md) object that controls
+how to sort or filter the results. Your `SearchOrdersQuery` can:
 
 Set filter criteria.
-Set sort order.
-Determine whether to return results as complete Order objects, or as
-[OrderEntry](#type-orderentry) objects.
+Set the sort order.
+Determine whether to return results as complete `Order` objects or as
+[OrderEntry](/doc/models/order-entry.md) objects.
 
 Note that details for orders processed with Square Point of Sale while in
-offline mode may not be transmitted to Square for up to 72 hours. Offline
+offline mode might not be transmitted to Square for up to 72 hours. Offline
 orders have a `created_at` value that reflects the time the order was created,
 not the time it was subsequently transmitted to Square.
 
@@ -455,7 +508,7 @@ if ($apiResponse->isSuccess()) {
 
 # Retrieve Order
 
-Retrieves an [Order](#type-order) by ID.
+Retrieves an [Order](/doc/models/order.md) by ID.
 
 ```php
 function retrieveOrder(string $orderId): ApiResponse
@@ -492,20 +545,21 @@ if ($apiResponse->isSuccess()) {
 
 # Update Order
 
-Updates an open [Order](#type-order) by adding, replacing, or deleting
+Updates an open [order](/doc/models/order.md) by adding, replacing, or deleting
 fields. Orders with a `COMPLETED` or `CANCELED` state cannot be updated.
 
-An UpdateOrder request requires the following:
+An `UpdateOrder` request requires the following:
 
 - The `order_id` in the endpoint path, identifying the order to update.
 - The latest `version` of the order to update.
 - The [sparse order](https://developer.squareup.com/docs/orders-api/manage-orders#sparse-order-objects)
-  containing only the fields to update and the version the update is
-  being applied to.
+  containing only the fields to update and the version to which the update is
+  being applied.
 - If deleting fields, the [dot notation paths](https://developer.squareup.com/docs/orders-api/manage-orders#on-dot-notation)
-  identifying fields to clear.
+  identifying the fields to clear.
 
-To pay for an order, please refer to the [Pay for Orders](https://developer.squareup.com/docs/orders-api/pay-for-orders) guide.
+To pay for an order, see
+[Pay for Orders](https://developer.squareup.com/docs/orders-api/pay-for-orders).
 
 ```php
 function updateOrder(string $orderId, UpdateOrderRequest $body): ApiResponse
@@ -557,6 +611,8 @@ $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setLengthUnit
 $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setVolumeUnit(Models\MeasurementUnitVolume::GENERIC_QUART);
 $body_order_lineItems[0]->getQuantityUnit()->getMeasurementUnit()->setWeightUnit(Models\MeasurementUnitWeight::METRIC_MILLIGRAM);
 $body_order_lineItems[0]->getQuantityUnit()->setPrecision(189);
+$body_order_lineItems[0]->getQuantityUnit()->setCatalogObjectId('catalog_object_id1');
+$body_order_lineItems[0]->getQuantityUnit()->setCatalogVersion(133);
 $body_order_lineItems[0]->setNote('note3');
 $body_order_lineItems[0]->setCatalogObjectId('catalog_object_id5');
 
@@ -579,6 +635,8 @@ $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setLengthUnit
 $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setVolumeUnit(Models\MeasurementUnitVolume::GENERIC_PINT);
 $body_order_lineItems[1]->getQuantityUnit()->getMeasurementUnit()->setWeightUnit(Models\MeasurementUnitWeight::METRIC_GRAM);
 $body_order_lineItems[1]->getQuantityUnit()->setPrecision(188);
+$body_order_lineItems[1]->getQuantityUnit()->setCatalogObjectId('catalog_object_id0');
+$body_order_lineItems[1]->getQuantityUnit()->setCatalogVersion(134);
 $body_order_lineItems[1]->setNote('note4');
 $body_order_lineItems[1]->setCatalogObjectId('catalog_object_id6');
 $body->getOrder()->setLineItems($body_order_lineItems);
@@ -602,20 +660,20 @@ if ($apiResponse->isSuccess()) {
 
 # Pay Order
 
-Pay for an [order](#type-order) using one or more approved [payments](#type-payment),
+Pay for an [order](/doc/models/order.md) using one or more approved [payments](/doc/models/payment.md)
 or settle an order with a total of `0`.
 
 The total of the `payment_ids` listed in the request must be equal to the order
 total. Orders with a total amount of `0` can be marked as paid by specifying an empty
 array of `payment_ids` in the request.
 
-To be used with PayOrder, a payment must:
+To be used with `PayOrder`, a payment must:
 
-- Reference the order by specifying the `order_id` when [creating the payment](#endpoint-payments-createpayment).
+- Reference the order by specifying the `order_id` when [creating the payment](/doc/apis/payments.md#create-payment).
   Any approved payments that reference the same `order_id` not specified in the
-  `payment_ids` will be canceled.
+  `payment_ids` is canceled.
 - Be approved with [delayed capture](https://developer.squareup.com/docs/payments-api/take-payments#delayed-capture).
-  Using a delayed capture payment with PayOrder will complete the approved payment.
+  Using a delayed capture payment with `PayOrder` completes the approved payment.
 
 ```php
 function payOrder(string $orderId, PayOrderRequest $body): ApiResponse

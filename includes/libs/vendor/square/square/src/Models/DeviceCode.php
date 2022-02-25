@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class DeviceCode implements \JsonSerializable
 {
     /**
@@ -60,14 +62,6 @@ class DeviceCode implements \JsonSerializable
      * @var string|null
      */
     private $pairedAt;
-
-    /**
-     * @param string $productType
-     */
-    public function __construct(string $productType)
-    {
-        $this->productType = $productType;
-    }
 
     /**
      * Returns Id.
@@ -168,7 +162,6 @@ class DeviceCode implements \JsonSerializable
     /**
      * Sets Product Type.
      *
-     * @required
      * @maps product_type
      */
     public function setProductType(string $productType): void
@@ -311,25 +304,49 @@ class DeviceCode implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']              = $this->id;
-        $json['name']            = $this->name;
-        $json['code']            = $this->code;
-        $json['device_id']       = $this->deviceId;
-        $json['product_type']    = $this->productType;
-        $json['location_id']     = $this->locationId;
-        $json['status']          = $this->status;
-        $json['pair_by']         = $this->pairBy;
-        $json['created_at']      = $this->createdAt;
-        $json['status_changed_at'] = $this->statusChangedAt;
-        $json['paired_at']       = $this->pairedAt;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                = $this->id;
+        }
+        if (isset($this->name)) {
+            $json['name']              = $this->name;
+        }
+        if (isset($this->code)) {
+            $json['code']              = $this->code;
+        }
+        if (isset($this->deviceId)) {
+            $json['device_id']         = $this->deviceId;
+        }
+        $json['product_type']          = $this->productType;
+        if (isset($this->locationId)) {
+            $json['location_id']       = $this->locationId;
+        }
+        if (isset($this->status)) {
+            $json['status']            = $this->status;
+        }
+        if (isset($this->pairBy)) {
+            $json['pair_by']           = $this->pairBy;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']        = $this->createdAt;
+        }
+        if (isset($this->statusChangedAt)) {
+            $json['status_changed_at'] = $this->statusChangedAt;
+        }
+        if (isset($this->pairedAt)) {
+            $json['paired_at']         = $this->pairedAt;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

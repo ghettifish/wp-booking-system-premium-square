@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a tender (i.e., a method of payment) used in a Square transaction.
  */
@@ -421,7 +423,7 @@ class Tender implements \JsonSerializable
     /**
      * Returns Payment Id.
      *
-     * The ID of the [Payment](#type-payment) that corresponds to this tender.
+     * The ID of the [Payment]($m/Payment) that corresponds to this tender.
      * This value is only present for payments created with the v2 Payments API.
      */
     public function getPaymentId(): ?string
@@ -432,7 +434,7 @@ class Tender implements \JsonSerializable
     /**
      * Sets Payment Id.
      *
-     * The ID of the [Payment](#type-payment) that corresponds to this tender.
+     * The ID of the [Payment]($m/Payment) that corresponds to this tender.
      * This value is only present for payments created with the v2 Payments API.
      *
      * @maps payment_id
@@ -445,28 +447,58 @@ class Tender implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                   = $this->id;
-        $json['location_id']          = $this->locationId;
-        $json['transaction_id']       = $this->transactionId;
-        $json['created_at']           = $this->createdAt;
-        $json['note']                 = $this->note;
-        $json['amount_money']         = $this->amountMoney;
-        $json['tip_money']            = $this->tipMoney;
-        $json['processing_fee_money'] = $this->processingFeeMoney;
-        $json['customer_id']          = $this->customerId;
-        $json['type']                 = $this->type;
-        $json['card_details']         = $this->cardDetails;
-        $json['cash_details']         = $this->cashDetails;
-        $json['additional_recipients'] = $this->additionalRecipients;
-        $json['payment_id']           = $this->paymentId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                    = $this->id;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']           = $this->locationId;
+        }
+        if (isset($this->transactionId)) {
+            $json['transaction_id']        = $this->transactionId;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']            = $this->createdAt;
+        }
+        if (isset($this->note)) {
+            $json['note']                  = $this->note;
+        }
+        if (isset($this->amountMoney)) {
+            $json['amount_money']          = $this->amountMoney;
+        }
+        if (isset($this->tipMoney)) {
+            $json['tip_money']             = $this->tipMoney;
+        }
+        if (isset($this->processingFeeMoney)) {
+            $json['processing_fee_money']  = $this->processingFeeMoney;
+        }
+        if (isset($this->customerId)) {
+            $json['customer_id']           = $this->customerId;
+        }
+        $json['type']                      = $this->type;
+        if (isset($this->cardDetails)) {
+            $json['card_details']          = $this->cardDetails;
+        }
+        if (isset($this->cashDetails)) {
+            $json['cash_details']          = $this->cashDetails;
+        }
+        if (isset($this->additionalRecipients)) {
+            $json['additional_recipients'] = $this->additionalRecipients;
+        }
+        if (isset($this->paymentId)) {
+            $json['payment_id']            = $this->paymentId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

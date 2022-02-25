@@ -19,6 +19,9 @@ $refundsApi = $client->getRefundsApi();
 
 Retrieves a list of refunds for the account making the request.
 
+Results are eventually consistent, and new refunds or changes to refunds might take several
+seconds to appear.
+
 The maximum results per page is 100.
 
 ```php
@@ -43,8 +46,8 @@ function listPaymentRefunds(
 | `sortOrder` | `?string` | Query, Optional | The order in which results are listed:<br><br>- `ASC` - Oldest to newest.<br>- `DESC` - Newest to oldest (default). |
 | `cursor` | `?string` | Query, Optional | A pagination cursor returned by a previous call to this endpoint.<br>Provide this cursor to retrieve the next set of results for the original query.<br><br>For more information, see [Pagination](https://developer.squareup.com/docs/basics/api101/pagination). |
 | `locationId` | `?string` | Query, Optional | Limit results to the location supplied. By default, results are returned<br>for all locations associated with the seller. |
-| `status` | `?string` | Query, Optional | If provided, only refunds with the given status are returned.<br>For a list of refund status values, see [PaymentRefund](#type-paymentrefund).<br><br>Default: If omitted, refunds are returned regardless of their status. |
-| `sourceType` | `?string` | Query, Optional | If provided, only refunds with the given source type are returned.<br><br>- `CARD` - List refunds only for payments where `CARD` was specified as the payment<br>  source.<br><br>Default: If omitted, refunds are returned regardless of the source type. |
+| `status` | `?string` | Query, Optional | If provided, only refunds with the given status are returned.<br>For a list of refund status values, see [PaymentRefund](/doc/models/payment-refund.md).<br><br>Default: If omitted, refunds are returned regardless of their status. |
+| `sourceType` | `?string` | Query, Optional | If provided, only returns refunds whose payments have the indicated source type.<br>Current values include `CARD`, `BANK_ACCOUNT`, `WALLET`, `CASH`, and `EXTERNAL`.<br>For information about these payment source types, see<br>[Take Payments](https://developer.squareup.com/docs/payments-api/take-payments).<br><br>Default: If omitted, refunds are returned regardless of the source type. |
 | `limit` | `?int` | Query, Optional | The maximum number of results to be returned in a single page.<br><br>It is possible to receive fewer results than the specified limit on a given page.<br><br>If the supplied value is greater than 100, no more than 100 results are returned.<br><br>Default: 100 |
 
 ## Response Type
@@ -101,20 +104,21 @@ function refundPayment(RefundPaymentRequest $body): ApiResponse
 ## Example Usage
 
 ```php
-$body_idempotencyKey = 'a7e36d40-d24b-11e8-b568-0800200c9a66';
+$body_idempotencyKey = '9b7f2dcf-49da-4411-b23e-a2d6af21333a';
 $body_amountMoney = new Models\Money;
-$body_amountMoney->setAmount(100);
+$body_amountMoney->setAmount(1000);
 $body_amountMoney->setCurrency(Models\Currency::USD);
-$body_paymentId = 'UNOE3kv2BZwqHlJ830RCt5YCuaB';
 $body = new Models\RefundPaymentRequest(
     $body_idempotencyKey,
-    $body_amountMoney,
-    $body_paymentId
+    $body_amountMoney
 );
 $body->setAppFeeMoney(new Models\Money);
-$body->getAppFeeMoney()->setAmount(114);
-$body->getAppFeeMoney()->setCurrency(Models\Currency::GEL);
-$body->setReason('reason8');
+$body->getAppFeeMoney()->setAmount(10);
+$body->getAppFeeMoney()->setCurrency(Models\Currency::USD);
+$body->setPaymentId('R2B3Z8WMVt3EAmzYWLZvz7Y69EbZY');
+$body->setReason('Example');
+$body->setPaymentVersionToken('payment_version_token6');
+$body->setTeamMemberId('team_member_id4');
 
 $apiResponse = $refundsApi->refundPayment($body);
 

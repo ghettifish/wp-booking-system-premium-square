@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Payment include an` itemizations` field that lists the items purchased,
  * along with associated fees, modifiers, and discounts. Each itemization has an
@@ -394,28 +396,60 @@ class V1PaymentItemization implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']                = $this->name;
-        $json['quantity']            = $this->quantity;
-        $json['itemization_type']    = $this->itemizationType;
-        $json['item_detail']         = $this->itemDetail;
-        $json['notes']               = $this->notes;
-        $json['item_variation_name'] = $this->itemVariationName;
-        $json['total_money']         = $this->totalMoney;
-        $json['single_quantity_money'] = $this->singleQuantityMoney;
-        $json['gross_sales_money']   = $this->grossSalesMoney;
-        $json['discount_money']      = $this->discountMoney;
-        $json['net_sales_money']     = $this->netSalesMoney;
-        $json['taxes']               = $this->taxes;
-        $json['discounts']           = $this->discounts;
-        $json['modifiers']           = $this->modifiers;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']                  = $this->name;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity']              = $this->quantity;
+        }
+        if (isset($this->itemizationType)) {
+            $json['itemization_type']      = $this->itemizationType;
+        }
+        if (isset($this->itemDetail)) {
+            $json['item_detail']           = $this->itemDetail;
+        }
+        if (isset($this->notes)) {
+            $json['notes']                 = $this->notes;
+        }
+        if (isset($this->itemVariationName)) {
+            $json['item_variation_name']   = $this->itemVariationName;
+        }
+        if (isset($this->totalMoney)) {
+            $json['total_money']           = $this->totalMoney;
+        }
+        if (isset($this->singleQuantityMoney)) {
+            $json['single_quantity_money'] = $this->singleQuantityMoney;
+        }
+        if (isset($this->grossSalesMoney)) {
+            $json['gross_sales_money']     = $this->grossSalesMoney;
+        }
+        if (isset($this->discountMoney)) {
+            $json['discount_money']        = $this->discountMoney;
+        }
+        if (isset($this->netSalesMoney)) {
+            $json['net_sales_money']       = $this->netSalesMoney;
+        }
+        if (isset($this->taxes)) {
+            $json['taxes']                 = $this->taxes;
+        }
+        if (isset($this->discounts)) {
+            $json['discounts']             = $this->discounts;
+        }
+        if (isset($this->modifiers)) {
+            $json['modifiers']             = $this->modifiers;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

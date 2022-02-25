@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a service charge applied to an order.
  */
@@ -23,6 +25,11 @@ class OrderServiceCharge implements \JsonSerializable
      * @var string|null
      */
     private $catalogObjectId;
+
+    /**
+     * @var int|null
+     */
+    private $catalogVersion;
 
     /**
      * @var string|null
@@ -70,9 +77,14 @@ class OrderServiceCharge implements \JsonSerializable
     private $metadata;
 
     /**
+     * @var string|null
+     */
+    private $type;
+
+    /**
      * Returns Uid.
      *
-     * Unique ID that identifies the service charge only within this order.
+     * A unique ID that identifies the service charge only within this order.
      */
     public function getUid(): ?string
     {
@@ -82,7 +94,7 @@ class OrderServiceCharge implements \JsonSerializable
     /**
      * Sets Uid.
      *
-     * Unique ID that identifies the service charge only within this order.
+     * A unique ID that identifies the service charge only within this order.
      *
      * @maps uid
      */
@@ -116,7 +128,7 @@ class OrderServiceCharge implements \JsonSerializable
     /**
      * Returns Catalog Object Id.
      *
-     * The catalog object ID referencing the service charge [CatalogObject](#type-catalogobject).
+     * The catalog object ID referencing the service charge [CatalogObject]($m/CatalogObject).
      */
     public function getCatalogObjectId(): ?string
     {
@@ -126,13 +138,35 @@ class OrderServiceCharge implements \JsonSerializable
     /**
      * Sets Catalog Object Id.
      *
-     * The catalog object ID referencing the service charge [CatalogObject](#type-catalogobject).
+     * The catalog object ID referencing the service charge [CatalogObject]($m/CatalogObject).
      *
      * @maps catalog_object_id
      */
     public function setCatalogObjectId(?string $catalogObjectId): void
     {
         $this->catalogObjectId = $catalogObjectId;
+    }
+
+    /**
+     * Returns Catalog Version.
+     *
+     * The version of the catalog object that this service charge references.
+     */
+    public function getCatalogVersion(): ?int
+    {
+        return $this->catalogVersion;
+    }
+
+    /**
+     * Sets Catalog Version.
+     *
+     * The version of the catalog object that this service charge references.
+     *
+     * @maps catalog_version
+     */
+    public function setCatalogVersion(?int $catalogVersion): void
+    {
+        $this->catalogVersion = $catalogVersion;
     }
 
     /**
@@ -303,7 +337,7 @@ class OrderServiceCharge implements \JsonSerializable
      * Returns Calculation Phase.
      *
      * Represents a phase in the process of calculating order totals.
-     * Service charges are applied __after__ the indicated phase.
+     * Service charges are applied after the indicated phase.
      *
      * [Read more about how order totals are calculated.](https://developer.squareup.com/docs/orders-
      * api/how-it-works#how-totals-are-calculated)
@@ -317,7 +351,7 @@ class OrderServiceCharge implements \JsonSerializable
      * Sets Calculation Phase.
      *
      * Represents a phase in the process of calculating order totals.
-     * Service charges are applied __after__ the indicated phase.
+     * Service charges are applied after the indicated phase.
      *
      * [Read more about how order totals are calculated.](https://developer.squareup.com/docs/orders-
      * api/how-it-works#how-totals-are-calculated)
@@ -358,15 +392,15 @@ class OrderServiceCharge implements \JsonSerializable
     /**
      * Returns Applied Taxes.
      *
-     * The list of references to taxes applied to this service charge. Each
+     * The list of references to the taxes applied to this service charge. Each
      * `OrderLineItemAppliedTax` has a `tax_uid` that references the `uid` of a top-level
      * `OrderLineItemTax` that is being applied to this service charge. On reads, the amount applied
      * is populated.
      *
-     * An `OrderLineItemAppliedTax` will be automatically created on every taxable service charge
+     * An `OrderLineItemAppliedTax` is automatically created on every taxable service charge
      * for all `ORDER` scoped taxes that are added to the order. `OrderLineItemAppliedTax` records
      * for `LINE_ITEM` scoped taxes must be added in requests for the tax to apply to any taxable
-     * service charge.  Taxable service charges have the `taxable` field set to true and calculated
+     * service charge. Taxable service charges have the `taxable` field set to `true` and calculated
      * in the `SUBTOTAL_PHASE`.
      *
      * To change the amount of a tax, modify the referenced top-level tax.
@@ -381,15 +415,15 @@ class OrderServiceCharge implements \JsonSerializable
     /**
      * Sets Applied Taxes.
      *
-     * The list of references to taxes applied to this service charge. Each
+     * The list of references to the taxes applied to this service charge. Each
      * `OrderLineItemAppliedTax` has a `tax_uid` that references the `uid` of a top-level
      * `OrderLineItemTax` that is being applied to this service charge. On reads, the amount applied
      * is populated.
      *
-     * An `OrderLineItemAppliedTax` will be automatically created on every taxable service charge
+     * An `OrderLineItemAppliedTax` is automatically created on every taxable service charge
      * for all `ORDER` scoped taxes that are added to the order. `OrderLineItemAppliedTax` records
      * for `LINE_ITEM` scoped taxes must be added in requests for the tax to apply to any taxable
-     * service charge.  Taxable service charges have the `taxable` field set to true and calculated
+     * service charge. Taxable service charges have the `taxable` field set to `true` and calculated
      * in the `SUBTOTAL_PHASE`.
      *
      * To change the amount of a tax, modify the referenced top-level tax.
@@ -409,21 +443,21 @@ class OrderServiceCharge implements \JsonSerializable
      * Application-defined data attached to this service charge. Metadata fields are intended
      * to store descriptive references or associations with an entity in another system or store brief
      * information about the object. Square does not process this field; it only stores and returns it
-     * in relevant API calls. Do not use metadata to store any sensitive information (personally
-     * identifiable information, card details, etc.).
+     * in relevant API calls. Do not use metadata to store any sensitive information (such as personally
+     * identifiable information or card details).
      *
      * Keys written by applications must be 60 characters or less and must be in the character set
-     * `[a-zA-Z0-9_-]`. Entries may also include metadata generated by Square. These keys are prefixed
+     * `[a-zA-Z0-9_-]`. Entries can also include metadata generated by Square. These keys are prefixed
      * with a namespace, separated from the key with a ':' character.
      *
-     * Values have a max length of 255 characters.
+     * Values have a maximum length of 255 characters.
      *
-     * An application may have up to 10 entries per metadata field.
+     * An application can have up to 10 entries per metadata field.
      *
      * Entries written by applications are private and can only be read or modified by the same
      * application.
      *
-     * See [Metadata](https://developer.squareup.com/docs/build-basics/metadata) for more information.
+     * For more information, see [Metadata](https://developer.squareup.com/docs/build-basics/metadata).
      */
     public function getMetadata(): ?array
     {
@@ -436,21 +470,21 @@ class OrderServiceCharge implements \JsonSerializable
      * Application-defined data attached to this service charge. Metadata fields are intended
      * to store descriptive references or associations with an entity in another system or store brief
      * information about the object. Square does not process this field; it only stores and returns it
-     * in relevant API calls. Do not use metadata to store any sensitive information (personally
-     * identifiable information, card details, etc.).
+     * in relevant API calls. Do not use metadata to store any sensitive information (such as personally
+     * identifiable information or card details).
      *
      * Keys written by applications must be 60 characters or less and must be in the character set
-     * `[a-zA-Z0-9_-]`. Entries may also include metadata generated by Square. These keys are prefixed
+     * `[a-zA-Z0-9_-]`. Entries can also include metadata generated by Square. These keys are prefixed
      * with a namespace, separated from the key with a ':' character.
      *
-     * Values have a max length of 255 characters.
+     * Values have a maximum length of 255 characters.
      *
-     * An application may have up to 10 entries per metadata field.
+     * An application can have up to 10 entries per metadata field.
      *
      * Entries written by applications are private and can only be read or modified by the same
      * application.
      *
-     * See [Metadata](https://developer.squareup.com/docs/build-basics/metadata) for more information.
+     * For more information, see [Metadata](https://developer.squareup.com/docs/build-basics/metadata).
      *
      * @maps metadata
      */
@@ -460,28 +494,80 @@ class OrderServiceCharge implements \JsonSerializable
     }
 
     /**
+     * Returns Type.
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Sets Type.
+     *
+     * @maps type
+     */
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['uid']              = $this->uid;
-        $json['name']             = $this->name;
-        $json['catalog_object_id'] = $this->catalogObjectId;
-        $json['percentage']       = $this->percentage;
-        $json['amount_money']     = $this->amountMoney;
-        $json['applied_money']    = $this->appliedMoney;
-        $json['total_money']      = $this->totalMoney;
-        $json['total_tax_money']  = $this->totalTaxMoney;
-        $json['calculation_phase'] = $this->calculationPhase;
-        $json['taxable']          = $this->taxable;
-        $json['applied_taxes']    = $this->appliedTaxes;
-        $json['metadata']         = $this->metadata;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->uid)) {
+            $json['uid']               = $this->uid;
+        }
+        if (isset($this->name)) {
+            $json['name']              = $this->name;
+        }
+        if (isset($this->catalogObjectId)) {
+            $json['catalog_object_id'] = $this->catalogObjectId;
+        }
+        if (isset($this->catalogVersion)) {
+            $json['catalog_version']   = $this->catalogVersion;
+        }
+        if (isset($this->percentage)) {
+            $json['percentage']        = $this->percentage;
+        }
+        if (isset($this->amountMoney)) {
+            $json['amount_money']      = $this->amountMoney;
+        }
+        if (isset($this->appliedMoney)) {
+            $json['applied_money']     = $this->appliedMoney;
+        }
+        if (isset($this->totalMoney)) {
+            $json['total_money']       = $this->totalMoney;
+        }
+        if (isset($this->totalTaxMoney)) {
+            $json['total_tax_money']   = $this->totalTaxMoney;
+        }
+        if (isset($this->calculationPhase)) {
+            $json['calculation_phase'] = $this->calculationPhase;
+        }
+        if (isset($this->taxable)) {
+            $json['taxable']           = $this->taxable;
+        }
+        if (isset($this->appliedTaxes)) {
+            $json['applied_taxes']     = $this->appliedTaxes;
+        }
+        if (isset($this->metadata)) {
+            $json['metadata']          = $this->metadata;
+        }
+        if (isset($this->type)) {
+            $json['type']              = $this->type;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

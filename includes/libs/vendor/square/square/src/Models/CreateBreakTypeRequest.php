@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * A request to create a new `BreakType`
+ * A request to create a new `BreakType`.
  */
 class CreateBreakTypeRequest implements \JsonSerializable
 {
@@ -30,7 +32,7 @@ class CreateBreakTypeRequest implements \JsonSerializable
     /**
      * Returns Idempotency Key.
      *
-     * Unique string value to insure idempotency of the operation
+     * A unique string value to ensure the idempotency of the operation.
      */
     public function getIdempotencyKey(): ?string
     {
@@ -40,7 +42,7 @@ class CreateBreakTypeRequest implements \JsonSerializable
     /**
      * Sets Idempotency Key.
      *
-     * Unique string value to insure idempotency of the operation
+     * A unique string value to ensure the idempotency of the operation.
      *
      * @maps idempotency_key
      */
@@ -77,16 +79,22 @@ class CreateBreakTypeRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['idempotency_key'] = $this->idempotencyKey;
-        $json['break_type']     = $this->breakType;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->idempotencyKey)) {
+            $json['idempotency_key'] = $this->idempotencyKey;
+        }
+        $json['break_type']          = $this->breakType;
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

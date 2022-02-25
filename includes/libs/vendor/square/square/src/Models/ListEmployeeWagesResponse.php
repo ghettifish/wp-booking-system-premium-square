@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * The response to a request for a set of `EmployeeWage` objects. Contains
- * a set of `EmployeeWage`.
+ * The response to a request for a set of `EmployeeWage` objects. The response contains
+ * a set of `EmployeeWage` objects.
  */
 class ListEmployeeWagesResponse implements \JsonSerializable
 {
@@ -28,7 +30,7 @@ class ListEmployeeWagesResponse implements \JsonSerializable
     /**
      * Returns Employee Wages.
      *
-     * A page of Employee Wage results.
+     * A page of `EmployeeWage` results.
      *
      * @return EmployeeWage[]|null
      */
@@ -40,7 +42,7 @@ class ListEmployeeWagesResponse implements \JsonSerializable
     /**
      * Sets Employee Wages.
      *
-     * A page of Employee Wage results.
+     * A page of `EmployeeWage` results.
      *
      * @maps employee_wages
      *
@@ -54,8 +56,8 @@ class ListEmployeeWagesResponse implements \JsonSerializable
     /**
      * Returns Cursor.
      *
-     * Value supplied in the subsequent request to fetch the next next page
-     * of Employee Wage results.
+     * The value supplied in the subsequent request to fetch the next page
+     * of `EmployeeWage` results.
      */
     public function getCursor(): ?string
     {
@@ -65,8 +67,8 @@ class ListEmployeeWagesResponse implements \JsonSerializable
     /**
      * Sets Cursor.
      *
-     * Value supplied in the subsequent request to fetch the next next page
-     * of Employee Wage results.
+     * The value supplied in the subsequent request to fetch the next page
+     * of `EmployeeWage` results.
      *
      * @maps cursor
      */
@@ -104,17 +106,27 @@ class ListEmployeeWagesResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['employee_wages'] = $this->employeeWages;
-        $json['cursor']        = $this->cursor;
-        $json['errors']        = $this->errors;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->employeeWages)) {
+            $json['employee_wages'] = $this->employeeWages;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']         = $this->cursor;
+        }
+        if (isset($this->errors)) {
+            $json['errors']         = $this->errors;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

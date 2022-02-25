@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents an error encountered during a request to the Connect API.
  *
- * See [Handling errors](#handlingerrors) for more information.
+ * See [Handling errors](https://developer.squareup.com/docs/build-basics/handling-errors) for more
+ * information.
  */
 class Error implements \JsonSerializable
 {
@@ -140,18 +143,26 @@ class Error implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['category'] = $this->category;
-        $json['code']     = $this->code;
-        $json['detail']   = $this->detail;
-        $json['field']    = $this->field;
-
-        return array_filter($json, function ($val) {
+        $json['category']   = $this->category;
+        $json['code']       = $this->code;
+        if (isset($this->detail)) {
+            $json['detail'] = $this->detail;
+        }
+        if (isset($this->field)) {
+            $json['field']  = $this->field;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

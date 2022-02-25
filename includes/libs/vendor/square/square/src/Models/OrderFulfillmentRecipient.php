@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Contains information on the recipient of a fulfillment.
+ * Contains information about the recipient of a fulfillment.
  */
 class OrderFulfillmentRecipient implements \JsonSerializable
 {
@@ -37,14 +39,14 @@ class OrderFulfillmentRecipient implements \JsonSerializable
     /**
      * Returns Customer Id.
      *
-     * The Customer ID of the customer associated with the fulfillment.
+     * The customer ID of the customer associated with the fulfillment.
      *
      * If `customer_id` is provided, the fulfillment recipient's `display_name`,
      * `email_address`, and `phone_number` are automatically populated from the
      * targeted customer profile. If these fields are set in the request, the request
-     * values will override the information from the customer profile. If the
+     * values overrides the information from the customer profile. If the
      * targeted customer profile does not contain the necessary information and
-     * these fields are left unset, the request will result in an error.
+     * these fields are left unset, the request results in an error.
      */
     public function getCustomerId(): ?string
     {
@@ -54,14 +56,14 @@ class OrderFulfillmentRecipient implements \JsonSerializable
     /**
      * Sets Customer Id.
      *
-     * The Customer ID of the customer associated with the fulfillment.
+     * The customer ID of the customer associated with the fulfillment.
      *
      * If `customer_id` is provided, the fulfillment recipient's `display_name`,
      * `email_address`, and `phone_number` are automatically populated from the
      * targeted customer profile. If these fields are set in the request, the request
-     * values will override the information from the customer profile. If the
+     * values overrides the information from the customer profile. If the
      * targeted customer profile does not contain the necessary information and
-     * these fields are left unset, the request will result in an error.
+     * these fields are left unset, the request results in an error.
      *
      * @maps customer_id
      */
@@ -75,7 +77,8 @@ class OrderFulfillmentRecipient implements \JsonSerializable
      *
      * The display name of the fulfillment recipient.
      *
-     * If provided, overrides the value pulled from the customer profile indicated by `customer_id`.
+     * If provided, the display name overrides the value pulled from the customer profile indicated by
+     * `customer_id`.
      */
     public function getDisplayName(): ?string
     {
@@ -87,7 +90,8 @@ class OrderFulfillmentRecipient implements \JsonSerializable
      *
      * The display name of the fulfillment recipient.
      *
-     * If provided, overrides the value pulled from the customer profile indicated by `customer_id`.
+     * If provided, the display name overrides the value pulled from the customer profile indicated by
+     * `customer_id`.
      *
      * @maps display_name
      */
@@ -101,7 +105,8 @@ class OrderFulfillmentRecipient implements \JsonSerializable
      *
      * The email address of the fulfillment recipient.
      *
-     * If provided, overrides the value pulled from the customer profile indicated by `customer_id`.
+     * If provided, the email address overrides the value pulled from the customer profile indicated by
+     * `customer_id`.
      */
     public function getEmailAddress(): ?string
     {
@@ -113,7 +118,8 @@ class OrderFulfillmentRecipient implements \JsonSerializable
      *
      * The email address of the fulfillment recipient.
      *
-     * If provided, overrides the value pulled from the customer profile indicated by `customer_id`.
+     * If provided, the email address overrides the value pulled from the customer profile indicated by
+     * `customer_id`.
      *
      * @maps email_address
      */
@@ -127,7 +133,8 @@ class OrderFulfillmentRecipient implements \JsonSerializable
      *
      * The phone number of the fulfillment recipient.
      *
-     * If provided, overrides the value pulled from the customer profile indicated by `customer_id`.
+     * If provided, the phone number overrides the value pulled from the customer profile indicated by
+     * `customer_id`.
      */
     public function getPhoneNumber(): ?string
     {
@@ -139,7 +146,8 @@ class OrderFulfillmentRecipient implements \JsonSerializable
      *
      * The phone number of the fulfillment recipient.
      *
-     * If provided, overrides the value pulled from the customer profile indicated by `customer_id`.
+     * If provided, the phone number overrides the value pulled from the customer profile indicated by
+     * `customer_id`.
      *
      * @maps phone_number
      */
@@ -151,7 +159,9 @@ class OrderFulfillmentRecipient implements \JsonSerializable
     /**
      * Returns Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      */
     public function getAddress(): ?Address
     {
@@ -161,7 +171,9 @@ class OrderFulfillmentRecipient implements \JsonSerializable
     /**
      * Sets Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      *
      * @maps address
      */
@@ -173,19 +185,33 @@ class OrderFulfillmentRecipient implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['customer_id']  = $this->customerId;
-        $json['display_name'] = $this->displayName;
-        $json['email_address'] = $this->emailAddress;
-        $json['phone_number'] = $this->phoneNumber;
-        $json['address']      = $this->address;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->customerId)) {
+            $json['customer_id']   = $this->customerId;
+        }
+        if (isset($this->displayName)) {
+            $json['display_name']  = $this->displayName;
+        }
+        if (isset($this->emailAddress)) {
+            $json['email_address'] = $this->emailAddress;
+        }
+        if (isset($this->phoneNumber)) {
+            $json['phone_number']  = $this->phoneNumber;
+        }
+        if (isset($this->address)) {
+            $json['address']       = $this->address;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

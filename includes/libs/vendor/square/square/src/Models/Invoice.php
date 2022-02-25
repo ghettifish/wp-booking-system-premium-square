@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Stores information about an invoice. You use the Invoices API to create and manage
  * invoices. For more information, see [Manage Invoices Using the Invoices API](https://developer.
@@ -97,9 +99,29 @@ class Invoice implements \JsonSerializable
     private $updatedAt;
 
     /**
+     * @var InvoiceAcceptedPaymentMethods|null
+     */
+    private $acceptedPaymentMethods;
+
+    /**
      * @var InvoiceCustomField[]|null
      */
     private $customFields;
+
+    /**
+     * @var string|null
+     */
+    private $subscriptionId;
+
+    /**
+     * @var string|null
+     */
+    private $saleOrServiceDate;
+
+    /**
+     * @var string|null
+     */
+    private $paymentConditions;
 
     /**
      * Returns Id.
@@ -151,7 +173,9 @@ class Invoice implements \JsonSerializable
      * Returns Location Id.
      *
      * The ID of the location that this invoice is associated with.
-     * This field is required when creating an invoice.
+     *
+     * If specified in a `CreateInvoice` request, the value must match the `location_id` of the associated
+     * order.
      */
     public function getLocationId(): ?string
     {
@@ -162,7 +186,9 @@ class Invoice implements \JsonSerializable
      * Sets Location Id.
      *
      * The ID of the location that this invoice is associated with.
-     * This field is required when creating an invoice.
+     *
+     * If specified in a `CreateInvoice` request, the value must match the `location_id` of the associated
+     * order.
      *
      * @maps location_id
      */
@@ -174,10 +200,11 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Order Id.
      *
-     * The ID of the [order](#type-order) for which the invoice is created.
+     * The ID of the [order]($m/Order) for which the invoice is created.
+     * This field is required when creating an invoice, and the order must be in the `OPEN` state.
      *
-     * This order must be in the `OPEN` state and must belong to the `location_id`
-     * specified for this invoice. This field is required when creating an invoice.
+     * To view the line items and other information for the associated order, call the
+     * [RetrieveOrder]($e/Orders/RetrieveOrder) endpoint using the order ID.
      */
     public function getOrderId(): ?string
     {
@@ -187,10 +214,11 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Order Id.
      *
-     * The ID of the [order](#type-order) for which the invoice is created.
+     * The ID of the [order]($m/Order) for which the invoice is created.
+     * This field is required when creating an invoice, and the order must be in the `OPEN` state.
      *
-     * This order must be in the `OPEN` state and must belong to the `location_id`
-     * specified for this invoice. This field is required when creating an invoice.
+     * To view the line items and other information for the associated order, call the
+     * [RetrieveOrder]($e/Orders/RetrieveOrder) endpoint using the order ID.
      *
      * @maps order_id
      */
@@ -202,7 +230,15 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Primary Recipient.
      *
-     * Provides customer data that Square uses to deliver an invoice.
+     * Represents a snapshot of customer data. This object stores customer data that is displayed on the
+     * invoice
+     * and that Square uses to deliver the invoice.
+     *
+     * When you provide a customer ID for a draft invoice, Square retrieves the associated customer profile
+     * and populates
+     * the remaining `InvoiceRecipient` fields. You cannot update these fields after the invoice is
+     * published.
+     * Square updates the customer ID in response to a merge operation, but does not update other fields.
      */
     public function getPrimaryRecipient(): ?InvoiceRecipient
     {
@@ -212,7 +248,15 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Primary Recipient.
      *
-     * Provides customer data that Square uses to deliver an invoice.
+     * Represents a snapshot of customer data. This object stores customer data that is displayed on the
+     * invoice
+     * and that Square uses to deliver the invoice.
+     *
+     * When you provide a customer ID for a draft invoice, Square retrieves the associated customer profile
+     * and populates
+     * the remaining `InvoiceRecipient` fields. You cannot update these fields after the invoice is
+     * published.
+     * Square updates the customer ID in response to a merge operation, but does not update other fields.
      *
      * @maps primary_recipient
      */
@@ -225,11 +269,20 @@ class Invoice implements \JsonSerializable
      * Returns Payment Requests.
      *
      * The payment schedule for the invoice, represented by one or more payment requests that
-     * define payment settings, such as amount due and due date. You can specify a maximum of 13
-     * payment requests, with up to 12 `INSTALLMENT` request types. For more information, see
-     * [Payment requests](https://developer.squareup.com/docs/invoices-api/overview#payment-requests).
+     * define payment settings, such as amount due and due date. An invoice supports the following payment
+     * request combinations:
+     * - One balance
+     * - One deposit with one balance
+     * - 2–12 installments
+     * - One deposit with 2–12 installments
      *
      * This field is required when creating an invoice. It must contain at least one payment request.
+     * All payment requests for the invoice must equal the total order amount. For more information, see
+     * [Payment requests](https://developer.squareup.com/docs/invoices-api/overview#payment-requests).
+     *
+     * Adding `INSTALLMENT` payment requests to an invoice requires an
+     * [Invoices Plus subscription](https://developer.squareup.com/docs/invoices-api/overview#invoices-plus-
+     * subscription).
      *
      * @return InvoicePaymentRequest[]|null
      */
@@ -242,11 +295,20 @@ class Invoice implements \JsonSerializable
      * Sets Payment Requests.
      *
      * The payment schedule for the invoice, represented by one or more payment requests that
-     * define payment settings, such as amount due and due date. You can specify a maximum of 13
-     * payment requests, with up to 12 `INSTALLMENT` request types. For more information, see
-     * [Payment requests](https://developer.squareup.com/docs/invoices-api/overview#payment-requests).
+     * define payment settings, such as amount due and due date. An invoice supports the following payment
+     * request combinations:
+     * - One balance
+     * - One deposit with one balance
+     * - 2–12 installments
+     * - One deposit with 2–12 installments
      *
      * This field is required when creating an invoice. It must contain at least one payment request.
+     * All payment requests for the invoice must equal the total order amount. For more information, see
+     * [Payment requests](https://developer.squareup.com/docs/invoices-api/overview#payment-requests).
+     *
+     * Adding `INSTALLMENT` payment requests to an invoice requires an
+     * [Invoices Plus subscription](https://developer.squareup.com/docs/invoices-api/overview#invoices-plus-
+     * subscription).
      *
      * @maps payment_requests
      *
@@ -260,7 +322,7 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Delivery Method.
      *
-     * Indicates how Square delivers the [invoice](#type-Invoice) to the customer.
+     * Indicates how Square delivers the [invoice]($m/Invoice) to the customer.
      */
     public function getDeliveryMethod(): ?string
     {
@@ -270,7 +332,7 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Delivery Method.
      *
-     * Indicates how Square delivers the [invoice](#type-Invoice) to the customer.
+     * Indicates how Square delivers the [invoice]($m/Invoice) to the customer.
      *
      * @maps delivery_method
      */
@@ -282,10 +344,11 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Invoice Number.
      *
-     * A user-friendly invoice number. The value is unique within a location.
+     * A user-friendly invoice number that is displayed on the invoice. The value is unique within a
+     * location.
      * If not provided when creating an invoice, Square assigns a value.
-     * It increments from 1 and padded with zeros making it 7 characters long
-     * for example, 0000001, 0000002.
+     * It increments from 1 and is padded with zeros making it 7 characters long
+     * (for example, 0000001 and 0000002).
      */
     public function getInvoiceNumber(): ?string
     {
@@ -295,10 +358,11 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Invoice Number.
      *
-     * A user-friendly invoice number. The value is unique within a location.
+     * A user-friendly invoice number that is displayed on the invoice. The value is unique within a
+     * location.
      * If not provided when creating an invoice, Square assigns a value.
-     * It increments from 1 and padded with zeros making it 7 characters long
-     * for example, 0000001, 0000002.
+     * It increments from 1 and is padded with zeros making it 7 characters long
+     * (for example, 0000001 and 0000002).
      *
      * @maps invoice_number
      */
@@ -310,7 +374,7 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Title.
      *
-     * The title of the invoice.
+     * The title of the invoice, which is displayed on the invoice.
      */
     public function getTitle(): ?string
     {
@@ -320,7 +384,7 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Title.
      *
-     * The title of the invoice.
+     * The title of the invoice, which is displayed on the invoice.
      *
      * @maps title
      */
@@ -332,7 +396,7 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Description.
      *
-     * The description of the invoice. This is visible to the customer receiving the invoice.
+     * The description of the invoice, which is displayed on the invoice.
      */
     public function getDescription(): ?string
     {
@@ -342,7 +406,7 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Description.
      *
-     * The description of the invoice. This is visible to the customer receiving the invoice.
+     * The description of the invoice, which is displayed on the invoice.
      *
      * @maps description
      */
@@ -355,8 +419,8 @@ class Invoice implements \JsonSerializable
      * Returns Scheduled At.
      *
      * The timestamp when the invoice is scheduled for processing, in RFC 3339 format.
-     * After the invoice is published, Square processes the invoice on the specified date, according to the
-     * delivery method and payment request settings.
+     * After the invoice is published, Square processes the invoice on the specified date,
+     * according to the delivery method and payment request settings.
      *
      * If the field is not set, Square processes the invoice immediately after it is published.
      */
@@ -369,8 +433,8 @@ class Invoice implements \JsonSerializable
      * Sets Scheduled At.
      *
      * The timestamp when the invoice is scheduled for processing, in RFC 3339 format.
-     * After the invoice is published, Square processes the invoice on the specified date, according to the
-     * delivery method and payment request settings.
+     * After the invoice is published, Square processes the invoice on the specified date,
+     * according to the delivery method and payment request settings.
      *
      * If the field is not set, Square processes the invoice immediately after it is published.
      *
@@ -466,13 +530,13 @@ class Invoice implements \JsonSerializable
     /**
      * Returns Timezone.
      *
-     * The time zone used to interpret calendar dates on the invoice, such as `due_date`. When an invoice
-     * is created, this field is set to the `timezone` specified for the seller location. The value cannot
-     * be changed.
+     * The time zone used to interpret calendar dates on the invoice, such as `due_date`.
+     * When an invoice is created, this field is set to the `timezone` specified for the seller
+     * location. The value cannot be changed.
      *
-     * For example, a payment `due_date` of 2021-03-09 with a `timezone` of America/Los\_Angeles becomes
-     * overdue at midnight on March 9 in America/Los\_Angeles (which equals a UTC timestamp of 2021-03-
-     * 10T08:00:00Z).
+     * For example, a payment `due_date` of 2021-03-09 with a `timezone` of America/Los\_Angeles
+     * becomes overdue at midnight on March 9 in America/Los\_Angeles (which equals a UTC timestamp
+     * of 2021-03-10T08:00:00Z).
      */
     public function getTimezone(): ?string
     {
@@ -482,13 +546,13 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Timezone.
      *
-     * The time zone used to interpret calendar dates on the invoice, such as `due_date`. When an invoice
-     * is created, this field is set to the `timezone` specified for the seller location. The value cannot
-     * be changed.
+     * The time zone used to interpret calendar dates on the invoice, such as `due_date`.
+     * When an invoice is created, this field is set to the `timezone` specified for the seller
+     * location. The value cannot be changed.
      *
-     * For example, a payment `due_date` of 2021-03-09 with a `timezone` of America/Los\_Angeles becomes
-     * overdue at midnight on March 9 in America/Los\_Angeles (which equals a UTC timestamp of 2021-03-
-     * 10T08:00:00Z).
+     * For example, a payment `due_date` of 2021-03-09 with a `timezone` of America/Los\_Angeles
+     * becomes overdue at midnight on March 9 in America/Los\_Angeles (which equals a UTC timestamp
+     * of 2021-03-10T08:00:00Z).
      *
      * @maps timezone
      */
@@ -542,13 +606,36 @@ class Invoice implements \JsonSerializable
     }
 
     /**
+     * Returns Accepted Payment Methods.
+     *
+     * The payment methods that customers can use to pay an invoice on the Square-hosted invoice page.
+     */
+    public function getAcceptedPaymentMethods(): ?InvoiceAcceptedPaymentMethods
+    {
+        return $this->acceptedPaymentMethods;
+    }
+
+    /**
+     * Sets Accepted Payment Methods.
+     *
+     * The payment methods that customers can use to pay an invoice on the Square-hosted invoice page.
+     *
+     * @maps accepted_payment_methods
+     */
+    public function setAcceptedPaymentMethods(?InvoiceAcceptedPaymentMethods $acceptedPaymentMethods): void
+    {
+        $this->acceptedPaymentMethods = $acceptedPaymentMethods;
+    }
+
+    /**
      * Returns Custom Fields.
      *
-     * Additional seller-defined fields to render on the invoice. These fields are visible to sellers and
-     * buyers
-     * on the Square-hosted invoice page and in emailed or PDF copies of invoices. For more information,
-     * see
+     * Additional seller-defined fields that are displayed on the invoice. For more information, see
      * [Custom fields](https://developer.squareup.com/docs/invoices-api/overview#custom-fields).
+     *
+     * Adding custom fields to an invoice requires an
+     * [Invoices Plus subscription](https://developer.squareup.com/docs/invoices-api/overview#invoices-plus-
+     * subscription).
      *
      * Max: 2 custom fields
      *
@@ -562,11 +649,12 @@ class Invoice implements \JsonSerializable
     /**
      * Sets Custom Fields.
      *
-     * Additional seller-defined fields to render on the invoice. These fields are visible to sellers and
-     * buyers
-     * on the Square-hosted invoice page and in emailed or PDF copies of invoices. For more information,
-     * see
+     * Additional seller-defined fields that are displayed on the invoice. For more information, see
      * [Custom fields](https://developer.squareup.com/docs/invoices-api/overview#custom-fields).
+     *
+     * Adding custom fields to an invoice requires an
+     * [Invoices Plus subscription](https://developer.squareup.com/docs/invoices-api/overview#invoices-plus-
+     * subscription).
      *
      * Max: 2 custom fields
      *
@@ -580,34 +668,172 @@ class Invoice implements \JsonSerializable
     }
 
     /**
+     * Returns Subscription Id.
+     *
+     * The ID of the [subscription]($m/Subscription) associated with the invoice.
+     * This field is present only on subscription billing invoices.
+     */
+    public function getSubscriptionId(): ?string
+    {
+        return $this->subscriptionId;
+    }
+
+    /**
+     * Sets Subscription Id.
+     *
+     * The ID of the [subscription]($m/Subscription) associated with the invoice.
+     * This field is present only on subscription billing invoices.
+     *
+     * @maps subscription_id
+     */
+    public function setSubscriptionId(?string $subscriptionId): void
+    {
+        $this->subscriptionId = $subscriptionId;
+    }
+
+    /**
+     * Returns Sale or Service Date.
+     *
+     * The date of the sale or the date that the service is rendered, in `YYYY-MM-DD` format.
+     * This field can be used to specify a past or future date which is displayed on the invoice.
+     */
+    public function getSaleOrServiceDate(): ?string
+    {
+        return $this->saleOrServiceDate;
+    }
+
+    /**
+     * Sets Sale or Service Date.
+     *
+     * The date of the sale or the date that the service is rendered, in `YYYY-MM-DD` format.
+     * This field can be used to specify a past or future date which is displayed on the invoice.
+     *
+     * @maps sale_or_service_date
+     */
+    public function setSaleOrServiceDate(?string $saleOrServiceDate): void
+    {
+        $this->saleOrServiceDate = $saleOrServiceDate;
+    }
+
+    /**
+     * Returns Payment Conditions.
+     *
+     * **France only.** The payment terms and conditions that are displayed on the invoice. For more
+     * information,
+     * see [Payment conditions](https://developer.squareup.com/docs/invoices-api/overview#payment-
+     * conditions).
+     *
+     * For countries other than France, Square returns an `INVALID_REQUEST_ERROR` with a `BAD_REQUEST` code
+     * and
+     * "Payment conditions are not supported for this location's country" detail if this field is included
+     * in `CreateInvoice` or `UpdateInvoice` requests.
+     */
+    public function getPaymentConditions(): ?string
+    {
+        return $this->paymentConditions;
+    }
+
+    /**
+     * Sets Payment Conditions.
+     *
+     * **France only.** The payment terms and conditions that are displayed on the invoice. For more
+     * information,
+     * see [Payment conditions](https://developer.squareup.com/docs/invoices-api/overview#payment-
+     * conditions).
+     *
+     * For countries other than France, Square returns an `INVALID_REQUEST_ERROR` with a `BAD_REQUEST` code
+     * and
+     * "Payment conditions are not supported for this location's country" detail if this field is included
+     * in `CreateInvoice` or `UpdateInvoice` requests.
+     *
+     * @maps payment_conditions
+     */
+    public function setPaymentConditions(?string $paymentConditions): void
+    {
+        $this->paymentConditions = $paymentConditions;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                     = $this->id;
-        $json['version']                = $this->version;
-        $json['location_id']            = $this->locationId;
-        $json['order_id']               = $this->orderId;
-        $json['primary_recipient']      = $this->primaryRecipient;
-        $json['payment_requests']       = $this->paymentRequests;
-        $json['delivery_method']        = $this->deliveryMethod;
-        $json['invoice_number']         = $this->invoiceNumber;
-        $json['title']                  = $this->title;
-        $json['description']            = $this->description;
-        $json['scheduled_at']           = $this->scheduledAt;
-        $json['public_url']             = $this->publicUrl;
-        $json['next_payment_amount_money'] = $this->nextPaymentAmountMoney;
-        $json['status']                 = $this->status;
-        $json['timezone']               = $this->timezone;
-        $json['created_at']             = $this->createdAt;
-        $json['updated_at']             = $this->updatedAt;
-        $json['custom_fields']          = $this->customFields;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                        = $this->id;
+        }
+        if (isset($this->version)) {
+            $json['version']                   = $this->version;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']               = $this->locationId;
+        }
+        if (isset($this->orderId)) {
+            $json['order_id']                  = $this->orderId;
+        }
+        if (isset($this->primaryRecipient)) {
+            $json['primary_recipient']         = $this->primaryRecipient;
+        }
+        if (isset($this->paymentRequests)) {
+            $json['payment_requests']          = $this->paymentRequests;
+        }
+        if (isset($this->deliveryMethod)) {
+            $json['delivery_method']           = $this->deliveryMethod;
+        }
+        if (isset($this->invoiceNumber)) {
+            $json['invoice_number']            = $this->invoiceNumber;
+        }
+        if (isset($this->title)) {
+            $json['title']                     = $this->title;
+        }
+        if (isset($this->description)) {
+            $json['description']               = $this->description;
+        }
+        if (isset($this->scheduledAt)) {
+            $json['scheduled_at']              = $this->scheduledAt;
+        }
+        if (isset($this->publicUrl)) {
+            $json['public_url']                = $this->publicUrl;
+        }
+        if (isset($this->nextPaymentAmountMoney)) {
+            $json['next_payment_amount_money'] = $this->nextPaymentAmountMoney;
+        }
+        if (isset($this->status)) {
+            $json['status']                    = $this->status;
+        }
+        if (isset($this->timezone)) {
+            $json['timezone']                  = $this->timezone;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']                = $this->createdAt;
+        }
+        if (isset($this->updatedAt)) {
+            $json['updated_at']                = $this->updatedAt;
+        }
+        if (isset($this->acceptedPaymentMethods)) {
+            $json['accepted_payment_methods']  = $this->acceptedPaymentMethods;
+        }
+        if (isset($this->customFields)) {
+            $json['custom_fields']             = $this->customFields;
+        }
+        if (isset($this->subscriptionId)) {
+            $json['subscription_id']           = $this->subscriptionId;
+        }
+        if (isset($this->saleOrServiceDate)) {
+            $json['sale_or_service_date']      = $this->saleOrServiceDate;
+        }
+        if (isset($this->paymentConditions)) {
+            $json['payment_conditions']        = $this->paymentConditions;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

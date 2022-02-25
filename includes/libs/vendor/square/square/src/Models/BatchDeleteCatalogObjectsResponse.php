@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class BatchDeleteCatalogObjectsResponse implements \JsonSerializable
 {
     /**
@@ -100,17 +102,27 @@ class BatchDeleteCatalogObjectsResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']           = $this->errors;
-        $json['deleted_object_ids'] = $this->deletedObjectIds;
-        $json['deleted_at']       = $this->deletedAt;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']             = $this->errors;
+        }
+        if (isset($this->deletedObjectIds)) {
+            $json['deleted_object_ids'] = $this->deletedObjectIds;
+        }
+        if (isset($this->deletedAt)) {
+            $json['deleted_at']         = $this->deletedAt;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

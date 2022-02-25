@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * A query filter to search for appointment segments by.
+ * A query filter to search for buyer-accessible appointment segments by.
  */
 class SegmentFilter implements \JsonSerializable
 {
@@ -30,8 +32,8 @@ class SegmentFilter implements \JsonSerializable
     /**
      * Returns Service Variation Id.
      *
-     * The ID of the [CatalogItemVariation](#type-CatalogItemVariation) representing the service booked in
-     * this segment.
+     * The ID of the [CatalogItemVariation]($m/CatalogItemVariation) object representing the service booked
+     * in this segment.
      */
     public function getServiceVariationId(): string
     {
@@ -41,8 +43,8 @@ class SegmentFilter implements \JsonSerializable
     /**
      * Sets Service Variation Id.
      *
-     * The ID of the [CatalogItemVariation](#type-CatalogItemVariation) representing the service booked in
-     * this segment.
+     * The ID of the [CatalogItemVariation]($m/CatalogItemVariation) object representing the service booked
+     * in this segment.
      *
      * @required
      * @maps service_variation_id
@@ -85,16 +87,22 @@ class SegmentFilter implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['service_variation_id'] = $this->serviceVariationId;
-        $json['team_member_id_filter'] = $this->teamMemberIdFilter;
-
-        return array_filter($json, function ($val) {
+        $json['service_variation_id']      = $this->serviceVariationId;
+        if (isset($this->teamMemberIdFilter)) {
+            $json['team_member_id_filter'] = $this->teamMemberIdFilter;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

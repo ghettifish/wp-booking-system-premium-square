@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Describes a request to list payments using
- * [ListPayments](#endpoint-payments-listpayments).
+ * [ListPayments]($e/Payments/ListPayments).
  *
  * The maximum results per page is 100.
  */
@@ -288,23 +290,45 @@ class ListPaymentsRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['begin_time'] = $this->beginTime;
-        $json['end_time']   = $this->endTime;
-        $json['sort_order'] = $this->sortOrder;
-        $json['cursor']     = $this->cursor;
-        $json['location_id'] = $this->locationId;
-        $json['total']      = $this->total;
-        $json['last_4']     = $this->last4;
-        $json['card_brand'] = $this->cardBrand;
-        $json['limit']      = $this->limit;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->beginTime)) {
+            $json['begin_time']  = $this->beginTime;
+        }
+        if (isset($this->endTime)) {
+            $json['end_time']    = $this->endTime;
+        }
+        if (isset($this->sortOrder)) {
+            $json['sort_order']  = $this->sortOrder;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']      = $this->cursor;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id'] = $this->locationId;
+        }
+        if (isset($this->total)) {
+            $json['total']       = $this->total;
+        }
+        if (isset($this->last4)) {
+            $json['last_4']      = $this->last4;
+        }
+        if (isset($this->cardBrand)) {
+            $json['card_brand']  = $this->cardBrand;
+        }
+        if (isset($this->limit)) {
+            $json['limit']       = $this->limit;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

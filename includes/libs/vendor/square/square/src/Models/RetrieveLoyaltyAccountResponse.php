@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A response that includes the loyalty account.
  */
@@ -48,8 +50,9 @@ class RetrieveLoyaltyAccountResponse implements \JsonSerializable
     /**
      * Returns Loyalty Account.
      *
-     * Describes a loyalty account. For more information, see
-     * [Loyalty Overview](https://developer.squareup.com/docs/loyalty/overview).
+     * Describes a loyalty account in a [loyalty program]($m/LoyaltyProgram). For more information, see
+     * [Manage Loyalty Accounts Using the Loyalty API](https://developer.squareup.com/docs/loyalty-
+     * api/overview).
      */
     public function getLoyaltyAccount(): ?LoyaltyAccount
     {
@@ -59,8 +62,9 @@ class RetrieveLoyaltyAccountResponse implements \JsonSerializable
     /**
      * Sets Loyalty Account.
      *
-     * Describes a loyalty account. For more information, see
-     * [Loyalty Overview](https://developer.squareup.com/docs/loyalty/overview).
+     * Describes a loyalty account in a [loyalty program]($m/LoyaltyProgram). For more information, see
+     * [Manage Loyalty Accounts Using the Loyalty API](https://developer.squareup.com/docs/loyalty-
+     * api/overview).
      *
      * @maps loyalty_account
      */
@@ -72,16 +76,24 @@ class RetrieveLoyaltyAccountResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']         = $this->errors;
-        $json['loyalty_account'] = $this->loyaltyAccount;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']          = $this->errors;
+        }
+        if (isset($this->loyaltyAccount)) {
+            $json['loyalty_account'] = $this->loyaltyAccount;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

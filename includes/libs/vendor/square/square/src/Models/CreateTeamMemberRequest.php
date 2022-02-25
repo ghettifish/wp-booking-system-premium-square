@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a create request for a `TeamMember` object.
  */
@@ -22,12 +24,12 @@ class CreateTeamMemberRequest implements \JsonSerializable
     /**
      * Returns Idempotency Key.
      *
-     * A unique string that identifies this CreateTeamMember request.
-     * Keys can be any valid string but must be unique for every request.
-     * See [Idempotency keys](https://developer.squareup.com/docs/basics/api101/idempotency) for more
-     * information.
-     * <br>
-     * <b>Min Length 1    Max Length 45</b>
+     * A unique string that identifies this `CreateTeamMember` request.
+     * Keys can be any valid string, but must be unique for every request.
+     * For more information, see [Idempotency](https://developer.squareup.
+     * com/docs/basics/api101/idempotency).
+     *
+     * The minimum length is 1 and the maximum length is 45.
      */
     public function getIdempotencyKey(): ?string
     {
@@ -37,12 +39,12 @@ class CreateTeamMemberRequest implements \JsonSerializable
     /**
      * Sets Idempotency Key.
      *
-     * A unique string that identifies this CreateTeamMember request.
-     * Keys can be any valid string but must be unique for every request.
-     * See [Idempotency keys](https://developer.squareup.com/docs/basics/api101/idempotency) for more
-     * information.
-     * <br>
-     * <b>Min Length 1    Max Length 45</b>
+     * A unique string that identifies this `CreateTeamMember` request.
+     * Keys can be any valid string, but must be unique for every request.
+     * For more information, see [Idempotency](https://developer.squareup.
+     * com/docs/basics/api101/idempotency).
+     *
+     * The minimum length is 1 and the maximum length is 45.
      *
      * @maps idempotency_key
      */
@@ -76,16 +78,24 @@ class CreateTeamMemberRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['idempotency_key'] = $this->idempotencyKey;
-        $json['team_member']    = $this->teamMember;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->idempotencyKey)) {
+            $json['idempotency_key'] = $this->idempotencyKey;
+        }
+        if (isset($this->teamMember)) {
+            $json['team_member']     = $this->teamMember;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
+/**
+ * Represents one of a business's [locations](https://developer.squareup.com/docs/locations-api).
+ */
 class Location implements \JsonSerializable
 {
     /**
@@ -137,9 +142,14 @@ class Location implements \JsonSerializable
     private $fullFormatLogoUrl;
 
     /**
+     * @var TaxIds|null
+     */
+    private $taxIds;
+
+    /**
      * Returns Id.
      *
-     * The Square-issued ID of the location.
+     * A short, generated string of letters and numbers that uniquely identifies this location instance.
      */
     public function getId(): ?string
     {
@@ -149,7 +159,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Id.
      *
-     * The Square-issued ID of the location.
+     * A short, generated string of letters and numbers that uniquely identifies this location instance.
      *
      * @maps id
      */
@@ -187,7 +197,9 @@ class Location implements \JsonSerializable
     /**
      * Returns Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      */
     public function getAddress(): ?Address
     {
@@ -197,7 +209,9 @@ class Location implements \JsonSerializable
     /**
      * Sets Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      *
      * @maps address
      */
@@ -210,7 +224,7 @@ class Location implements \JsonSerializable
      * Returns Timezone.
      *
      * The [IANA Timezone](https://www.iana.org/time-zones) identifier for
-     * the timezone of the location.
+     * the timezone of the location. For example, `America/Los_Angeles`.
      */
     public function getTimezone(): ?string
     {
@@ -221,7 +235,7 @@ class Location implements \JsonSerializable
      * Sets Timezone.
      *
      * The [IANA Timezone](https://www.iana.org/time-zones) identifier for
-     * the timezone of the location.
+     * the timezone of the location. For example, `America/Los_Angeles`.
      *
      * @maps timezone
      */
@@ -234,7 +248,7 @@ class Location implements \JsonSerializable
      * Returns Capabilities.
      *
      * The Square features that are enabled for the location.
-     * See [LocationCapability](#type-locationcapability) for possible values.
+     * See [LocationCapability]($m/LocationCapability) for possible values.
      * See [LocationCapability](#type-locationcapability) for possible values
      *
      * @return string[]|null
@@ -248,7 +262,7 @@ class Location implements \JsonSerializable
      * Sets Capabilities.
      *
      * The Square features that are enabled for the location.
-     * See [LocationCapability](#type-locationcapability) for possible values.
+     * See [LocationCapability]($m/LocationCapability) for possible values.
      * See [LocationCapability](#type-locationcapability) for possible values
      *
      * @maps capabilities
@@ -263,7 +277,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Status.
      *
-     * The status of the location, whether a location is active or inactive.
+     * A location's status.
      */
     public function getStatus(): ?string
     {
@@ -273,7 +287,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Status.
      *
-     * The status of the location, whether a location is active or inactive.
+     * A location's status.
      *
      * @maps status
      */
@@ -286,6 +300,8 @@ class Location implements \JsonSerializable
      * Returns Created At.
      *
      * The time when the location was created, in RFC 3339 format.
+     * For more information, see [Working with Dates](https://developer.squareup.com/docs/build-
+     * basics/working-with-dates).
      */
     public function getCreatedAt(): ?string
     {
@@ -296,6 +312,8 @@ class Location implements \JsonSerializable
      * Sets Created At.
      *
      * The time when the location was created, in RFC 3339 format.
+     * For more information, see [Working with Dates](https://developer.squareup.com/docs/build-
+     * basics/working-with-dates).
      *
      * @maps created_at
      */
@@ -355,6 +373,8 @@ class Location implements \JsonSerializable
      *
      * The language associated with the location, in
      * [BCP 47 format](https://tools.ietf.org/html/bcp47#appendix-A).
+     * For more information, see [Location language code](https://developer.squareup.com/docs/locations-
+     * api#location-language-code).
      */
     public function getLanguageCode(): ?string
     {
@@ -366,6 +386,8 @@ class Location implements \JsonSerializable
      *
      * The language associated with the location, in
      * [BCP 47 format](https://tools.ietf.org/html/bcp47#appendix-A).
+     * For more information, see [Location language code](https://developer.squareup.com/docs/locations-
+     * api#location-language-code).
      *
      * @maps language_code
      */
@@ -401,7 +423,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Phone Number.
      *
-     * The phone number of the location in human readable format.
+     * The phone number of the location. For example, `+1 855-700-6000`.
      */
     public function getPhoneNumber(): ?string
     {
@@ -411,7 +433,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Phone Number.
      *
-     * The phone number of the location in human readable format.
+     * The phone number of the location. For example, `+1 855-700-6000`.
      *
      * @maps phone_number
      */
@@ -423,9 +445,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Business Name.
      *
-     * The business name of the location
-     * This is the name visible to the customers of the location.
-     * For example, this name appears on customer receipts.
+     * The business name of the location.
      */
     public function getBusinessName(): ?string
     {
@@ -435,9 +455,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Business Name.
      *
-     * The business name of the location
-     * This is the name visible to the customers of the location.
-     * For example, this name appears on customer receipts.
+     * The business name of the location.
      *
      * @maps business_name
      */
@@ -449,7 +467,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Type.
      *
-     * A location's physical or mobile type.
+     * A location's type.
      */
     public function getType(): ?string
     {
@@ -459,7 +477,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Type.
      *
-     * A location's physical or mobile type.
+     * A location's type.
      *
      * @maps type
      */
@@ -471,7 +489,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Website Url.
      *
-     * The website URL of the location.
+     * The website URL of the location.  For example, `https://squareup.com`.
      */
     public function getWebsiteUrl(): ?string
     {
@@ -481,7 +499,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Website Url.
      *
-     * The website URL of the location.
+     * The website URL of the location.  For example, `https://squareup.com`.
      *
      * @maps website_url
      */
@@ -493,7 +511,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Business Hours.
      *
-     * Represents the hours of operation for a business location.
+     * The hours of operation for a location.
      */
     public function getBusinessHours(): ?BusinessHours
     {
@@ -503,7 +521,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Business Hours.
      *
-     * Represents the hours of operation for a business location.
+     * The hours of operation for a location.
      *
      * @maps business_hours
      */
@@ -515,9 +533,8 @@ class Location implements \JsonSerializable
     /**
      * Returns Business Email.
      *
-     * The email of the location.
-     * This email is visible to the customers of the location.
-     * For example, the email appears on customer receipts.
+     * The email address of the location. This can be unique to the location, and is not always the email
+     * address for the business owner or admin.
      */
     public function getBusinessEmail(): ?string
     {
@@ -527,9 +544,8 @@ class Location implements \JsonSerializable
     /**
      * Sets Business Email.
      *
-     * The email of the location.
-     * This email is visible to the customers of the location.
-     * For example, the email appears on customer receipts.
+     * The email address of the location. This can be unique to the location, and is not always the email
+     * address for the business owner or admin.
      *
      * @maps business_email
      */
@@ -541,7 +557,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Description.
      *
-     * The description of the location.
+     * The description of the location. For example, `Main Street location`.
      */
     public function getDescription(): ?string
     {
@@ -551,7 +567,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Description.
      *
-     * The description of the location.
+     * The description of the location. For example, `Main Street location`.
      *
      * @maps description
      */
@@ -563,7 +579,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Twitter Username.
      *
-     * The Twitter username of the location without the '@' symbol.
+     * The Twitter username of the location without the '@' symbol. For example, `Square`.
      */
     public function getTwitterUsername(): ?string
     {
@@ -573,7 +589,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Twitter Username.
      *
-     * The Twitter username of the location without the '@' symbol.
+     * The Twitter username of the location without the '@' symbol. For example, `Square`.
      *
      * @maps twitter_username
      */
@@ -585,7 +601,7 @@ class Location implements \JsonSerializable
     /**
      * Returns Instagram Username.
      *
-     * The Instagram username of the location without the '@' symbol.
+     * The Instagram username of the location without the '@' symbol. For example, `square`.
      */
     public function getInstagramUsername(): ?string
     {
@@ -595,7 +611,7 @@ class Location implements \JsonSerializable
     /**
      * Sets Instagram Username.
      *
-     * The Instagram username of the location without the '@' symbol.
+     * The Instagram username of the location without the '@' symbol. For example, `square`.
      *
      * @maps instagram_username
      */
@@ -607,7 +623,8 @@ class Location implements \JsonSerializable
     /**
      * Returns Facebook Url.
      *
-     * The Facebook profile URL of the location. The URL should begin with 'facebook.com/'.
+     * The Facebook profile URL of the location. The URL should begin with 'facebook.com/'. For example,
+     * `https://www.facebook.com/square`.
      */
     public function getFacebookUrl(): ?string
     {
@@ -617,7 +634,8 @@ class Location implements \JsonSerializable
     /**
      * Sets Facebook Url.
      *
-     * The Facebook profile URL of the location. The URL should begin with 'facebook.com/'.
+     * The Facebook profile URL of the location. The URL should begin with 'facebook.com/'. For example,
+     * `https://www.facebook.com/square`.
      *
      * @maps facebook_url
      */
@@ -651,10 +669,11 @@ class Location implements \JsonSerializable
     /**
      * Returns Logo Url.
      *
-     * The URL of the logo image for the location. The Seller must choose this logo in the Seller
-     * dashboard (Receipts section) for the logo to appear on transactions (such as receipts, invoices)
-     * that Square generates on behalf of the Seller. This image should have an aspect ratio
-     * close to 1:1 and is recommended to be at least 200x200 pixels.
+     * The URL of the logo image for the location. When configured in the Seller
+     * dashboard (Receipts section), the logo appears on transactions (such as receipts and invoices)
+     * that Square generates on behalf of the Seller. This image should have a roughly square (1:1) aspect
+     * ratio
+     * and is recommended to be at least 200x200 pixels.
      */
     public function getLogoUrl(): ?string
     {
@@ -664,10 +683,11 @@ class Location implements \JsonSerializable
     /**
      * Sets Logo Url.
      *
-     * The URL of the logo image for the location. The Seller must choose this logo in the Seller
-     * dashboard (Receipts section) for the logo to appear on transactions (such as receipts, invoices)
-     * that Square generates on behalf of the Seller. This image should have an aspect ratio
-     * close to 1:1 and is recommended to be at least 200x200 pixels.
+     * The URL of the logo image for the location. When configured in the Seller
+     * dashboard (Receipts section), the logo appears on transactions (such as receipts and invoices)
+     * that Square generates on behalf of the Seller. This image should have a roughly square (1:1) aspect
+     * ratio
+     * and is recommended to be at least 200x200 pixels.
      *
      * @maps logo_url
      */
@@ -701,8 +721,10 @@ class Location implements \JsonSerializable
     /**
      * Returns Mcc.
      *
-     * The merchant category code (MCC) of the location, as standardized by ISO 18245.
-     * The MCC describes the kind of goods or services sold at the location.
+     * A four-digit number that describes the kind of goods or services sold at the location.
+     * The [merchant category code (MCC)](https://developer.squareup.com/docs/locations-api#initialize-a-
+     * merchant-category-code) of the location as standardized by ISO 18245.
+     * For example, `5045`, for a location that sells computer goods and software.
      */
     public function getMcc(): ?string
     {
@@ -712,8 +734,10 @@ class Location implements \JsonSerializable
     /**
      * Sets Mcc.
      *
-     * The merchant category code (MCC) of the location, as standardized by ISO 18245.
-     * The MCC describes the kind of goods or services sold at the location.
+     * A four-digit number that describes the kind of goods or services sold at the location.
+     * The [merchant category code (MCC)](https://developer.squareup.com/docs/locations-api#initialize-a-
+     * merchant-category-code) of the location as standardized by ISO 18245.
+     * For example, `5045`, for a location that sells computer goods and software.
      *
      * @maps mcc
      */
@@ -725,11 +749,9 @@ class Location implements \JsonSerializable
     /**
      * Returns Full Format Logo Url.
      *
-     * The URL of a full-format logo image for the location. The Seller must choose this logo in the
-     * Seller dashboard (Receipts section) for the logo to appear on transactions (such as receipts,
-     * invoices)
-     * that Square generates on behalf of the Seller. This image can have an aspect ratio of 2:1 or
-     * greater
+     * The URL of a full-format logo image for the location. When configured in the Seller
+     * dashboard (Receipts section), the logo appears on transactions (such as receipts and invoices)
+     * that Square generates on behalf of the Seller. This image can be wider than it is tall,
      * and is recommended to be at least 1280x648 pixels.
      */
     public function getFullFormatLogoUrl(): ?string
@@ -740,11 +762,9 @@ class Location implements \JsonSerializable
     /**
      * Sets Full Format Logo Url.
      *
-     * The URL of a full-format logo image for the location. The Seller must choose this logo in the
-     * Seller dashboard (Receipts section) for the logo to appear on transactions (such as receipts,
-     * invoices)
-     * that Square generates on behalf of the Seller. This image can have an aspect ratio of 2:1 or
-     * greater
+     * The URL of a full-format logo image for the location. When configured in the Seller
+     * dashboard (Receipts section), the logo appears on transactions (such as receipts and invoices)
+     * that Square generates on behalf of the Seller. This image can be wider than it is tall,
      * and is recommended to be at least 1280x648 pixels.
      *
      * @maps full_format_logo_url
@@ -755,42 +775,123 @@ class Location implements \JsonSerializable
     }
 
     /**
+     * Returns Tax Ids.
+     *
+     * Identifiers for the location used by various governments for tax purposes.
+     */
+    public function getTaxIds(): ?TaxIds
+    {
+        return $this->taxIds;
+    }
+
+    /**
+     * Sets Tax Ids.
+     *
+     * Identifiers for the location used by various governments for tax purposes.
+     *
+     * @maps tax_ids
+     */
+    public function setTaxIds(?TaxIds $taxIds): void
+    {
+        $this->taxIds = $taxIds;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                = $this->id;
-        $json['name']              = $this->name;
-        $json['address']           = $this->address;
-        $json['timezone']          = $this->timezone;
-        $json['capabilities']      = $this->capabilities;
-        $json['status']            = $this->status;
-        $json['created_at']        = $this->createdAt;
-        $json['merchant_id']       = $this->merchantId;
-        $json['country']           = $this->country;
-        $json['language_code']     = $this->languageCode;
-        $json['currency']          = $this->currency;
-        $json['phone_number']      = $this->phoneNumber;
-        $json['business_name']     = $this->businessName;
-        $json['type']              = $this->type;
-        $json['website_url']       = $this->websiteUrl;
-        $json['business_hours']    = $this->businessHours;
-        $json['business_email']    = $this->businessEmail;
-        $json['description']       = $this->description;
-        $json['twitter_username']  = $this->twitterUsername;
-        $json['instagram_username'] = $this->instagramUsername;
-        $json['facebook_url']      = $this->facebookUrl;
-        $json['coordinates']       = $this->coordinates;
-        $json['logo_url']          = $this->logoUrl;
-        $json['pos_background_url'] = $this->posBackgroundUrl;
-        $json['mcc']               = $this->mcc;
-        $json['full_format_logo_url'] = $this->fullFormatLogoUrl;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                   = $this->id;
+        }
+        if (isset($this->name)) {
+            $json['name']                 = $this->name;
+        }
+        if (isset($this->address)) {
+            $json['address']              = $this->address;
+        }
+        if (isset($this->timezone)) {
+            $json['timezone']             = $this->timezone;
+        }
+        if (isset($this->capabilities)) {
+            $json['capabilities']         = $this->capabilities;
+        }
+        if (isset($this->status)) {
+            $json['status']               = $this->status;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']           = $this->createdAt;
+        }
+        if (isset($this->merchantId)) {
+            $json['merchant_id']          = $this->merchantId;
+        }
+        if (isset($this->country)) {
+            $json['country']              = $this->country;
+        }
+        if (isset($this->languageCode)) {
+            $json['language_code']        = $this->languageCode;
+        }
+        if (isset($this->currency)) {
+            $json['currency']             = $this->currency;
+        }
+        if (isset($this->phoneNumber)) {
+            $json['phone_number']         = $this->phoneNumber;
+        }
+        if (isset($this->businessName)) {
+            $json['business_name']        = $this->businessName;
+        }
+        if (isset($this->type)) {
+            $json['type']                 = $this->type;
+        }
+        if (isset($this->websiteUrl)) {
+            $json['website_url']          = $this->websiteUrl;
+        }
+        if (isset($this->businessHours)) {
+            $json['business_hours']       = $this->businessHours;
+        }
+        if (isset($this->businessEmail)) {
+            $json['business_email']       = $this->businessEmail;
+        }
+        if (isset($this->description)) {
+            $json['description']          = $this->description;
+        }
+        if (isset($this->twitterUsername)) {
+            $json['twitter_username']     = $this->twitterUsername;
+        }
+        if (isset($this->instagramUsername)) {
+            $json['instagram_username']   = $this->instagramUsername;
+        }
+        if (isset($this->facebookUrl)) {
+            $json['facebook_url']         = $this->facebookUrl;
+        }
+        if (isset($this->coordinates)) {
+            $json['coordinates']          = $this->coordinates;
+        }
+        if (isset($this->logoUrl)) {
+            $json['logo_url']             = $this->logoUrl;
+        }
+        if (isset($this->posBackgroundUrl)) {
+            $json['pos_background_url']   = $this->posBackgroundUrl;
+        }
+        if (isset($this->mcc)) {
+            $json['mcc']                  = $this->mcc;
+        }
+        if (isset($this->fullFormatLogoUrl)) {
+            $json['full_format_logo_url'] = $this->fullFormatLogoUrl;
+        }
+        if (isset($this->taxIds)) {
+            $json['tax_ids']              = $this->taxIds;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

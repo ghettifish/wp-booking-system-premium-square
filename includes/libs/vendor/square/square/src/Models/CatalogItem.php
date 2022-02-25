@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * A [CatalogObject](#type-CatalogObject) instance of the `ITEM` type, also referred to as an item, in
+ * A [CatalogObject]($m/CatalogObject) instance of the `ITEM` type, also referred to as an item, in
  * the catalog.
  */
 class CatalogItem implements \JsonSerializable
@@ -79,6 +81,16 @@ class CatalogItem implements \JsonSerializable
      * @var CatalogItemOptionForItem[]|null
      */
     private $itemOptions;
+
+    /**
+     * @var string[]|null
+     */
+    private $imageIds;
+
+    /**
+     * @var string|null
+     */
+    private $sortName;
 
     /**
      * Returns Name.
@@ -331,7 +343,8 @@ class CatalogItem implements \JsonSerializable
     /**
      * Returns Variations.
      *
-     * A list of CatalogObjects containing the `CatalogItemVariation`s for this item.
+     * A list of [CatalogItemVariation]($m/CatalogItemVariation) objects for this item. An item must have
+     * at least one variation.
      *
      * @return CatalogObject[]|null
      */
@@ -343,7 +356,8 @@ class CatalogItem implements \JsonSerializable
     /**
      * Sets Variations.
      *
-     * A list of CatalogObjects containing the `CatalogItemVariation`s for this item.
+     * A list of [CatalogItemVariation]($m/CatalogItemVariation) objects for this item. An item must have
+     * at least one variation.
      *
      * @maps variations
      *
@@ -449,30 +463,126 @@ class CatalogItem implements \JsonSerializable
     }
 
     /**
+     * Returns Image Ids.
+     *
+     * The IDs of images associated with this `CatalogItem` instance.
+     * These images will be shown to customers in Square Online Store.
+     * The first image will show up as the icon for this item in POS.
+     *
+     * @return string[]|null
+     */
+    public function getImageIds(): ?array
+    {
+        return $this->imageIds;
+    }
+
+    /**
+     * Sets Image Ids.
+     *
+     * The IDs of images associated with this `CatalogItem` instance.
+     * These images will be shown to customers in Square Online Store.
+     * The first image will show up as the icon for this item in POS.
+     *
+     * @maps image_ids
+     *
+     * @param string[]|null $imageIds
+     */
+    public function setImageIds(?array $imageIds): void
+    {
+        $this->imageIds = $imageIds;
+    }
+
+    /**
+     * Returns Sort Name.
+     *
+     * A name to sort the item by. If this name is unspecified, namely, the `sort_name` field is absent,
+     * the regular `name` field is used for sorting.
+     *
+     * It is currently supported for sellers of the Japanese locale only.
+     */
+    public function getSortName(): ?string
+    {
+        return $this->sortName;
+    }
+
+    /**
+     * Sets Sort Name.
+     *
+     * A name to sort the item by. If this name is unspecified, namely, the `sort_name` field is absent,
+     * the regular `name` field is used for sorting.
+     *
+     * It is currently supported for sellers of the Japanese locale only.
+     *
+     * @maps sort_name
+     */
+    public function setSortName(?string $sortName): void
+    {
+        $this->sortName = $sortName;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']                    = $this->name;
-        $json['description']             = $this->description;
-        $json['abbreviation']            = $this->abbreviation;
-        $json['label_color']             = $this->labelColor;
-        $json['available_online']        = $this->availableOnline;
-        $json['available_for_pickup']    = $this->availableForPickup;
-        $json['available_electronically'] = $this->availableElectronically;
-        $json['category_id']             = $this->categoryId;
-        $json['tax_ids']                 = $this->taxIds;
-        $json['modifier_list_info']      = $this->modifierListInfo;
-        $json['variations']              = $this->variations;
-        $json['product_type']            = $this->productType;
-        $json['skip_modifier_screen']    = $this->skipModifierScreen;
-        $json['item_options']            = $this->itemOptions;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']                     = $this->name;
+        }
+        if (isset($this->description)) {
+            $json['description']              = $this->description;
+        }
+        if (isset($this->abbreviation)) {
+            $json['abbreviation']             = $this->abbreviation;
+        }
+        if (isset($this->labelColor)) {
+            $json['label_color']              = $this->labelColor;
+        }
+        if (isset($this->availableOnline)) {
+            $json['available_online']         = $this->availableOnline;
+        }
+        if (isset($this->availableForPickup)) {
+            $json['available_for_pickup']     = $this->availableForPickup;
+        }
+        if (isset($this->availableElectronically)) {
+            $json['available_electronically'] = $this->availableElectronically;
+        }
+        if (isset($this->categoryId)) {
+            $json['category_id']              = $this->categoryId;
+        }
+        if (isset($this->taxIds)) {
+            $json['tax_ids']                  = $this->taxIds;
+        }
+        if (isset($this->modifierListInfo)) {
+            $json['modifier_list_info']       = $this->modifierListInfo;
+        }
+        if (isset($this->variations)) {
+            $json['variations']               = $this->variations;
+        }
+        if (isset($this->productType)) {
+            $json['product_type']             = $this->productType;
+        }
+        if (isset($this->skipModifierScreen)) {
+            $json['skip_modifier_screen']     = $this->skipModifierScreen;
+        }
+        if (isset($this->itemOptions)) {
+            $json['item_options']             = $this->itemOptions;
+        }
+        if (isset($this->imageIds)) {
+            $json['image_ids']                = $this->imageIds;
+        }
+        if (isset($this->sortName)) {
+            $json['sort_name']                = $this->sortName;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

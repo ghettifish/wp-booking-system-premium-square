@@ -32,7 +32,7 @@ function listDeviceCodes(
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `cursor` | `?string` | Query, Optional | A pagination cursor returned by a previous call to this endpoint.<br>Provide this to retrieve the next set of results for your original query.<br><br>See [Paginating results](#paginatingresults) for more information. |
+| `cursor` | `?string` | Query, Optional | A pagination cursor returned by a previous call to this endpoint.<br>Provide this to retrieve the next set of results for your original query.<br><br>See [Paginating results](https://developer.squareup.com/docs/working-with-apis/pagination) for more information. |
 | `locationId` | `?string` | Query, Optional | If specified, only returns DeviceCodes of the specified location.<br>Returns DeviceCodes of all locations if empty. |
 | `productType` | [`?string (ProductType)`](/doc/models/product-type.md) | Query, Optional | If specified, only returns DeviceCodes targeting the specified product type.<br>Returns DeviceCodes of all product types if empty. |
 | `status` | [`?string (DeviceCodeStatus)`](/doc/models/device-code-status.md) | Query, Optional | If specified, returns DeviceCodes with the specified statuses.<br>Returns DeviceCodes of status `PAIRED` and `UNPAIRED` if empty. |
@@ -86,10 +86,7 @@ function createDeviceCode(CreateDeviceCodeRequest $body): ApiResponse
 
 ```php
 $body_idempotencyKey = '01bb00a6-0c86-4770-94ed-f5fca973cd56';
-$body_deviceCode_productType = 'TERMINAL_API';
-$body_deviceCode = new Models\DeviceCode(
-    $body_deviceCode_productType
-);
+$body_deviceCode = new Models\DeviceCode;
 $body_deviceCode->setId('id0');
 $body_deviceCode->setName('Counter 1');
 $body_deviceCode->setCode('code8');

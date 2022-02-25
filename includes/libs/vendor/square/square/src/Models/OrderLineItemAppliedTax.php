@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents an applied portion of a tax to a line item in an order.
  *
@@ -40,7 +42,7 @@ class OrderLineItemAppliedTax implements \JsonSerializable
     /**
      * Returns Uid.
      *
-     * Unique ID that identifies the applied tax only within this order.
+     * A unique ID that identifies the applied tax only within this order.
      */
     public function getUid(): ?string
     {
@@ -50,7 +52,7 @@ class OrderLineItemAppliedTax implements \JsonSerializable
     /**
      * Sets Uid.
      *
-     * Unique ID that identifies the applied tax only within this order.
+     * A unique ID that identifies the applied tax only within this order.
      *
      * @maps uid
      */
@@ -62,11 +64,11 @@ class OrderLineItemAppliedTax implements \JsonSerializable
     /**
      * Returns Tax Uid.
      *
-     * The `uid` of the tax for which this applied tax represents.  Must reference
+     * The `uid` of the tax for which this applied tax represents. It must reference
      * a tax present in the `order.taxes` field.
      *
-     * This field is immutable. To change which taxes apply to a line item, delete and add new
-     * `OrderLineItemAppliedTax`s.
+     * This field is immutable. To change which taxes apply to a line item, delete and add a new
+     * `OrderLineItemAppliedTax`.
      */
     public function getTaxUid(): string
     {
@@ -76,11 +78,11 @@ class OrderLineItemAppliedTax implements \JsonSerializable
     /**
      * Sets Tax Uid.
      *
-     * The `uid` of the tax for which this applied tax represents.  Must reference
+     * The `uid` of the tax for which this applied tax represents. It must reference
      * a tax present in the `order.taxes` field.
      *
-     * This field is immutable. To change which taxes apply to a line item, delete and add new
-     * `OrderLineItemAppliedTax`s.
+     * This field is immutable. To change which taxes apply to a line item, delete and add a new
+     * `OrderLineItemAppliedTax`.
      *
      * @required
      * @maps tax_uid
@@ -127,17 +129,25 @@ class OrderLineItemAppliedTax implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['uid']          = $this->uid;
-        $json['tax_uid']      = $this->taxUid;
-        $json['applied_money'] = $this->appliedMoney;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->uid)) {
+            $json['uid']           = $this->uid;
+        }
+        $json['tax_uid']           = $this->taxUid;
+        if (isset($this->appliedMoney)) {
+            $json['applied_money'] = $this->appliedMoney;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

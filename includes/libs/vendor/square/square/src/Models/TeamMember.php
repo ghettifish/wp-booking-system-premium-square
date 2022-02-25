@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A record representing an individual team member for a business.
  */
@@ -155,7 +157,7 @@ class TeamMember implements \JsonSerializable
     /**
      * Returns Given Name.
      *
-     * The given (i.e., first) name associated with the team member.
+     * The given name (that is, the first name) associated with the team member.
      */
     public function getGivenName(): ?string
     {
@@ -165,7 +167,7 @@ class TeamMember implements \JsonSerializable
     /**
      * Sets Given Name.
      *
-     * The given (i.e., first) name associated with the team member.
+     * The given name (that is, the first name) associated with the team member.
      *
      * @maps given_name
      */
@@ -177,7 +179,7 @@ class TeamMember implements \JsonSerializable
     /**
      * Returns Family Name.
      *
-     * The family (i.e., last) name associated with the team member.
+     * The family name (that is, the last name) associated with the team member.
      */
     public function getFamilyName(): ?string
     {
@@ -187,7 +189,7 @@ class TeamMember implements \JsonSerializable
     /**
      * Sets Family Name.
      *
-     * The family (i.e., last) name associated with the team member.
+     * The family name (that is, the last name) associated with the team member.
      *
      * @maps family_name
      */
@@ -221,7 +223,7 @@ class TeamMember implements \JsonSerializable
     /**
      * Returns Phone Number.
      *
-     * The team member's phone number in E.164 format. Examples:
+     * The team member's phone number, in E.164 format. For example:
      * +14155552671 - the country code is 1 for US
      * +551155256325 - the country code is 55 for BR
      */
@@ -233,7 +235,7 @@ class TeamMember implements \JsonSerializable
     /**
      * Sets Phone Number.
      *
-     * The team member's phone number in E.164 format. Examples:
+     * The team member's phone number, in E.164 format. For example:
      * +14155552671 - the country code is 1 for US
      * +551155256325 - the country code is 55 for BR
      *
@@ -247,8 +249,8 @@ class TeamMember implements \JsonSerializable
     /**
      * Returns Created At.
      *
-     * The timestamp in RFC 3339 format describing when the team member was created.
-     * Ex: "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z"
+     * The timestamp, in RFC 3339 format, describing when the team member was created.
+     * For example, "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z".
      */
     public function getCreatedAt(): ?string
     {
@@ -258,8 +260,8 @@ class TeamMember implements \JsonSerializable
     /**
      * Sets Created At.
      *
-     * The timestamp in RFC 3339 format describing when the team member was created.
-     * Ex: "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z"
+     * The timestamp, in RFC 3339 format, describing when the team member was created.
+     * For example, "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z".
      *
      * @maps created_at
      */
@@ -271,8 +273,8 @@ class TeamMember implements \JsonSerializable
     /**
      * Returns Updated At.
      *
-     * The timestamp in RFC 3339 format describing when the team member was last updated.
-     * Ex: "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z"
+     * The timestamp, in RFC 3339 format, describing when the team member was last updated.
+     * For example, "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z".
      */
     public function getUpdatedAt(): ?string
     {
@@ -282,8 +284,8 @@ class TeamMember implements \JsonSerializable
     /**
      * Sets Updated At.
      *
-     * The timestamp in RFC 3339 format describing when the team member was last updated.
-     * Ex: "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z"
+     * The timestamp, in RFC 3339 format, describing when the team member was last updated.
+     * For example, "2018-10-04T04:00:00-07:00" or "2019-02-05T12:00:00Z".
      *
      * @maps updated_at
      */
@@ -317,25 +319,51 @@ class TeamMember implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                = $this->id;
-        $json['reference_id']      = $this->referenceId;
-        $json['is_owner']          = $this->isOwner;
-        $json['status']            = $this->status;
-        $json['given_name']        = $this->givenName;
-        $json['family_name']       = $this->familyName;
-        $json['email_address']     = $this->emailAddress;
-        $json['phone_number']      = $this->phoneNumber;
-        $json['created_at']        = $this->createdAt;
-        $json['updated_at']        = $this->updatedAt;
-        $json['assigned_locations'] = $this->assignedLocations;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                 = $this->id;
+        }
+        if (isset($this->referenceId)) {
+            $json['reference_id']       = $this->referenceId;
+        }
+        if (isset($this->isOwner)) {
+            $json['is_owner']           = $this->isOwner;
+        }
+        if (isset($this->status)) {
+            $json['status']             = $this->status;
+        }
+        if (isset($this->givenName)) {
+            $json['given_name']         = $this->givenName;
+        }
+        if (isset($this->familyName)) {
+            $json['family_name']        = $this->familyName;
+        }
+        if (isset($this->emailAddress)) {
+            $json['email_address']      = $this->emailAddress;
+        }
+        if (isset($this->phoneNumber)) {
+            $json['phone_number']       = $this->phoneNumber;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']         = $this->createdAt;
+        }
+        if (isset($this->updatedAt)) {
+            $json['updated_at']         = $this->updatedAt;
+        }
+        if (isset($this->assignedLocations)) {
+            $json['assigned_locations'] = $this->assignedLocations;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

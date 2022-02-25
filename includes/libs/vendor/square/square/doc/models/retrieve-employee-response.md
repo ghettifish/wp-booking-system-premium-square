@@ -26,19 +26,19 @@
   "errors": [
     {
       "category": "AUTHENTICATION_ERROR",
-      "code": "VALUE_TOO_SHORT",
+      "code": "MISSING_PIN",
       "detail": "detail1",
       "field": "field9"
     },
     {
       "category": "INVALID_REQUEST_ERROR",
-      "code": "VALUE_TOO_LONG",
+      "code": "MISSING_ACCOUNT_TYPE",
       "detail": "detail2",
       "field": "field0"
     },
     {
       "category": "RATE_LIMIT_ERROR",
-      "code": "VALUE_TOO_LOW",
+      "code": "INVALID_POSTAL_CODE",
       "detail": "detail3",
       "field": "field1"
     }

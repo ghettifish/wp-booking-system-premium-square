@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class BatchChangeInventoryResponse implements \JsonSerializable
 {
     /**
@@ -15,6 +17,11 @@ class BatchChangeInventoryResponse implements \JsonSerializable
      * @var InventoryCount[]|null
      */
     private $counts;
+
+    /**
+     * @var InventoryChange[]|null
+     */
+    private $changes;
 
     /**
      * Returns Errors.
@@ -69,18 +76,55 @@ class BatchChangeInventoryResponse implements \JsonSerializable
     }
 
     /**
+     * Returns Changes.
+     *
+     * Changes created for the request.
+     *
+     * @return InventoryChange[]|null
+     */
+    public function getChanges(): ?array
+    {
+        return $this->changes;
+    }
+
+    /**
+     * Sets Changes.
+     *
+     * Changes created for the request.
+     *
+     * @maps changes
+     *
+     * @param InventoryChange[]|null $changes
+     */
+    public function setChanges(?array $changes): void
+    {
+        $this->changes = $changes;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors'] = $this->errors;
-        $json['counts'] = $this->counts;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']  = $this->errors;
+        }
+        if (isset($this->counts)) {
+            $json['counts']  = $this->counts;
+        }
+        if (isset($this->changes)) {
+            $json['changes'] = $this->changes;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * V1PaymentDiscount
  */
@@ -91,17 +93,27 @@ class V1PaymentDiscount implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']         = $this->name;
-        $json['applied_money'] = $this->appliedMoney;
-        $json['discount_id']  = $this->discountId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']          = $this->name;
+        }
+        if (isset($this->appliedMoney)) {
+            $json['applied_money'] = $this->appliedMoney;
+        }
+        if (isset($this->discountId)) {
+            $json['discount_id']   = $this->discountId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

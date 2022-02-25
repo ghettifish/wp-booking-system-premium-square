@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * The request does not have any required fields. When given no query criteria,
- * SearchOrders will return all results for all of the merchant’s locations. When fetching additional
- * pages using a `cursor`, the `query` must be equal to the `query` used to fetch the first page of
+ * `SearchOrders` returns all results for all of the seller's locations. When retrieving additional
+ * pages using a `cursor`, the `query` must be equal to the `query` used to retrieve the first page of
  * results.
  */
 class SearchOrdersRequest implements \JsonSerializable
@@ -43,7 +45,7 @@ class SearchOrdersRequest implements \JsonSerializable
      * The location IDs for the orders to query. All locations must belong to
      * the same merchant.
      *
-     * Min: 1 location IDs.
+     * Min: 1 location ID.
      *
      * Max: 10 location IDs.
      *
@@ -60,7 +62,7 @@ class SearchOrdersRequest implements \JsonSerializable
      * The location IDs for the orders to query. All locations must belong to
      * the same merchant.
      *
-     * Min: 1 location IDs.
+     * Min: 1 location ID.
      *
      * Max: 10 location IDs.
      *
@@ -77,8 +79,8 @@ class SearchOrdersRequest implements \JsonSerializable
      * Returns Cursor.
      *
      * A pagination cursor returned by a previous call to this endpoint.
-     * Provide this to retrieve the next set of results for your original query.
-     * See [Pagination](https://developer.squareup.com/docs/basics/api101/pagination) for more information.
+     * Provide this cursor to retrieve the next set of results for your original query.
+     * For more information, see [Pagination](https://developer.squareup.com/docs/basics/api101/pagination).
      */
     public function getCursor(): ?string
     {
@@ -89,8 +91,8 @@ class SearchOrdersRequest implements \JsonSerializable
      * Sets Cursor.
      *
      * A pagination cursor returned by a previous call to this endpoint.
-     * Provide this to retrieve the next set of results for your original query.
-     * See [Pagination](https://developer.squareup.com/docs/basics/api101/pagination) for more information.
+     * Provide this cursor to retrieve the next set of results for your original query.
+     * For more information, see [Pagination](https://developer.squareup.com/docs/basics/api101/pagination).
      *
      * @maps cursor
      */
@@ -124,7 +126,7 @@ class SearchOrdersRequest implements \JsonSerializable
     /**
      * Returns Limit.
      *
-     * Maximum number of results to be returned in a single page. It is
+     * The maximum number of results to be returned in a single page. It is
      * possible to receive fewer results than the specified limit on a given page.
      *
      * Default: `500`
@@ -137,7 +139,7 @@ class SearchOrdersRequest implements \JsonSerializable
     /**
      * Sets Limit.
      *
-     * Maximum number of results to be returned in a single page. It is
+     * The maximum number of results to be returned in a single page. It is
      * possible to receive fewer results than the specified limit on a given page.
      *
      * Default: `500`
@@ -152,9 +154,9 @@ class SearchOrdersRequest implements \JsonSerializable
     /**
      * Returns Return Entries.
      *
-     * Boolean that controls the format of the search results. If `true`,
-     * SearchOrders will return [`OrderEntry`](#type-orderentry) objects. If `false`, SearchOrders
-     * will return complete Order objects.
+     * A Boolean that controls the format of the search results. If `true`,
+     * `SearchOrders` returns [OrderEntry]($m/OrderEntry) objects. If `false`, `SearchOrders`
+     * returns complete order objects.
      *
      * Default: `false`.
      */
@@ -166,9 +168,9 @@ class SearchOrdersRequest implements \JsonSerializable
     /**
      * Sets Return Entries.
      *
-     * Boolean that controls the format of the search results. If `true`,
-     * SearchOrders will return [`OrderEntry`](#type-orderentry) objects. If `false`, SearchOrders
-     * will return complete Order objects.
+     * A Boolean that controls the format of the search results. If `true`,
+     * `SearchOrders` returns [OrderEntry]($m/OrderEntry) objects. If `false`, `SearchOrders`
+     * returns complete order objects.
      *
      * Default: `false`.
      *
@@ -182,19 +184,33 @@ class SearchOrdersRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['location_ids']  = $this->locationIds;
-        $json['cursor']        = $this->cursor;
-        $json['query']         = $this->query;
-        $json['limit']         = $this->limit;
-        $json['return_entries'] = $this->returnEntries;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->locationIds)) {
+            $json['location_ids']   = $this->locationIds;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']         = $this->cursor;
+        }
+        if (isset($this->query)) {
+            $json['query']          = $this->query;
+        }
+        if (isset($this->limit)) {
+            $json['limit']          = $this->limit;
+        }
+        if (isset($this->returnEntries)) {
+            $json['return_entries'] = $this->returnEntries;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

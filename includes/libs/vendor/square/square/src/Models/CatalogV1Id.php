@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A Square API V1 identifier of an item, including the object ID and its associated location ID.
  */
@@ -68,16 +70,24 @@ class CatalogV1Id implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['catalog_v1_id'] = $this->catalogV1Id;
-        $json['location_id'] = $this->locationId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->catalogV1Id)) {
+            $json['catalog_v1_id'] = $this->catalogV1Id;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']   = $this->locationId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
+/**
+ * Represents a Square loyalty program. Loyalty programs define how buyers can earn points and redeem
+ * points for rewards.
+ * Square sellers can have only one loyalty program, which is created and managed from the Seller
+ * Dashboard.
+ * For more information, see [Loyalty Program Overview](https://developer.squareup.
+ * com/docs/loyalty/overview).
+ */
 class LoyaltyProgram implements \JsonSerializable
 {
     /**
@@ -180,6 +190,8 @@ class LoyaltyProgram implements \JsonSerializable
 
     /**
      * Returns Terminology.
+     *
+     * Represents the naming used for loyalty points.
      */
     public function getTerminology(): LoyaltyProgramTerminology
     {
@@ -188,6 +200,8 @@ class LoyaltyProgram implements \JsonSerializable
 
     /**
      * Sets Terminology.
+     *
+     * Represents the naming used for loyalty points.
      *
      * @required
      * @maps terminology
@@ -200,7 +214,7 @@ class LoyaltyProgram implements \JsonSerializable
     /**
      * Returns Location Ids.
      *
-     * The [locations](#type-Location) at which the program is active.
+     * The [locations]($m/Location) at which the program is active.
      *
      * @return string[]
      */
@@ -212,7 +226,7 @@ class LoyaltyProgram implements \JsonSerializable
     /**
      * Sets Location Ids.
      *
-     * The [locations](#type-Location) at which the program is active.
+     * The [locations]($m/Location) at which the program is active.
      *
      * @required
      * @maps location_ids
@@ -300,23 +314,29 @@ class LoyaltyProgram implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']               = $this->id;
-        $json['status']           = $this->status;
-        $json['reward_tiers']     = $this->rewardTiers;
-        $json['expiration_policy'] = $this->expirationPolicy;
-        $json['terminology']      = $this->terminology;
-        $json['location_ids']     = $this->locationIds;
-        $json['created_at']       = $this->createdAt;
-        $json['updated_at']       = $this->updatedAt;
-        $json['accrual_rules']    = $this->accrualRules;
-
-        return array_filter($json, function ($val) {
+        $json['id']                    = $this->id;
+        $json['status']                = $this->status;
+        $json['reward_tiers']          = $this->rewardTiers;
+        if (isset($this->expirationPolicy)) {
+            $json['expiration_policy'] = $this->expirationPolicy;
+        }
+        $json['terminology']           = $this->terminology;
+        $json['location_ids']          = $this->locationIds;
+        $json['created_at']            = $this->createdAt;
+        $json['updated_at']            = $this->updatedAt;
+        $json['accrual_rules']         = $this->accrualRules;
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

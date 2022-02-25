@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class BatchRetrieveCatalogObjectsResponse implements \JsonSerializable
 {
     /**
@@ -50,7 +52,7 @@ class BatchRetrieveCatalogObjectsResponse implements \JsonSerializable
     /**
      * Returns Objects.
      *
-     * A list of [CatalogObject](#type-catalogobject)s returned.
+     * A list of [CatalogObject]($m/CatalogObject)s returned.
      *
      * @return CatalogObject[]|null
      */
@@ -62,7 +64,7 @@ class BatchRetrieveCatalogObjectsResponse implements \JsonSerializable
     /**
      * Sets Objects.
      *
-     * A list of [CatalogObject](#type-catalogobject)s returned.
+     * A list of [CatalogObject]($m/CatalogObject)s returned.
      *
      * @maps objects
      *
@@ -76,7 +78,7 @@ class BatchRetrieveCatalogObjectsResponse implements \JsonSerializable
     /**
      * Returns Related Objects.
      *
-     * A list of [CatalogObject](#type-catalogobject)s referenced by the object in the `objects` field.
+     * A list of [CatalogObject]($m/CatalogObject)s referenced by the object in the `objects` field.
      *
      * @return CatalogObject[]|null
      */
@@ -88,7 +90,7 @@ class BatchRetrieveCatalogObjectsResponse implements \JsonSerializable
     /**
      * Sets Related Objects.
      *
-     * A list of [CatalogObject](#type-catalogobject)s referenced by the object in the `objects` field.
+     * A list of [CatalogObject]($m/CatalogObject)s referenced by the object in the `objects` field.
      *
      * @maps related_objects
      *
@@ -102,17 +104,27 @@ class BatchRetrieveCatalogObjectsResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']         = $this->errors;
-        $json['objects']        = $this->objects;
-        $json['related_objects'] = $this->relatedObjects;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']          = $this->errors;
+        }
+        if (isset($this->objects)) {
+            $json['objects']         = $this->objects;
+        }
+        if (isset($this->relatedObjects)) {
+            $json['related_objects'] = $this->relatedObjects;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

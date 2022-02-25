@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * A request for a filtered set of `BreakType` objects
+ * A request for a filtered set of `BreakType` objects.
  */
 class ListBreakTypesRequest implements \JsonSerializable
 {
@@ -27,7 +29,7 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Returns Location Id.
      *
-     * Filter Break Types returned to only those that are associated with the
+     * Filter the returned `BreakType` results to only those that are associated with the
      * specified location.
      */
     public function getLocationId(): ?string
@@ -38,7 +40,7 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Sets Location Id.
      *
-     * Filter Break Types returned to only those that are associated with the
+     * Filter the returned `BreakType` results to only those that are associated with the
      * specified location.
      *
      * @maps location_id
@@ -51,8 +53,8 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Returns Limit.
      *
-     * Maximum number of Break Types to return per page. Can range between 1
-     * and 200. The default is the maximum at 200.
+     * The maximum number of `BreakType` results to return per page. The number can range between 1
+     * and 200. The default is 200.
      */
     public function getLimit(): ?int
     {
@@ -62,8 +64,8 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Sets Limit.
      *
-     * Maximum number of Break Types to return per page. Can range between 1
-     * and 200. The default is the maximum at 200.
+     * The maximum number of `BreakType` results to return per page. The number can range between 1
+     * and 200. The default is 200.
      *
      * @maps limit
      */
@@ -75,7 +77,7 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Returns Cursor.
      *
-     * Pointer to the next page of Break Type results to fetch.
+     * A pointer to the next page of `BreakType` results to fetch.
      */
     public function getCursor(): ?string
     {
@@ -85,7 +87,7 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Sets Cursor.
      *
-     * Pointer to the next page of Break Type results to fetch.
+     * A pointer to the next page of `BreakType` results to fetch.
      *
      * @maps cursor
      */
@@ -97,17 +99,27 @@ class ListBreakTypesRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['location_id'] = $this->locationId;
-        $json['limit']      = $this->limit;
-        $json['cursor']     = $this->cursor;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->locationId)) {
+            $json['location_id'] = $this->locationId;
+        }
+        if (isset($this->limit)) {
+            $json['limit']       = $this->limit;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']      = $this->cursor;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

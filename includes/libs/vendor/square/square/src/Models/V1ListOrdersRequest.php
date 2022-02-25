@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 class V1ListOrdersRequest implements \JsonSerializable
 {
     /**
@@ -92,17 +94,27 @@ class V1ListOrdersRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['order']      = $this->order;
-        $json['limit']      = $this->limit;
-        $json['batch_token'] = $this->batchToken;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->order)) {
+            $json['order']       = $this->order;
+        }
+        if (isset($this->limit)) {
+            $json['limit']       = $this->limit;
+        }
+        if (isset($this->batchToken)) {
+            $json['batch_token'] = $this->batchToken;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

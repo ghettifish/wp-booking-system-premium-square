@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A query composed of one or more different types of filters to narrow the scope of targeted objects
  * when calling the `SearchCatalogObjects` endpoint.
  *
  * Although a query can have multiple filters, only certain query types can be combined per call to
- * [SearchCatalogObjects](#endpoint-Catalog-SearchCatalogObjects).
+ * [SearchCatalogObjects]($e/Catalog/SearchCatalogObjects).
  * Any combination of the following types may be used together:
- * - [exact_query](#type-CatalogExactQuery)
- * - [prefix_query](#type-CatalogPrefixQuery)
- * - [range_query](#type-CatalogRangeQuery)
- * - [sorted_attribute_query](#type-CatalogSortedAttribute)
- * - [text_query](#type-CatalogTextQuery)
+ * - [exact_query]($m/CatalogQueryExact)
+ * - [prefix_query]($m/CatalogQueryPrefix)
+ * - [range_query]($m/CatalogQueryRange)
+ * - [sorted_attribute_query]($m/CatalogQuerySortedAttribute)
+ * - [text_query]($m/CatalogQueryText)
  * All other query types cannot be combined with any others.
  *
  * When a query filter is based on an attribute, the attribute must be searchable.
@@ -32,8 +34,8 @@ namespace Square\Models;
  * - `caption`: `CatalogImage`
  * - `display_name`: `CatalogItemOption`
  *
- * For example, to search for [CatalogItem](#type-CatalogItem) objects by searchable attributes, you
- * can use
+ * For example, to search for [CatalogItem]($m/CatalogItem) objects by searchable attributes, you can
+ * use
  * the `"name"`, `"description"`, or `"abbreviation"` attribute in an applicable query filter.
  */
 class CatalogQuery implements \JsonSerializable
@@ -324,24 +326,48 @@ class CatalogQuery implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['sorted_attribute_query']                 = $this->sortedAttributeQuery;
-        $json['exact_query']                            = $this->exactQuery;
-        $json['set_query']                              = $this->setQuery;
-        $json['prefix_query']                           = $this->prefixQuery;
-        $json['range_query']                            = $this->rangeQuery;
-        $json['text_query']                             = $this->textQuery;
-        $json['items_for_tax_query']                    = $this->itemsForTaxQuery;
-        $json['items_for_modifier_list_query']          = $this->itemsForModifierListQuery;
-        $json['items_for_item_options_query']           = $this->itemsForItemOptionsQuery;
-        $json['item_variations_for_item_option_values_query'] = $this->itemVariationsForItemOptionValuesQuery;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->sortedAttributeQuery)) {
+            $json['sorted_attribute_query']                       = $this->sortedAttributeQuery;
+        }
+        if (isset($this->exactQuery)) {
+            $json['exact_query']                                  = $this->exactQuery;
+        }
+        if (isset($this->setQuery)) {
+            $json['set_query']                                    = $this->setQuery;
+        }
+        if (isset($this->prefixQuery)) {
+            $json['prefix_query']                                 = $this->prefixQuery;
+        }
+        if (isset($this->rangeQuery)) {
+            $json['range_query']                                  = $this->rangeQuery;
+        }
+        if (isset($this->textQuery)) {
+            $json['text_query']                                   = $this->textQuery;
+        }
+        if (isset($this->itemsForTaxQuery)) {
+            $json['items_for_tax_query']                          = $this->itemsForTaxQuery;
+        }
+        if (isset($this->itemsForModifierListQuery)) {
+            $json['items_for_modifier_list_query']                = $this->itemsForModifierListQuery;
+        }
+        if (isset($this->itemsForItemOptionsQuery)) {
+            $json['items_for_item_options_query']                 = $this->itemsForItemOptionsQuery;
+        }
+        if (isset($this->itemVariationsForItemOptionValuesQuery)) {
+            $json['item_variations_for_item_option_values_query'] = $this->itemVariationsForItemOptionValuesQuery;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

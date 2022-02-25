@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A tax to block from applying to a line item. The tax must be
  * identified by either `tax_uid` or `tax_catalog_object_id`, but not both.
@@ -28,7 +30,7 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
     /**
      * Returns Uid.
      *
-     * Unique ID of the `BlockedTax` within the order.
+     * A unique ID of the `BlockedTax` within the order.
      */
     public function getUid(): ?string
     {
@@ -38,7 +40,7 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
     /**
      * Sets Uid.
      *
-     * Unique ID of the `BlockedTax` within the order.
+     * A unique ID of the `BlockedTax` within the order.
      *
      * @maps uid
      */
@@ -51,7 +53,7 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
      * Returns Tax Uid.
      *
      * The `uid` of the tax that should be blocked. Use this field to block
-     * ad-hoc taxes. For catalog taxes use the `tax_catalog_object_id` field.
+     * ad hoc taxes. For catalog, taxes use the `tax_catalog_object_id` field.
      */
     public function getTaxUid(): ?string
     {
@@ -62,7 +64,7 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
      * Sets Tax Uid.
      *
      * The `uid` of the tax that should be blocked. Use this field to block
-     * ad-hoc taxes. For catalog taxes use the `tax_catalog_object_id` field.
+     * ad hoc taxes. For catalog, taxes use the `tax_catalog_object_id` field.
      *
      * @maps tax_uid
      */
@@ -75,7 +77,7 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
      * Returns Tax Catalog Object Id.
      *
      * The `catalog_object_id` of the tax that should be blocked.
-     * Use this field to block catalog taxes. For ad-hoc taxes use the
+     * Use this field to block catalog taxes. For ad hoc taxes, use the
      * `tax_uid` field.
      */
     public function getTaxCatalogObjectId(): ?string
@@ -87,7 +89,7 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
      * Sets Tax Catalog Object Id.
      *
      * The `catalog_object_id` of the tax that should be blocked.
-     * Use this field to block catalog taxes. For ad-hoc taxes use the
+     * Use this field to block catalog taxes. For ad hoc taxes, use the
      * `tax_uid` field.
      *
      * @maps tax_catalog_object_id
@@ -100,17 +102,27 @@ class OrderLineItemPricingBlocklistsBlockedTax implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['uid']                = $this->uid;
-        $json['tax_uid']            = $this->taxUid;
-        $json['tax_catalog_object_id'] = $this->taxCatalogObjectId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->uid)) {
+            $json['uid']                   = $this->uid;
+        }
+        if (isset($this->taxUid)) {
+            $json['tax_uid']               = $this->taxUid;
+        }
+        if (isset($this->taxCatalogObjectId)) {
+            $json['tax_catalog_object_id'] = $this->taxCatalogObjectId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

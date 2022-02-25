@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents the transfer of a quantity of product inventory at a
  * particular time from one location to another.
@@ -69,6 +71,11 @@ class InventoryTransfer implements \JsonSerializable
      * @var string|null
      */
     private $employeeId;
+
+    /**
+     * @var string|null
+     */
+    private $teamMemberId;
 
     /**
      * Returns Id.
@@ -143,8 +150,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns From Location Id.
      *
-     * The Square ID of the [Location](#type-location) where the related
-     * quantity of items were tracked before the transfer.
+     * The Square-generated ID of the [Location]($m/Location) where the related
+     * quantity of items was tracked before the transfer.
      */
     public function getFromLocationId(): ?string
     {
@@ -154,8 +161,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets From Location Id.
      *
-     * The Square ID of the [Location](#type-location) where the related
-     * quantity of items were tracked before the transfer.
+     * The Square-generated ID of the [Location]($m/Location) where the related
+     * quantity of items was tracked before the transfer.
      *
      * @maps from_location_id
      */
@@ -167,8 +174,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns To Location Id.
      *
-     * The Square ID of the [Location](#type-location) where the related
-     * quantity of items were tracked after the transfer.
+     * The Square-generated ID of the [Location]($m/Location) where the related
+     * quantity of items was tracked after the transfer.
      */
     public function getToLocationId(): ?string
     {
@@ -178,8 +185,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets To Location Id.
      *
-     * The Square ID of the [Location](#type-location) where the related
-     * quantity of items were tracked after the transfer.
+     * The Square-generated ID of the [Location]($m/Location) where the related
+     * quantity of items was tracked after the transfer.
      *
      * @maps to_location_id
      */
@@ -191,8 +198,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns Catalog Object Id.
      *
-     * The Square generated ID of the
-     * `CatalogObject` being tracked.
+     * The Square-generated ID of the
+     * [CatalogObject]($m/CatalogObject) being tracked.
      */
     public function getCatalogObjectId(): ?string
     {
@@ -202,8 +209,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets Catalog Object Id.
      *
-     * The Square generated ID of the
-     * `CatalogObject` being tracked.
+     * The Square-generated ID of the
+     * [CatalogObject]($m/CatalogObject) being tracked.
      *
      * @maps catalog_object_id
      */
@@ -215,8 +222,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns Catalog Object Type.
      *
-     * The `CatalogObjectType` of the
-     * `CatalogObject` being tracked.Tracking is only
+     * The [type]($m/CatalogObjectType) of the
+     * [CatalogObject]($m/CatalogObject) being tracked.Tracking is only
      * supported for the `ITEM_VARIATION` type.
      */
     public function getCatalogObjectType(): ?string
@@ -227,8 +234,8 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets Catalog Object Type.
      *
-     * The `CatalogObjectType` of the
-     * `CatalogObject` being tracked.Tracking is only
+     * The [type]($m/CatalogObjectType) of the
+     * [CatalogObject]($m/CatalogObject) being tracked.Tracking is only
      * supported for the `ITEM_VARIATION` type.
      *
      * @maps catalog_object_type
@@ -265,7 +272,7 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns Occurred At.
      *
-     * A client-generated timestamp in RFC 3339 format that indicates when
+     * A client-generated RFC 3339-formatted timestamp that indicates when
      * the transfer took place. For write actions, the `occurred_at` timestamp
      * cannot be older than 24 hours or in the future relative to the time of the
      * request.
@@ -278,7 +285,7 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets Occurred At.
      *
-     * A client-generated timestamp in RFC 3339 format that indicates when
+     * A client-generated RFC 3339-formatted timestamp that indicates when
      * the transfer took place. For write actions, the `occurred_at` timestamp
      * cannot be older than 24 hours or in the future relative to the time of the
      * request.
@@ -293,7 +300,7 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns Created At.
      *
-     * A read-only timestamp in RFC 3339 format that indicates when Square
+     * An RFC 3339-formatted timestamp that indicates when Square
      * received the transfer request.
      */
     public function getCreatedAt(): ?string
@@ -304,7 +311,7 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets Created At.
      *
-     * A read-only timestamp in RFC 3339 format that indicates when Square
+     * An RFC 3339-formatted timestamp that indicates when Square
      * received the transfer request.
      *
      * @maps created_at
@@ -339,7 +346,7 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Returns Employee Id.
      *
-     * The Square ID of the [Employee](#type-employee) responsible for the
+     * The Square-generated ID of the [Employee]($m/Employee) responsible for the
      * inventory transfer.
      */
     public function getEmployeeId(): ?string
@@ -350,7 +357,7 @@ class InventoryTransfer implements \JsonSerializable
     /**
      * Sets Employee Id.
      *
-     * The Square ID of the [Employee](#type-employee) responsible for the
+     * The Square-generated ID of the [Employee]($m/Employee) responsible for the
      * inventory transfer.
      *
      * @maps employee_id
@@ -361,28 +368,83 @@ class InventoryTransfer implements \JsonSerializable
     }
 
     /**
+     * Returns Team Member Id.
+     *
+     * The Square-generated ID of the [Team Member]($m/TeamMember) responsible for the
+     * inventory transfer.
+     */
+    public function getTeamMemberId(): ?string
+    {
+        return $this->teamMemberId;
+    }
+
+    /**
+     * Sets Team Member Id.
+     *
+     * The Square-generated ID of the [Team Member]($m/TeamMember) responsible for the
+     * inventory transfer.
+     *
+     * @maps team_member_id
+     */
+    public function setTeamMemberId(?string $teamMemberId): void
+    {
+        $this->teamMemberId = $teamMemberId;
+    }
+
+    /**
      * Encode this object to JSON
+     *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
      *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']                = $this->id;
-        $json['reference_id']      = $this->referenceId;
-        $json['state']             = $this->state;
-        $json['from_location_id']  = $this->fromLocationId;
-        $json['to_location_id']    = $this->toLocationId;
-        $json['catalog_object_id'] = $this->catalogObjectId;
-        $json['catalog_object_type'] = $this->catalogObjectType;
-        $json['quantity']          = $this->quantity;
-        $json['occurred_at']       = $this->occurredAt;
-        $json['created_at']        = $this->createdAt;
-        $json['source']            = $this->source;
-        $json['employee_id']       = $this->employeeId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']                  = $this->id;
+        }
+        if (isset($this->referenceId)) {
+            $json['reference_id']        = $this->referenceId;
+        }
+        if (isset($this->state)) {
+            $json['state']               = $this->state;
+        }
+        if (isset($this->fromLocationId)) {
+            $json['from_location_id']    = $this->fromLocationId;
+        }
+        if (isset($this->toLocationId)) {
+            $json['to_location_id']      = $this->toLocationId;
+        }
+        if (isset($this->catalogObjectId)) {
+            $json['catalog_object_id']   = $this->catalogObjectId;
+        }
+        if (isset($this->catalogObjectType)) {
+            $json['catalog_object_type'] = $this->catalogObjectType;
+        }
+        if (isset($this->quantity)) {
+            $json['quantity']            = $this->quantity;
+        }
+        if (isset($this->occurredAt)) {
+            $json['occurred_at']         = $this->occurredAt;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']          = $this->createdAt;
+        }
+        if (isset($this->source)) {
+            $json['source']              = $this->source;
+        }
+        if (isset($this->employeeId)) {
+            $json['employee_id']         = $this->employeeId;
+        }
+        if (isset($this->teamMemberId)) {
+            $json['team_member_id']      = $this->teamMemberId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A mapping between a temporary client-supplied ID and a permanent server-generated ID.
  *
- * When calling [UpsertCatalogObject](#endpoint-Catalog-UpsertCatalogObject) or
- * [BatchUpsertCatalogObjects](#endpoint-Catalog-BatchUpsertCatalogObjects) to
- * create a [CatalogObject](#type-CatalogObject) instance, you can supply
+ * When calling [UpsertCatalogObject]($e/Catalog/UpsertCatalogObject) or
+ * [BatchUpsertCatalogObjects]($e/Catalog/BatchUpsertCatalogObjects) to
+ * create a [CatalogObject]($m/CatalogObject) instance, you can supply
  * a temporary ID for the to-be-created object, especially when the object is to be referenced
  * elsewhere in the same request body. This temporary ID can be any string unique within
  * the call, but must be prefixed by "#".
@@ -76,16 +78,24 @@ class CatalogIdMapping implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['client_object_id'] = $this->clientObjectId;
-        $json['object_id']      = $this->objectId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->clientObjectId)) {
+            $json['client_object_id'] = $this->clientObjectId;
+        }
+        if (isset($this->objectId)) {
+            $json['object_id']        = $this->objectId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a transaction processed with Square, either with the
  * Connect API or with Square Point of Sale.
@@ -184,7 +186,7 @@ class Transaction implements \JsonSerializable
     /**
      * Returns Reference Id.
      *
-     * If the transaction was created with the [Charge](#endpoint-charge)
+     * If the transaction was created with the [Charge]($e/Transactions/Charge)
      * endpoint, this value is the same as the value provided for the `reference_id`
      * parameter in the request to that endpoint. Otherwise, it is not set.
      */
@@ -196,7 +198,7 @@ class Transaction implements \JsonSerializable
     /**
      * Sets Reference Id.
      *
-     * If the transaction was created with the [Charge](#endpoint-charge)
+     * If the transaction was created with the [Charge]($e/Transactions/Charge)
      * endpoint, this value is the same as the value provided for the `reference_id`
      * parameter in the request to that endpoint. Otherwise, it is not set.
      *
@@ -272,7 +274,9 @@ class Transaction implements \JsonSerializable
     /**
      * Returns Shipping Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      */
     public function getShippingAddress(): ?Address
     {
@@ -282,7 +286,9 @@ class Transaction implements \JsonSerializable
     /**
      * Sets Shipping Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      *
      * @maps shipping_address
      */
@@ -316,24 +322,48 @@ class Transaction implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']              = $this->id;
-        $json['location_id']     = $this->locationId;
-        $json['created_at']      = $this->createdAt;
-        $json['tenders']         = $this->tenders;
-        $json['refunds']         = $this->refunds;
-        $json['reference_id']    = $this->referenceId;
-        $json['product']         = $this->product;
-        $json['client_id']       = $this->clientId;
-        $json['shipping_address'] = $this->shippingAddress;
-        $json['order_id']        = $this->orderId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->id)) {
+            $json['id']               = $this->id;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id']      = $this->locationId;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']       = $this->createdAt;
+        }
+        if (isset($this->tenders)) {
+            $json['tenders']          = $this->tenders;
+        }
+        if (isset($this->refunds)) {
+            $json['refunds']          = $this->refunds;
+        }
+        if (isset($this->referenceId)) {
+            $json['reference_id']     = $this->referenceId;
+        }
+        if (isset($this->product)) {
+            $json['product']          = $this->product;
+        }
+        if (isset($this->clientId)) {
+            $json['client_id']        = $this->clientId;
+        }
+        if (isset($this->shippingAddress)) {
+            $json['shipping_address'] = $this->shippingAddress;
+        }
+        if (isset($this->orderId)) {
+            $json['order_id']         = $this->orderId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

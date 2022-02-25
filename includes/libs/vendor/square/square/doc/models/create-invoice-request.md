@@ -20,6 +20,11 @@ Describes a `CreateInvoice` request.
 {
   "idempotency_key": "ce3748f9-5fc1-4762-aa12-aae5e843f1f4",
   "invoice": {
+    "accepted_payment_methods": {
+      "bank_account": false,
+      "card": true,
+      "square_gift_card": false
+    },
     "custom_fields": [
       {
         "label": "Event Reference Number",
@@ -54,6 +59,7 @@ Describes a `CreateInvoice` request.
     "primary_recipient": {
       "customer_id": "JDKYHBWT1D4F8MFH63DBMEN8Y4"
     },
+    "sale_or_service_date": "2030-01-24",
     "scheduled_at": "2030-01-13T10:00:00Z",
     "title": "Event Planning Services"
   }

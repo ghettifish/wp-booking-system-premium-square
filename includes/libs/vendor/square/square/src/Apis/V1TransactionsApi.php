@@ -17,21 +17,23 @@ use Unirest\Request;
 
 class V1TransactionsApi extends BaseApi
 {
-    public function __construct(ConfigurationInterface $config, ?HttpCallBack $httpCallBack = null)
+    public function __construct(ConfigurationInterface $config, array $authManagers, ?HttpCallBack $httpCallBack)
     {
-        parent::__construct($config, $httpCallBack);
+        parent::__construct($config, $authManagers, $httpCallBack);
     }
 
     /**
      * Provides summary information for a merchant's online store orders.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the location to list online store orders for.
      * @param string|null $order The order in which payments are listed in the response.
      * @param int|null $limit The maximum number of payments to return in a single response. This
-     *                        value cannot exceed 200.
+     *        value cannot exceed 200.
      * @param string|null $batchToken A pagination cursor to retrieve the next set of results for
-     *                                your
-     *                                original query to the endpoint.
+     *        your
+     *        original query to the endpoint.
      *
      * @return ApiResponse Response from the API call
      *
@@ -43,13 +45,15 @@ class V1TransactionsApi extends BaseApi
         ?int $limit = null,
         ?string $batchToken = null
     ): ApiResponse {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/orders';
 
         //process optional query parameters
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id' => $locationId,
-            ]);
+        ]);
 
         //process optional query parameters
         ApiHelper::appendUrlWithQueryParameters($_queryBuilder, [
@@ -63,28 +67,29 @@ class V1TransactionsApi extends BaseApi
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -106,9 +111,11 @@ class V1TransactionsApi extends BaseApi
     /**
      * Provides comprehensive information for a single online store order, including the order's history.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the order's associated location.
-     * @param string $orderId The order's Square-issued ID. You obtain this value from Order
-     *                        objects returned by the List Orders endpoint
+     * @param string $orderId The order's Square-issued ID. You obtain this value from Order objects
+     *        returned by the List Orders endpoint
      *
      * @return ApiResponse Response from the API call
      *
@@ -116,6 +123,8 @@ class V1TransactionsApi extends BaseApi
      */
     public function retrieveOrder(string $locationId, string $orderId): ApiResponse
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/orders/{order_id}';
 
@@ -123,35 +132,36 @@ class V1TransactionsApi extends BaseApi
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id' => $locationId,
             'order_id'    => $orderId,
-            ]);
+        ]);
 
         //validate and preprocess url
         $_queryUrl = ApiHelper::cleanUrl($this->config->getBaseUri() . $_queryBuilder);
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -174,14 +184,15 @@ class V1TransactionsApi extends BaseApi
      * Updates the details of an online store order. Every update you perform on an order corresponds to
      * one of three actions:
      *
-     * @param string $locationId The ID of the order's associated location.
-     * @param string $orderId The order's Square-issued ID. You obtain this value from Order
-     *                        objects returned by the List Orders endpoint
-     * @param \Square\Models\V1UpdateOrderRequest $body An object containing the fields to POST
-     *                                                  for the request.
+     * @deprecated
      *
-     *                                                  See the corresponding object definition
-     *                                                  for field details.
+     * @param string $locationId The ID of the order's associated location.
+     * @param string $orderId The order's Square-issued ID. You obtain this value from Order objects
+     *        returned by the List Orders endpoint
+     * @param \Square\Models\V1UpdateOrderRequest $body An object containing the fields to POST for
+     *        the request.
+     *
+     *        See the corresponding object definition for field details.
      *
      * @return ApiResponse Response from the API call
      *
@@ -192,46 +203,49 @@ class V1TransactionsApi extends BaseApi
         string $orderId,
         \Square\Models\V1UpdateOrderRequest $body
     ): ApiResponse {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/orders/{order_id}';
 
         //process optional query parameters
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
-            'location_id' => $locationId,
-            'order_id'    => $orderId,
-            ]);
+            'location_id'  => $locationId,
+            'order_id'     => $orderId,
+        ]);
 
         //validate and preprocess url
         $_queryUrl = ApiHelper::cleanUrl($this->config->getBaseUri() . $_queryBuilder);
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'content-type'  => 'application/json',
             'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Content-Type'    => 'application/json'
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         //json encode body
-        $_bodyJson = Request\Body::Json($body);
+        $_bodyJson = ApiHelper::serialize($body);
 
         $_httpRequest = new HttpRequest(HttpMethod::PUT, $_headers, $_queryUrl);
+
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
 
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::put($_queryUrl, $_headers, $_bodyJson);
+            $response = Request::put($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders(), $_bodyJson);
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -263,26 +277,25 @@ class V1TransactionsApi extends BaseApi
      * list an offline payment chronologically between online payments that
      * were seen in a previous request.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the location to list payments for. If you specify me,
-     *                           this endpoint returns payments aggregated from all of the
-     *                           business's locations.
+     *        this endpoint returns payments aggregated from all of the business's locations.
      * @param string|null $order The order in which payments are listed in the response.
      * @param string|null $beginTime The beginning of the requested reporting period, in ISO 8601
-     *                               format. If this value is before January 1, 2013 (2013-01-
-     *                               01T00:00:00Z), this endpoint returns an error. Default value:
-     *                               The current time minus one year.
-     * @param string|null $endTime The end of the requested reporting period, in ISO 8601 format.
-     *                             If this value is more than one year greater than begin_time,
-     *                             this endpoint returns an error. Default value: The current time.
+     *        format. If this value is before January 1, 2013 (2013-01-01T00:00:00Z), this
+     *        endpoint returns an error. Default value: The current time minus one year.
+     * @param string|null $endTime The end of the requested reporting period, in ISO 8601 format. If
+     *        this value is more than one year greater than begin_time, this endpoint returns an
+     *        error. Default value: The current time.
      * @param int|null $limit The maximum number of payments to return in a single response. This
-     *                        value cannot exceed 200.
+     *        value cannot exceed 200.
      * @param string|null $batchToken A pagination cursor to retrieve the next set of results for
-     *                                your
-     *                                original query to the endpoint.
-     * @param bool|null $includePartial Indicates whether or not to include partial payments in
-     *                                  the response. Partial payments will have the tenders
-     *                                  collected so far, but the itemizations will be empty until
-     *                                  the payment is completed.
+     *        your
+     *        original query to the endpoint.
+     * @param bool|null $includePartial Indicates whether or not to include partial payments in the
+     *        response. Partial payments will have the tenders collected so far, but the
+     *        itemizations will be empty until the payment is completed.
      *
      * @return ApiResponse Response from the API call
      *
@@ -297,13 +310,15 @@ class V1TransactionsApi extends BaseApi
         ?string $batchToken = null,
         ?bool $includePartial = false
     ): ApiResponse {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/payments';
 
         //process optional query parameters
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id'     => $locationId,
-            ]);
+        ]);
 
         //process optional query parameters
         ApiHelper::appendUrlWithQueryParameters($_queryBuilder, [
@@ -312,7 +327,8 @@ class V1TransactionsApi extends BaseApi
             'end_time'        => $endTime,
             'limit'           => $limit,
             'batch_token'     => $batchToken,
-            'include_partial' => (null != $includePartial) ? var_export($includePartial, true) : false,
+            'include_partial' => (null != $includePartial) ?
+                var_export($includePartial, true) : false,
         ]);
 
         //validate and preprocess url
@@ -320,28 +336,29 @@ class V1TransactionsApi extends BaseApi
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -363,11 +380,12 @@ class V1TransactionsApi extends BaseApi
     /**
      * Provides comprehensive information for a single payment.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the payment's associated location.
-     * @param string $paymentId The Square-issued payment ID. payment_id comes from Payment
-     *                          objects returned by the List Payments endpoint, Settlement objects
-     *                          returned by the List Settlements endpoint, or Refund objects
-     *                          returned by the List Refunds endpoint.
+     * @param string $paymentId The Square-issued payment ID. payment_id comes from Payment objects
+     *        returned by the List Payments endpoint, Settlement objects returned by the List
+     *        Settlements endpoint, or Refund objects returned by the List Refunds endpoint.
      *
      * @return ApiResponse Response from the API call
      *
@@ -375,6 +393,8 @@ class V1TransactionsApi extends BaseApi
      */
     public function retrievePayment(string $locationId, string $paymentId): ApiResponse
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/payments/{payment_id}';
 
@@ -382,35 +402,36 @@ class V1TransactionsApi extends BaseApi
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id' => $locationId,
             'payment_id'  => $paymentId,
-            ]);
+        ]);
 
         //validate and preprocess url
         $_queryUrl = ApiHelper::cleanUrl($this->config->getBaseUri() . $_queryBuilder);
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -433,23 +454,23 @@ class V1TransactionsApi extends BaseApi
      * Provides the details for all refunds initiated by a merchant or any of the merchant's mobile staff
      * during a date range. Date ranges cannot exceed one year in length.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the location to list refunds for.
      * @param string|null $order The order in which payments are listed in the response.
      * @param string|null $beginTime The beginning of the requested reporting period, in ISO 8601
-     *                               format. If this value is before January 1, 2013 (2013-01-
-     *                               01T00:00:00Z), this endpoint returns an error. Default value:
-     *                               The current time minus one year.
-     * @param string|null $endTime The end of the requested reporting period, in ISO 8601 format.
-     *                             If this value is more than one year greater than begin_time,
-     *                             this endpoint returns an error. Default value: The current time.
+     *        format. If this value is before January 1, 2013 (2013-01-01T00:00:00Z), this
+     *        endpoint returns an error. Default value: The current time minus one year.
+     * @param string|null $endTime The end of the requested reporting period, in ISO 8601 format. If
+     *        this value is more than one year greater than begin_time, this endpoint returns an
+     *        error. Default value: The current time.
      * @param int|null $limit The approximate number of refunds to return in a single response.
-     *                        Default: 100. Max: 200. Response may contain more results than the
-     *                        prescribed limit when refunds are made simultaneously to multiple
-     *                        tenders in a payment or when refunds are generated in an exchange to
-     *                        account for the value of returned goods.
+     *        Default: 100. Max: 200. Response may contain more results than the prescribed limit
+     *        when refunds are made simultaneously to multiple tenders in a payment or when
+     *        refunds are generated in an exchange to account for the value of returned goods.
      * @param string|null $batchToken A pagination cursor to retrieve the next set of results for
-     *                                your
-     *                                original query to the endpoint.
+     *        your
+     *        original query to the endpoint.
      *
      * @return ApiResponse Response from the API call
      *
@@ -463,13 +484,15 @@ class V1TransactionsApi extends BaseApi
         ?int $limit = null,
         ?string $batchToken = null
     ): ApiResponse {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/refunds';
 
         //process optional query parameters
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id' => $locationId,
-            ]);
+        ]);
 
         //process optional query parameters
         ApiHelper::appendUrlWithQueryParameters($_queryBuilder, [
@@ -485,28 +508,29 @@ class V1TransactionsApi extends BaseApi
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -539,12 +563,13 @@ class V1TransactionsApi extends BaseApi
      * purposes, you can create fake cash payments in Square Point of Sale and
      * refund them.
      *
-     * @param string $locationId The ID of the original payment's associated location.
-     * @param \Square\Models\V1CreateRefundRequest $body An object containing the fields to POST
-     *                                                   for the request.
+     * @deprecated
      *
-     *                                                   See the corresponding object definition
-     *                                                   for field details.
+     * @param string $locationId The ID of the original payment's associated location.
+     * @param \Square\Models\V1CreateRefundRequest $body An object containing the fields to POST for
+     *        the request.
+     *
+     *        See the corresponding object definition for field details.
      *
      * @return ApiResponse Response from the API call
      *
@@ -552,45 +577,48 @@ class V1TransactionsApi extends BaseApi
      */
     public function createRefund(string $locationId, \Square\Models\V1CreateRefundRequest $body): ApiResponse
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/refunds';
 
         //process optional query parameters
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
-            'location_id' => $locationId,
-            ]);
+            'location_id'  => $locationId,
+        ]);
 
         //validate and preprocess url
         $_queryUrl = ApiHelper::cleanUrl($this->config->getBaseUri() . $_queryBuilder);
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'content-type'  => 'application/json',
             'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Content-Type'    => 'application/json'
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         //json encode body
-        $_bodyJson = Request\Body::Json($body);
+        $_bodyJson = ApiHelper::serialize($body);
 
         $_httpRequest = new HttpRequest(HttpMethod::POST, $_headers, $_queryUrl);
+
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
 
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::post($_queryUrl, $_headers, $_bodyJson);
+            $response = Request::post($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders(), $_bodyJson);
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -617,24 +645,24 @@ class V1TransactionsApi extends BaseApi
      * *Note**: the ListSettlements endpoint does not provide entry
      * information.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the location to list settlements for. If you specify me,
-     *                           this endpoint returns settlements aggregated from all of the
-     *                           business's locations.
+     *        this endpoint returns settlements aggregated from all of the business's locations.
      * @param string|null $order The order in which settlements are listed in the response.
      * @param string|null $beginTime The beginning of the requested reporting period, in ISO 8601
-     *                               format. If this value is before January 1, 2013 (2013-01-
-     *                               01T00:00:00Z), this endpoint returns an error. Default value:
-     *                               The current time minus one year.
-     * @param string|null $endTime The end of the requested reporting period, in ISO 8601 format.
-     *                             If this value is more than one year greater than begin_time,
-     *                             this endpoint returns an error. Default value: The current time.
-     * @param int|null $limit The maximum number of settlements to return in a single response.
-     *                        This value cannot exceed 200.
+     *        format. If this value is before January 1, 2013 (2013-01-01T00:00:00Z), this
+     *        endpoint returns an error. Default value: The current time minus one year.
+     * @param string|null $endTime The end of the requested reporting period, in ISO 8601 format. If
+     *        this value is more than one year greater than begin_time, this endpoint returns an
+     *        error. Default value: The current time.
+     * @param int|null $limit The maximum number of settlements to return in a single response. This
+     *        value cannot exceed 200.
      * @param string|null $status Provide this parameter to retrieve only settlements with a
-     *                            particular status (SENT or FAILED).
+     *        particular status (SENT or FAILED).
      * @param string|null $batchToken A pagination cursor to retrieve the next set of results for
-     *                                your
-     *                                original query to the endpoint.
+     *        your
+     *        original query to the endpoint.
      *
      * @return ApiResponse Response from the API call
      *
@@ -649,13 +677,15 @@ class V1TransactionsApi extends BaseApi
         ?string $status = null,
         ?string $batchToken = null
     ): ApiResponse {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/settlements';
 
         //process optional query parameters
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id' => $locationId,
-            ]);
+        ]);
 
         //process optional query parameters
         ApiHelper::appendUrlWithQueryParameters($_queryBuilder, [
@@ -672,28 +702,29 @@ class V1TransactionsApi extends BaseApi
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);
@@ -731,9 +762,11 @@ class V1TransactionsApi extends BaseApi
      * a bank account within 3 business days, but in exceptional cases it may
      * take longer.
      *
+     * @deprecated
+     *
      * @param string $locationId The ID of the settlements's associated location.
      * @param string $settlementId The settlement's Square-issued ID. You obtain this value from
-     *                             Settlement objects returned by the List Settlements endpoint.
+     *        Settlement objects returned by the List Settlements endpoint.
      *
      * @return ApiResponse Response from the API call
      *
@@ -741,6 +774,8 @@ class V1TransactionsApi extends BaseApi
      */
     public function retrieveSettlement(string $locationId, string $settlementId): ApiResponse
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated.', E_USER_DEPRECATED);
+
         //prepare query string for API call
         $_queryBuilder = '/v1/{location_id}/settlements/{settlement_id}';
 
@@ -748,35 +783,36 @@ class V1TransactionsApi extends BaseApi
         $_queryBuilder = ApiHelper::appendUrlWithTemplateParameters($_queryBuilder, [
             'location_id'   => $locationId,
             'settlement_id' => $settlementId,
-            ]);
+        ]);
 
         //validate and preprocess url
         $_queryUrl = ApiHelper::cleanUrl($this->config->getBaseUri() . $_queryBuilder);
 
         //prepare headers
         $_headers = [
-            'user-agent'    => BaseApi::USER_AGENT,
+            'user-agent'    => $this->internalUserAgent,
             'Accept'        => 'application/json',
-            'Square-Version' => $this->config->getSquareVersion(),
-            'Authorization' => sprintf('Bearer %1$s', $this->config->getAccessToken())
+            'Square-Version' => $this->config->getSquareVersion()
         ];
         $_headers = ApiHelper::mergeHeaders($_headers, $this->config->getAdditionalHeaders());
 
         $_httpRequest = new HttpRequest(HttpMethod::GET, $_headers, $_queryUrl);
 
+        // Apply authorization to request
+        $this->getAuthManager('global')->apply($_httpRequest);
+
         //call on-before Http callback
         if ($this->getHttpCallBack() != null) {
             $this->getHttpCallBack()->callOnBeforeRequest($_httpRequest);
         }
-        // Set request timeout
-        Request::timeout($this->config->getTimeout());
 
         // and invoke the API call request to fetch the response
         try {
-            $response = Request::get($_queryUrl, $_headers);
+            $response = Request::get($_httpRequest->getQueryUrl(), $_httpRequest->getHeaders());
         } catch (\Unirest\Exception $ex) {
             throw new ApiException($ex->getMessage(), $_httpRequest);
         }
+
 
         $_httpResponse = new HttpResponse($response->code, $response->headers, $response->raw_body);
         $_httpContext = new HttpContext($_httpRequest, $_httpResponse);

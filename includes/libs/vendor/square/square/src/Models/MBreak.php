@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A record of an employee's break during a shift.
  */
@@ -68,7 +70,7 @@ class MBreak implements \JsonSerializable
     /**
      * Returns Id.
      *
-     * UUID for this object
+     * The UUID for this object.
      */
     public function getId(): ?string
     {
@@ -78,7 +80,7 @@ class MBreak implements \JsonSerializable
     /**
      * Sets Id.
      *
-     * UUID for this object
+     * The UUID for this object.
      *
      * @maps id
      */
@@ -90,7 +92,7 @@ class MBreak implements \JsonSerializable
     /**
      * Returns Start At.
      *
-     * RFC 3339; follows same timezone info as `Shift`. Precision up to
+     * RFC 3339; follows the same timezone information as `Shift`. Precision up to
      * the minute is respected; seconds are truncated.
      */
     public function getStartAt(): string
@@ -101,7 +103,7 @@ class MBreak implements \JsonSerializable
     /**
      * Sets Start At.
      *
-     * RFC 3339; follows same timezone info as `Shift`. Precision up to
+     * RFC 3339; follows the same timezone information as `Shift`. Precision up to
      * the minute is respected; seconds are truncated.
      *
      * @required
@@ -115,7 +117,7 @@ class MBreak implements \JsonSerializable
     /**
      * Returns End At.
      *
-     * RFC 3339; follows same timezone info as `Shift`. Precision up to
+     * RFC 3339; follows the same timezone information as `Shift`. Precision up to
      * the minute is respected; seconds are truncated.
      */
     public function getEndAt(): ?string
@@ -126,7 +128,7 @@ class MBreak implements \JsonSerializable
     /**
      * Sets End At.
      *
-     * RFC 3339; follows same timezone info as `Shift`. Precision up to
+     * RFC 3339; follows the same timezone information as `Shift`. Precision up to
      * the minute is respected; seconds are truncated.
      *
      * @maps end_at
@@ -139,7 +141,7 @@ class MBreak implements \JsonSerializable
     /**
      * Returns Break Type Id.
      *
-     * The `BreakType` this `Break` was templated on.
+     * The `BreakType` that this `Break` was templated on.
      */
     public function getBreakTypeId(): string
     {
@@ -149,7 +151,7 @@ class MBreak implements \JsonSerializable
     /**
      * Sets Break Type Id.
      *
-     * The `BreakType` this `Break` was templated on.
+     * The `BreakType` that this `Break` was templated on.
      *
      * @required
      * @maps break_type_id
@@ -235,21 +237,29 @@ class MBreak implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['id']               = $this->id;
-        $json['start_at']         = $this->startAt;
-        $json['end_at']           = $this->endAt;
-        $json['break_type_id']    = $this->breakTypeId;
-        $json['name']             = $this->name;
+        if (isset($this->id)) {
+            $json['id']            = $this->id;
+        }
+        $json['start_at']          = $this->startAt;
+        if (isset($this->endAt)) {
+            $json['end_at']        = $this->endAt;
+        }
+        $json['break_type_id']     = $this->breakTypeId;
+        $json['name']              = $this->name;
         $json['expected_duration'] = $this->expectedDuration;
-        $json['is_paid']          = $this->isPaid;
-
-        return array_filter($json, function ($val) {
+        $json['is_paid']           = $this->isPaid;
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

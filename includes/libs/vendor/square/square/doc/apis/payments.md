@@ -23,6 +23,9 @@ $paymentsApi = $client->getPaymentsApi();
 
 Retrieves a list of payments taken by the account making the request.
 
+Results are eventually consistent, and new payments or changes to payments might take several
+seconds to appear.
+
 The maximum results per page is 100.
 
 ```php
@@ -90,7 +93,7 @@ Creates a payment using the provided source. You can use this endpoint
 to charge a card (credit/debit card or  
 Square gift card) or record a payment that the seller received outside of Square
 (cash payment from a buyer or a payment that an external entity
-procesed on behalf of the seller).
+processed on behalf of the seller).
 
 The endpoint creates a
 `Payment` object and returns it in the response.
@@ -112,10 +115,10 @@ function createPayment(CreatePaymentRequest $body): ApiResponse
 ## Example Usage
 
 ```php
-$body_sourceId = 'ccof:uIbfJXhXETSP197M3GB';
-$body_idempotencyKey = '4935a656-a929-4792-b97c-8848be85c27c';
+$body_sourceId = 'ccof:GaJGNaZa8x4OgDJn4GB';
+$body_idempotencyKey = '7b0f3ec5-086a-4871-8f13-3c81b3875218';
 $body_amountMoney = new Models\Money;
-$body_amountMoney->setAmount(200);
+$body_amountMoney->setAmount(1000);
 $body_amountMoney->setCurrency(Models\Currency::USD);
 $body = new Models\CreatePaymentRequest(
     $body_sourceId,
@@ -131,8 +134,8 @@ $body->getAppFeeMoney()->setCurrency(Models\Currency::USD);
 $body->setDelayDuration('delay_duration6');
 $body->setAutocomplete(true);
 $body->setOrderId('order_id0');
-$body->setCustomerId('VDKXEEKPJN48QDG3BGGFAK05P8');
-$body->setLocationId('XK3DBG77NJBFX');
+$body->setCustomerId('W92WH6P11H4Z77CTET0RNTGFW8');
+$body->setLocationId('L88917AVBK2S5');
 $body->setReferenceId('123456');
 $body->setNote('Brief description');
 
@@ -261,7 +264,7 @@ function updatePayment(string $paymentId, UpdatePaymentRequest $body): ApiRespon
 
 ```php
 $paymentId = 'payment_id0';
-$body_idempotencyKey = '3d3c3b22-9572-4fc6-1111-e4d2f41b4122';
+$body_idempotencyKey = '956f8b13-e4ec-45d6-85e8-d1d95ef0c5de';
 $body = new Models\UpdatePaymentRequest(
     $body_idempotencyKey
 );
@@ -273,9 +276,9 @@ $body->getPayment()->setAmountMoney(new Models\Money);
 $body->getPayment()->getAmountMoney()->setAmount(1000);
 $body->getPayment()->getAmountMoney()->setCurrency(Models\Currency::USD);
 $body->getPayment()->setTipMoney(new Models\Money);
-$body->getPayment()->getTipMoney()->setAmount(300);
+$body->getPayment()->getTipMoney()->setAmount(100);
 $body->getPayment()->getTipMoney()->setCurrency(Models\Currency::USD);
-$body->getPayment()->setVersionToken('Z3okDzm2VRv5m5nE3WGx381ItTNhvjkB4VapByyz54h6o');
+$body->getPayment()->setVersionToken('ODhwVQ35xwlzRuoZEwKXucfu7583sPTzK48c5zoGd0g6o');
 
 $apiResponse = $paymentsApi->updatePayment($paymentId, $body);
 
@@ -337,7 +340,7 @@ By default, payments are set to complete immediately after they are created.
 You can use this endpoint to complete a payment with the APPROVED `status`.
 
 ```php
-function completePayment(string $paymentId): ApiResponse
+function completePayment(string $paymentId, CompletePaymentRequest $body): ApiResponse
 ```
 
 ## Parameters
@@ -345,6 +348,7 @@ function completePayment(string $paymentId): ApiResponse
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `paymentId` | `string` | Template, Required | The unique ID identifying the payment to be completed. |
+| `body` | [`CompletePaymentRequest`](/doc/models/complete-payment-request.md) | Body, Required | An object containing the fields to POST for the request.<br><br>See the corresponding object definition for field details. |
 
 ## Response Type
 
@@ -354,8 +358,10 @@ function completePayment(string $paymentId): ApiResponse
 
 ```php
 $paymentId = 'payment_id0';
+$body = new Models\CompletePaymentRequest;
+$body->setVersionToken('version_token2');
 
-$apiResponse = $paymentsApi->completePayment($paymentId);
+$apiResponse = $paymentsApi->completePayment($paymentId, $body);
 
 if ($apiResponse->isSuccess()) {
     $completePaymentResponse = $apiResponse->getResult();

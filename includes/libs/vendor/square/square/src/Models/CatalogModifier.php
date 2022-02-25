@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * A modifier applicable to items at the time of sale.
  */
@@ -134,18 +136,30 @@ class CatalogModifier implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']           = $this->name;
-        $json['price_money']    = $this->priceMoney;
-        $json['ordinal']        = $this->ordinal;
-        $json['modifier_list_id'] = $this->modifierListId;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']             = $this->name;
+        }
+        if (isset($this->priceMoney)) {
+            $json['price_money']      = $this->priceMoney;
+        }
+        if (isset($this->ordinal)) {
+            $json['ordinal']          = $this->ordinal;
+        }
+        if (isset($this->modifierListId)) {
+            $json['modifier_list_id'] = $this->modifierListId;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

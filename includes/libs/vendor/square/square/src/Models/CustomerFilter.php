@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Represents a set of `CustomerQuery` filters used to limit the set of
- * `Customers` returned by `SearchCustomers`.
+ * customers returned by the [SearchCustomers]($e/Customers/SearchCustomers) endpoint.
  */
 class CustomerFilter implements \JsonSerializable
 {
@@ -48,11 +50,10 @@ class CustomerFilter implements \JsonSerializable
     /**
      * Returns Creation Source.
      *
-     * Creation source filter.
+     * The creation source filter.
      *
      * If one or more creation sources are set, customer profiles are included in,
-     * or excluded from, the result if they match at least one of the filter
-     * criteria.
+     * or excluded from, the result if they match at least one of the filter criteria.
      */
     public function getCreationSource(): ?CustomerCreationSourceFilter
     {
@@ -62,11 +63,10 @@ class CustomerFilter implements \JsonSerializable
     /**
      * Sets Creation Source.
      *
-     * Creation source filter.
+     * The creation source filter.
      *
      * If one or more creation sources are set, customer profiles are included in,
-     * or excluded from, the result if they match at least one of the filter
-     * criteria.
+     * or excluded from, the result if they match at least one of the filter criteria.
      *
      * @maps creation_source
      */
@@ -139,8 +139,8 @@ class CustomerFilter implements \JsonSerializable
      * Returns Email Address.
      *
      * A filter to select customers based on exact or fuzzy matching of
-     * customer attributes against a specified query. Depending on customer attributes,
-     * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+     * customer attributes against a specified query. Depending on the customer attributes,
+     * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
      */
     public function getEmailAddress(): ?CustomerTextFilter
     {
@@ -151,8 +151,8 @@ class CustomerFilter implements \JsonSerializable
      * Sets Email Address.
      *
      * A filter to select customers based on exact or fuzzy matching of
-     * customer attributes against a specified query. Depending on customer attributes,
-     * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+     * customer attributes against a specified query. Depending on the customer attributes,
+     * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
      *
      * @maps email_address
      */
@@ -165,8 +165,8 @@ class CustomerFilter implements \JsonSerializable
      * Returns Phone Number.
      *
      * A filter to select customers based on exact or fuzzy matching of
-     * customer attributes against a specified query. Depending on customer attributes,
-     * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+     * customer attributes against a specified query. Depending on the customer attributes,
+     * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
      */
     public function getPhoneNumber(): ?CustomerTextFilter
     {
@@ -177,8 +177,8 @@ class CustomerFilter implements \JsonSerializable
      * Sets Phone Number.
      *
      * A filter to select customers based on exact or fuzzy matching of
-     * customer attributes against a specified query. Depending on customer attributes,
-     * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+     * customer attributes against a specified query. Depending on the customer attributes,
+     * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
      *
      * @maps phone_number
      */
@@ -191,8 +191,8 @@ class CustomerFilter implements \JsonSerializable
      * Returns Reference Id.
      *
      * A filter to select customers based on exact or fuzzy matching of
-     * customer attributes against a specified query. Depending on customer attributes,
-     * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+     * customer attributes against a specified query. Depending on the customer attributes,
+     * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
      */
     public function getReferenceId(): ?CustomerTextFilter
     {
@@ -203,8 +203,8 @@ class CustomerFilter implements \JsonSerializable
      * Sets Reference Id.
      *
      * A filter to select customers based on exact or fuzzy matching of
-     * customer attributes against a specified query. Depending on customer attributes,
-     * the filter can be case sensitive. This filter can be either exact or fuzzy. It cannot be both.
+     * customer attributes against a specified query. Depending on the customer attributes,
+     * the filter can be case-sensitive. This filter can be exact or fuzzy, but it cannot be both.
      *
      * @maps reference_id
      */
@@ -246,21 +246,39 @@ class CustomerFilter implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['creation_source'] = $this->creationSource;
-        $json['created_at']     = $this->createdAt;
-        $json['updated_at']     = $this->updatedAt;
-        $json['email_address']  = $this->emailAddress;
-        $json['phone_number']   = $this->phoneNumber;
-        $json['reference_id']   = $this->referenceId;
-        $json['group_ids']      = $this->groupIds;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->creationSource)) {
+            $json['creation_source'] = $this->creationSource;
+        }
+        if (isset($this->createdAt)) {
+            $json['created_at']      = $this->createdAt;
+        }
+        if (isset($this->updatedAt)) {
+            $json['updated_at']      = $this->updatedAt;
+        }
+        if (isset($this->emailAddress)) {
+            $json['email_address']   = $this->emailAddress;
+        }
+        if (isset($this->phoneNumber)) {
+            $json['phone_number']    = $this->phoneNumber;
+        }
+        if (isset($this->referenceId)) {
+            $json['reference_id']    = $this->referenceId;
+        }
+        if (isset($this->groupIds)) {
+            $json['group_ids']       = $this->groupIds;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the parameters that can be included in the body of
  * a request to the `CreateCheckout` endpoint.
@@ -224,7 +226,9 @@ class CreateCheckoutRequest implements \JsonSerializable
     /**
      * Returns Pre Populate Shipping Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      */
     public function getPrePopulateShippingAddress(): ?Address
     {
@@ -234,7 +238,9 @@ class CreateCheckoutRequest implements \JsonSerializable
     /**
      * Sets Pre Populate Shipping Address.
      *
-     * Represents a physical address.
+     * Represents a postal address in a country.
+     * For more information, see [Working with Addresses](https://developer.squareup.com/docs/build-
+     * basics/working-with-addresses).
      *
      * @maps pre_populate_shipping_address
      */
@@ -247,13 +253,12 @@ class CreateCheckoutRequest implements \JsonSerializable
      * Returns Redirect Url.
      *
      * The URL to redirect to after the checkout is completed with `checkoutId`,
-     * Square's `orderId`, `transactionId`, and `referenceId` appended as URL
-     * parameters. For example, if the provided redirect URL is
-     * `http://www.example.com/order-complete`, a successful transaction redirects
-     * the customer to:
+     * `transactionId`, and `referenceId` appended as URL parameters. For example,
+     * if the provided redirect URL is `http://www.example.com/order-complete`, a
+     * successful transaction redirects the customer to:
      *
-     * <pre><code>http://www.example.com/order-complete?checkoutId=xxxxxx&amp;orderId=xxxxxx&amp;
-     * referenceId=xxxxxx&amp;transactionId=xxxxxx</code></pre>
+     * <pre><code>http://www.example.com/order-complete?checkoutId=xxxxxx&amp;referenceId=xxxxxx&amp;
+     * transactionId=xxxxxx</code></pre>
      *
      * If you do not provide a redirect URL, Square Checkout displays an order
      * confirmation page on your behalf; however, it is strongly recommended that
@@ -271,13 +276,12 @@ class CreateCheckoutRequest implements \JsonSerializable
      * Sets Redirect Url.
      *
      * The URL to redirect to after the checkout is completed with `checkoutId`,
-     * Square's `orderId`, `transactionId`, and `referenceId` appended as URL
-     * parameters. For example, if the provided redirect URL is
-     * `http://www.example.com/order-complete`, a successful transaction redirects
-     * the customer to:
+     * `transactionId`, and `referenceId` appended as URL parameters. For example,
+     * if the provided redirect URL is `http://www.example.com/order-complete`, a
+     * successful transaction redirects the customer to:
      *
-     * <pre><code>http://www.example.com/order-complete?checkoutId=xxxxxx&amp;orderId=xxxxxx&amp;
-     * referenceId=xxxxxx&amp;transactionId=xxxxxx</code></pre>
+     * <pre><code>http://www.example.com/order-complete?checkoutId=xxxxxx&amp;referenceId=xxxxxx&amp;
+     * transactionId=xxxxxx</code></pre>
      *
      * If you do not provide a redirect URL, Square Checkout displays an order
      * confirmation page on your behalf; however, it is strongly recommended that
@@ -366,23 +370,41 @@ class CreateCheckoutRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['idempotency_key']            = $this->idempotencyKey;
-        $json['order']                      = $this->order;
-        $json['ask_for_shipping_address']   = $this->askForShippingAddress;
-        $json['merchant_support_email']     = $this->merchantSupportEmail;
-        $json['pre_populate_buyer_email']   = $this->prePopulateBuyerEmail;
-        $json['pre_populate_shipping_address'] = $this->prePopulateShippingAddress;
-        $json['redirect_url']               = $this->redirectUrl;
-        $json['additional_recipients']      = $this->additionalRecipients;
-        $json['note']                       = $this->note;
-
-        return array_filter($json, function ($val) {
+        $json['idempotency_key']                   = $this->idempotencyKey;
+        $json['order']                             = $this->order;
+        if (isset($this->askForShippingAddress)) {
+            $json['ask_for_shipping_address']      = $this->askForShippingAddress;
+        }
+        if (isset($this->merchantSupportEmail)) {
+            $json['merchant_support_email']        = $this->merchantSupportEmail;
+        }
+        if (isset($this->prePopulateBuyerEmail)) {
+            $json['pre_populate_buyer_email']      = $this->prePopulateBuyerEmail;
+        }
+        if (isset($this->prePopulateShippingAddress)) {
+            $json['pre_populate_shipping_address'] = $this->prePopulateShippingAddress;
+        }
+        if (isset($this->redirectUrl)) {
+            $json['redirect_url']                  = $this->redirectUrl;
+        }
+        if (isset($this->additionalRecipients)) {
+            $json['additional_recipients']         = $this->additionalRecipients;
+        }
+        if (isset($this->note)) {
+            $json['note']                          = $this->note;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

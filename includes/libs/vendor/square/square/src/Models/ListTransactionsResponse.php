@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Defines the fields that are included in the response body of
- * a request to the [ListTransactions](#endpoint-listtransactions) endpoint.
+ * a request to the [ListTransactions]($e/Transactions/ListTransactions) endpoint.
  *
  * One of `errors` or `transactions` is present in a given response (never both).
  */
@@ -86,7 +88,8 @@ class ListTransactionsResponse implements \JsonSerializable
      * if any remain. Provide this value as the `cursor` parameter in a subsequent
      * request to this endpoint.
      *
-     * See [Paginating results](#paginatingresults) for more information.
+     * See [Paginating results](https://developer.squareup.com/docs/working-with-apis/pagination) for more
+     * information.
      */
     public function getCursor(): ?string
     {
@@ -100,7 +103,8 @@ class ListTransactionsResponse implements \JsonSerializable
      * if any remain. Provide this value as the `cursor` parameter in a subsequent
      * request to this endpoint.
      *
-     * See [Paginating results](#paginatingresults) for more information.
+     * See [Paginating results](https://developer.squareup.com/docs/working-with-apis/pagination) for more
+     * information.
      *
      * @maps cursor
      */
@@ -112,17 +116,27 @@ class ListTransactionsResponse implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['errors']       = $this->errors;
-        $json['transactions'] = $this->transactions;
-        $json['cursor']       = $this->cursor;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->errors)) {
+            $json['errors']       = $this->errors;
+        }
+        if (isset($this->transactions)) {
+            $json['transactions'] = $this->transactions;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']       = $this->cursor;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

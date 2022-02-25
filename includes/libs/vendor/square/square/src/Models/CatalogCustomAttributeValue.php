@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * An instance of a custom attribute. Custom attributes can be defined and
  * added to `ITEM` and `ITEM_VARIATION` type catalog objects.
@@ -99,8 +101,8 @@ class CatalogCustomAttributeValue implements \JsonSerializable
     /**
      * Returns Custom Attribute Definition Id.
      *
-     * __Read-only.__ The id of the [CatalogCustomAttributeDefinition](#type-
-     * CatalogCustomAttributeDefinition) this value belongs to.
+     * __Read-only.__ The id of the [CatalogCustomAttributeDefinition]($m/CatalogCustomAttributeDefinition)
+     * this value belongs to.
      */
     public function getCustomAttributeDefinitionId(): ?string
     {
@@ -110,8 +112,8 @@ class CatalogCustomAttributeValue implements \JsonSerializable
     /**
      * Sets Custom Attribute Definition Id.
      *
-     * __Read-only.__ The id of the [CatalogCustomAttributeDefinition](#type-
-     * CatalogCustomAttributeDefinition) this value belongs to.
+     * __Read-only.__ The id of the [CatalogCustomAttributeDefinition]($m/CatalogCustomAttributeDefinition)
+     * this value belongs to.
      *
      * @maps custom_attribute_definition_id
      */
@@ -239,22 +241,42 @@ class CatalogCustomAttributeValue implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['name']                        = $this->name;
-        $json['string_value']                = $this->stringValue;
-        $json['custom_attribute_definition_id'] = $this->customAttributeDefinitionId;
-        $json['type']                        = $this->type;
-        $json['number_value']                = $this->numberValue;
-        $json['boolean_value']               = $this->booleanValue;
-        $json['selection_uid_values']        = $this->selectionUidValues;
-        $json['key']                         = $this->key;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->name)) {
+            $json['name']                           = $this->name;
+        }
+        if (isset($this->stringValue)) {
+            $json['string_value']                   = $this->stringValue;
+        }
+        if (isset($this->customAttributeDefinitionId)) {
+            $json['custom_attribute_definition_id'] = $this->customAttributeDefinitionId;
+        }
+        if (isset($this->type)) {
+            $json['type']                           = $this->type;
+        }
+        if (isset($this->numberValue)) {
+            $json['number_value']                   = $this->numberValue;
+        }
+        if (isset($this->booleanValue)) {
+            $json['boolean_value']                  = $this->booleanValue;
+        }
+        if (isset($this->selectionUidValues)) {
+            $json['selection_uid_values']           = $this->selectionUidValues;
+        }
+        if (isset($this->key)) {
+            $json['key']                            = $this->key;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

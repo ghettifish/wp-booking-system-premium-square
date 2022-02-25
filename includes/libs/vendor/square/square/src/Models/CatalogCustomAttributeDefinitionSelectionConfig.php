@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Configuration associated with `SELECTION`-type custom attribute definitions.
  */
@@ -80,16 +82,24 @@ class CatalogCustomAttributeDefinitionSelectionConfig implements \JsonSerializab
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['max_allowed_selections'] = $this->maxAllowedSelections;
-        $json['allowed_selections']   = $this->allowedSelections;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->maxAllowedSelections)) {
+            $json['max_allowed_selections'] = $this->maxAllowedSelections;
+        }
+        if (isset($this->allowedSelections)) {
+            $json['allowed_selections']     = $this->allowedSelections;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

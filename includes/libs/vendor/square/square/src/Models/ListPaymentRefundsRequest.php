@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Describes a request to list refunds using
- * [ListPaymentRefunds](#endpoint-payments-listpaymentrefunds).
+ * [ListPaymentRefunds]($e/Refunds/ListPaymentRefunds).
  *
  * The maximum results per page is 100.
  */
@@ -186,7 +188,7 @@ class ListPaymentRefundsRequest implements \JsonSerializable
      * Returns Status.
      *
      * If provided, only refunds with the given status are returned.
-     * For a list of refund status values, see [PaymentRefund](#type-paymentrefund).
+     * For a list of refund status values, see [PaymentRefund]($m/PaymentRefund).
      *
      * Default: If omitted, refunds are returned regardless of their status.
      */
@@ -199,7 +201,7 @@ class ListPaymentRefundsRequest implements \JsonSerializable
      * Sets Status.
      *
      * If provided, only refunds with the given status are returned.
-     * For a list of refund status values, see [PaymentRefund](#type-paymentrefund).
+     * For a list of refund status values, see [PaymentRefund]($m/PaymentRefund).
      *
      * Default: If omitted, refunds are returned regardless of their status.
      *
@@ -213,9 +215,10 @@ class ListPaymentRefundsRequest implements \JsonSerializable
     /**
      * Returns Source Type.
      *
-     * If provided, only refunds with the given source type are returned.
-     * - `CARD` - List refunds only for payments where `CARD` was specified as the payment
-     * source.
+     * If provided, only returns refunds whose payments have the indicated source type.
+     * Current values include `CARD`, `BANK_ACCOUNT`, `WALLET`, `CASH`, and `EXTERNAL`.
+     * For information about these payment source types, see
+     * [Take Payments](https://developer.squareup.com/docs/payments-api/take-payments).
      *
      * Default: If omitted, refunds are returned regardless of the source type.
      */
@@ -227,9 +230,10 @@ class ListPaymentRefundsRequest implements \JsonSerializable
     /**
      * Sets Source Type.
      *
-     * If provided, only refunds with the given source type are returned.
-     * - `CARD` - List refunds only for payments where `CARD` was specified as the payment
-     * source.
+     * If provided, only returns refunds whose payments have the indicated source type.
+     * Current values include `CARD`, `BANK_ACCOUNT`, `WALLET`, `CASH`, and `EXTERNAL`.
+     * For information about these payment source types, see
+     * [Take Payments](https://developer.squareup.com/docs/payments-api/take-payments).
      *
      * Default: If omitted, refunds are returned regardless of the source type.
      *
@@ -277,22 +281,42 @@ class ListPaymentRefundsRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['begin_time'] = $this->beginTime;
-        $json['end_time']   = $this->endTime;
-        $json['sort_order'] = $this->sortOrder;
-        $json['cursor']     = $this->cursor;
-        $json['location_id'] = $this->locationId;
-        $json['status']     = $this->status;
-        $json['source_type'] = $this->sourceType;
-        $json['limit']      = $this->limit;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->beginTime)) {
+            $json['begin_time']  = $this->beginTime;
+        }
+        if (isset($this->endTime)) {
+            $json['end_time']    = $this->endTime;
+        }
+        if (isset($this->sortOrder)) {
+            $json['sort_order']  = $this->sortOrder;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']      = $this->cursor;
+        }
+        if (isset($this->locationId)) {
+            $json['location_id'] = $this->locationId;
+        }
+        if (isset($this->status)) {
+            $json['status']      = $this->status;
+        }
+        if (isset($this->sourceType)) {
+            $json['source_type'] = $this->sourceType;
+        }
+        if (isset($this->limit)) {
+            $json['limit']       = $this->limit;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

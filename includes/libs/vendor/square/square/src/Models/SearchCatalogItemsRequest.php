@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
- * Defines the request body for the [SearchCatalogItems](#endpoint-Catalog-SearchCatalogItems)
- * endpoint.
+ * Defines the request body for the [SearchCatalogItems]($e/Catalog/SearchCatalogItems) endpoint.
  */
 class SearchCatalogItemsRequest implements \JsonSerializable
 {
@@ -266,7 +267,7 @@ class SearchCatalogItemsRequest implements \JsonSerializable
      *
      * The customer-attribute filter to return items or item variations matching the specified
      * custom attribute expressions. A maximum number of 10 custom attribute expressions are supported in
-     * a single call to the [SearchCatalogItems](#endpoint-Catalog-SearchCatalogItems) endpoint.
+     * a single call to the [SearchCatalogItems]($e/Catalog/SearchCatalogItems) endpoint.
      *
      * @return CustomAttributeFilter[]|null
      */
@@ -280,7 +281,7 @@ class SearchCatalogItemsRequest implements \JsonSerializable
      *
      * The customer-attribute filter to return items or item variations matching the specified
      * custom attribute expressions. A maximum number of 10 custom attribute expressions are supported in
-     * a single call to the [SearchCatalogItems](#endpoint-Catalog-SearchCatalogItems) endpoint.
+     * a single call to the [SearchCatalogItems]($e/Catalog/SearchCatalogItems) endpoint.
      *
      * @maps custom_attribute_filters
      *
@@ -294,23 +295,45 @@ class SearchCatalogItemsRequest implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['text_filter']            = $this->textFilter;
-        $json['category_ids']           = $this->categoryIds;
-        $json['stock_levels']           = $this->stockLevels;
-        $json['enabled_location_ids']   = $this->enabledLocationIds;
-        $json['cursor']                 = $this->cursor;
-        $json['limit']                  = $this->limit;
-        $json['sort_order']             = $this->sortOrder;
-        $json['product_types']          = $this->productTypes;
-        $json['custom_attribute_filters'] = $this->customAttributeFilters;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->textFilter)) {
+            $json['text_filter']              = $this->textFilter;
+        }
+        if (isset($this->categoryIds)) {
+            $json['category_ids']             = $this->categoryIds;
+        }
+        if (isset($this->stockLevels)) {
+            $json['stock_levels']             = $this->stockLevels;
+        }
+        if (isset($this->enabledLocationIds)) {
+            $json['enabled_location_ids']     = $this->enabledLocationIds;
+        }
+        if (isset($this->cursor)) {
+            $json['cursor']                   = $this->cursor;
+        }
+        if (isset($this->limit)) {
+            $json['limit']                    = $this->limit;
+        }
+        if (isset($this->sortOrder)) {
+            $json['sort_order']               = $this->sortOrder;
+        }
+        if (isset($this->productTypes)) {
+            $json['product_types']            = $this->productTypes;
+        }
+        if (isset($this->customAttributeFilters)) {
+            $json['custom_attribute_filters'] = $this->customAttributeFilters;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }

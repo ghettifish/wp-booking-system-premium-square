@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Square\Models;
 
+use stdClass;
+
 /**
  * Contains query criteria for the search.
  */
@@ -22,8 +24,8 @@ class SearchOrdersQuery implements \JsonSerializable
     /**
      * Returns Filter.
      *
-     * Filtering criteria to use for a SearchOrders request. Multiple filters
-     * will be ANDed together.
+     * Filtering criteria to use for a `SearchOrders` request. Multiple filters
+     * are ANDed together.
      */
     public function getFilter(): ?SearchOrdersFilter
     {
@@ -33,8 +35,8 @@ class SearchOrdersQuery implements \JsonSerializable
     /**
      * Sets Filter.
      *
-     * Filtering criteria to use for a SearchOrders request. Multiple filters
-     * will be ANDed together.
+     * Filtering criteria to use for a `SearchOrders` request. Multiple filters
+     * are ANDed together.
      *
      * @maps filter
      */
@@ -46,7 +48,7 @@ class SearchOrdersQuery implements \JsonSerializable
     /**
      * Returns Sort.
      *
-     * Sorting criteria for a SearchOrders request. Results can only be sorted
+     * Sorting criteria for a `SearchOrders` request. Results can only be sorted
      * by a timestamp field.
      */
     public function getSort(): ?SearchOrdersSort
@@ -57,7 +59,7 @@ class SearchOrdersQuery implements \JsonSerializable
     /**
      * Sets Sort.
      *
-     * Sorting criteria for a SearchOrders request. Results can only be sorted
+     * Sorting criteria for a `SearchOrders` request. Results can only be sorted
      * by a timestamp field.
      *
      * @maps sort
@@ -70,16 +72,24 @@ class SearchOrdersQuery implements \JsonSerializable
     /**
      * Encode this object to JSON
      *
+     * @param bool $asArrayWhenEmpty Whether to serialize this model as an array whenever no fields
+     *        are set. (default: false)
+     *
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(bool $asArrayWhenEmpty = false)
     {
         $json = [];
-        $json['filter'] = $this->filter;
-        $json['sort']   = $this->sort;
-
-        return array_filter($json, function ($val) {
+        if (isset($this->filter)) {
+            $json['filter'] = $this->filter;
+        }
+        if (isset($this->sort)) {
+            $json['sort']   = $this->sort;
+        }
+        $json = array_filter($json, function ($val) {
             return $val !== null;
         });
+
+        return (!$asArrayWhenEmpty && empty($json)) ? new stdClass() : $json;
     }
 }
